@@ -12,7 +12,10 @@ export function Layout(){
                 </div>
                 <nav>
                     <SignedIn>
-                        <Link to="/">Page D'accueil</Link>
+                        <Link to="/">Accueil</Link>
+                        <Link to="/">Faire un audit</Link>
+                        <Link to="/">Qui sommes-nous ?</Link>
+                        <Link to="/">Contacts</Link>
                         <UserButton/>
                     </SignedIn>
 

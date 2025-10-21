@@ -1,7 +1,4 @@
-fastapi
 uvicorn
-pydantic
-sqlalchemy
 databases
 python-jose[cryptography]
 passlib[bcrypt]
@@ -10,6 +7,12 @@ python-decouple
 python-multipart
 click
 pip
-sqlalchemy
-python-dotenv
 psycopg2-binary
+fastapi>=0.115
+pydantic>=2.9
+pydantic-settings>=2.5
+uvicorn[standard]>=0.30
+SQLAlchemy>=2.0
+psycopg[binary]>=3.2
+python-dotenv>=1.0
+httpx>=0.27

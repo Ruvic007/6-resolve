@@ -5,17 +5,11 @@ from pydantic import BaseModel
 from typing import List
 
 
-class Item(BaseModel):
-    name: str
-
-class Items(BaseModel):
-    items: List[Item]
-
-app = FastAPI(debug=True)
+app = FastAPI(title="6ix Resolve API", version="1.0.0",debug=True)
 
 
 origins = [
-    "http://localhost:3000"
+    "http://localhost:3000","http://localhost:5173"
 ]
 
 app.add_middleware(
@@ -28,14 +22,13 @@ app.add_middleware(
 
 memory_db = {"items": []}
 
-@app.get("/items", response_model=Items)
-def get_items():
-    return Items(items=memory_db["items"])
+@app.get("/health")
+def health():
+    return {"status": "ok"}
 
-@app.post("/items", response_model=Item)
-def add_item(item: Item):
-    memory_db["items"].append(item)
-    return item
+@app.get("/")
+def root():
+    return {"name": "6ix-Resolve API", "status": "ok"}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

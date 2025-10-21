@@ -175,7 +175,7 @@ Sortie attendue :
 ### Terminal 1 – Backend
 ```bash
 cd backend
-uvicorn src.main:app --reload --port 8000
+python -m uvicorn main:app --reload --port 8000 --app-dir src
 ```
 
 ### Terminal 2 – Frontend

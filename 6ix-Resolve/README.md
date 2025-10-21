@@ -56,7 +56,7 @@ Créez un fichier `.env` dans le dossier `backend/` :
 ```env
 # --- Base de données Supabase ---
 USER=postgres
-PASSWORD=XnC%3F%2E%26EAjC5dMTR
+PASSWORD=XnC?.&EAjC5dMTR
 HOST=db.osqnqpemdvnnvtacgshp.supabase.co
 PORT=5432
 DBNAME=postgres

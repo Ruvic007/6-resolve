@@ -1,12 +1,21 @@
+<<<<<<< HEAD
+=======
 from sqlalchemy.orm import declarative_base, Session
-from sqlalchemy import Column, String, BigInteger, ForeignKey, create_engine, select
-# from sqlalchemy.pool import NullPool
+from sqlalchemy import Column, Integer, SmallInteger, String, BigInteger, Float, DateTime, Boolean, Text, create_engine, select
 from dotenv import load_dotenv
+>>>>>>> 57b8b402e4e216a720563603875ab8f5e9c0516b
 import os
+from supabase import create_client, Client
+from dotenv import load_dotenv
 
-# Load environment variables from .env
 load_dotenv()
 
+<<<<<<< HEAD
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+=======
 # Fetch variables
 USER = os.getenv("USER")
 PASSWORD = os.getenv("PASSWORD")
@@ -18,35 +27,38 @@ DBNAME = os.getenv("DBNAME")
 DATABASE_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}?sslmode=require"
 
 # Create the SQLAlchemy engine
-
 engine = create_engine(DATABASE_URL)
 
-# If using Transaction Pooler or Session Pooler, we want to ensure we disable SQLAlchemy client side pooling -
-# https://docs.sqlalchemy.org/en/20/core/pooling.html#switching-pool-implementations
-# engine = create_engine(DATABASE_URL, poolclass=NullPool)
 
-# Test the connection
-'''
-try:
-    with engine.connect() as connection:
-        print("Connection successful!")            
-except Exception as e:
-    print(f"Failed to connect: {e}")
-'''
 Base = declarative_base()
 
-class User(Base):
-    __tablename__ = "User"   # EXACT comme dans Supabase
+class Company(Base):
+    __tablename__ = "companies"
     __table_args__ = {"schema": "public"}
 
     id = Column(BigInteger, primary_key=True)
-    email_address = Column(String)
-    password = Column(String)
-    id_company = Column(BigInteger, ForeignKey("public.companies.id"))
+    created_at = Column(DateTime(timezone=True))
+    nom = Column(String)
+    code_postal = Column(Integer)
+    secteur_activite = Column(String)
+    type_batiment = Column(String)
+    annee_construction = Column(SmallInteger)
+    surface_locaux = Column(Float)
+    surface_toit = Column(Float)
+    horaire_ouverture = Column(Text)
+    type_facture = Column(String)
+    utilisation_energie_renouvelable = Column(Boolean)
+    type_energie_renouvelable = Column(String)
+    monitoring_consommation = Column(Boolean)
+    
 
 # Test récupération
 with Session(engine) as session:
-    users = session.execute(select(User)).scalars().all()
-    for u in users:
-        print(u.id, u.email_address, u.password, u.id_company)
-
+    companies = session.execute(select(Company)).scalars().all()
+    for c in companies:
+        print(c.id, c.created_at, c.nom, 
+              c.code_postal, c.secteur_activite, c.type_batiment, 
+              c.annee_construction, c.surface_locaux, c.surface_toit, 
+              c.horaire_ouverture, c.type_facture, c.utilisation_energie_renouvelable, 
+              c.type_energie_renouvelable, c.monitoring_consommation)
+>>>>>>> 57b8b402e4e216a720563603875ab8f5e9c0516b

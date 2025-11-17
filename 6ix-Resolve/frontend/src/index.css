@@ -1,26 +1,35 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* === RESET ET BASE === */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
+html, body {
+  height: 100%;
+  font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  scroll-behavior: smooth;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
 }
 
 button {
   font-family: inherit;
+  border: none;
   cursor: pointer;
-  transition: all 0.2s;
 }
 
-button:focus,
-button:focus-visible {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 2px;
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+input, select, textarea {
+  font-family: inherit;
 }

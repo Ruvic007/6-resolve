@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request
-from backend.src.database.db import supabase
+from src.database.db import supabase
 
 
 

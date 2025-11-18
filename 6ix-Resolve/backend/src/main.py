@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes.app import router as questionnaire_router
+from src.routes.app import router as questionnaire_router
 
 
 app = FastAPI()

@@ -1,21 +1,19 @@
-<<<<<<< HEAD
-=======
 from sqlalchemy.orm import declarative_base, Session
 from sqlalchemy import Column, Integer, SmallInteger, String, BigInteger, Float, DateTime, Boolean, Text, create_engine, select
 from dotenv import load_dotenv
->>>>>>> 57b8b402e4e216a720563603875ab8f5e9c0516b
+
 import os
 from supabase import create_client, Client
 from dotenv import load_dotenv
 
 load_dotenv()
 
-<<<<<<< HEAD
+
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-=======
+
 # Fetch variables
 USER = os.getenv("USER")
 PASSWORD = os.getenv("PASSWORD")
@@ -61,4 +59,4 @@ with Session(engine) as session:
               c.annee_construction, c.surface_locaux, c.surface_toit, 
               c.horaire_ouverture, c.type_facture, c.utilisation_energie_renouvelable, 
               c.type_energie_renouvelable, c.monitoring_consommation)
->>>>>>> 57b8b402e4e216a720563603875ab8f5e9c0516b
+

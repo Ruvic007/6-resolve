@@ -400,3 +400,41 @@ body::before {
   background: rgba(255, 255, 255, 0.6); /* blanc semi-transparent */
   z-index: -1; /* derrière tout le contenu */
 }
+
+/* === STEP SUMMARY === */
+.summary-step {
+  text-align: left;
+}
+
+.summary-intro {
+  margin-bottom: 1.5rem;
+  color: #374151;
+  font-size: 0.95rem;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem 1rem;
+  background-color: #f9fafb;
+  border-radius: 10px;
+  padding: 1.2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-key {
+  color: #1a56cb;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.summary-value {
+  font-size: 0.9rem;
+  color: #1f2937;
+}

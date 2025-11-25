@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Questionnaire Énergétique</title>
+</head>
+<body>
+  <h1>Questionnaire Énergétique</h1>
+
+  <form id="questionnaire">
+    <h2>Informations sur l'entreprise</h2>
+
+    <label>Nom de l'entreprise :</label><br>
+    <input type="text" name="nom" required><br><br>
+
+    <label>Code postal :</label><br>
+    <input type="text" name="code_postal" required><br><br>
+
+    <label>Secteur d'activité :</label><br>
+    <select name="secteur_activite" required>
+      <option value="">-- Sélectionner --</option>
+      <option value="commerce_alimentaire">commerce alimentaire</option>
+      <option value="commerce_non_alimentaire">commerce non alimentaire</option>
+      <option value="Bureaux">Bureaux</option>
+      <option value="Hotellerie_hébergement_touristique">Hôtellerie et hébergement touristique</option>
+      <option value="Restauration_debit_de_boisson">Restauration et débit de boissons</option>
+      <option value="Santé">Santé</option>
+      <option value="Logistique_transport">Logistique et transports</option>
+      <option value="Imprimerie_blanchisserie">Imprimerie et blanchisserie</option>
+
+    <label>Type de bâtiment :</label><br>
+    <select name="type_batiment" required>
+      <option value="">-- Sélectionner --</option>
+      <option value="bureau">Bureau</option>
+      <option value="commerce">Commerce</option>
+      <option value="industriel">Industriel</option>
+      <option value="autre">Autre</option>
+    </select><br><br>
+
+    <label>Année de construction :</label><br>
+    <input type="number" name="annee_construction" min="1800" max="2025"><br><br>
+
+    <label>Surface des locaux (m²) :</label><br>
+    <input type="number" name="surface_locaux" step="0.1"><br><br>
+
+    <label>Surface du toit (m²) :</label><br>
+    <input type="number" name="surface_toit" step="0.1"><br><br>
+
+    <label>Horaires d'ouverture :</label><br>
+    <input type="text" name="horaire_ouverture"><br><br>
+
+    <label>Type de facture énergétique :</label><br>
+    <select name="type_facture">
+      <option value="">-- Sélectionner --</option>
+      <option value="electricite">Électricité</option>
+      <option value="gaz">Gaz</option>
+      <option value="mixte">Mixte</option>
+      <option value="autre">Autre</option>
+    </select><br><br>
+
+    <label>Utilisation d'énergie renouvelable :</label><br>
+    <select name="utilisation_energie_renouvelable">
+      <option value="true">Oui</option>
+      <option value="false">Non</option>
+    </select><br><br>
+
+    <label>Type d'énergie renouvelable (si oui) :</label><br>
+    <input type="text" name="type_energie_renouvelable" placeholder="Solaire, géothermie..."><br><br>
+
+    <label>Monitoring de consommation (suivi énergétique automatisé) :</label><br>
+    <select name="monitoring_consommation">
+      <option value="true">Oui</option>
+      <option value="false">Non</option>
+    </select><br><br>
+
+    <h2>Caractéristiques énergétiques</h2>
+
+    <label>Type de chauffage :</label><br>
+    <select name="type_chauffage">
+      <option value="">-- Sélectionner --</option>
+      <option value="pompe_a_chaleur">Pompe à chaleur</option>
+      <option value="gaz">Gaz</option>
+      <option value="fuel">Fioul</option>
+      <option value="electrique">Électrique</option>
+      <option value="autre">Autre</option>
+    </select><br><br>
+
+    <label>Type d'éclairage :</label><br>
+    <select name="type_eclairage">
+      <option value="">-- Sélectionner --</option>
+      <option value="LED">LED</option>
+      <option value="halogene">Halogène</option>
+      <option value="fluorescent">Fluorescent</option>
+      <option value="autre">Autre</option>
+    </select><br><br>
+
+    <label>Niveau d'isolation :</label><br>
+    <select name="niveau_isolation">
+      <option value="">-- Sélectionner --</option>
+      <option value="faible">Faible</option>
+      <option value="moyen">Moyen</option>
+      <option value="bon">Bon</option>
+      <option value="excellent">Excellent</option>
+    </select><br><br>
+
+    <label>Type de ventilation :</label><br>
+    <select name="ventilation">
+      <option value="">-- Sélectionner --</option>
+      <option value="naturelle">Naturelle</option>
+      <option value="VMC_simple_flux">VMC simple flux</option>
+      <option value="VMC_double_flux">VMC double flux</option>
+    </select><br><br>
+
+    <label>Autres informations énergétiques :</label><br>
+    <textarea name="autres" rows="3" cols="40" placeholder="Autres remarques..."></textarea><br><br>
+
+    <h2>Données de consommation</h2>
+
+    <label>Année de référence :</label><br>
+    <input type="number" name="annee" min="2000" max="2025"><br><br>
+
+    <label>Consommation électricité (kWh) :</label><br>
+    <input type="number" name="conso_electricite_kwh" step="0.01"><br><br>
+
+    <label>Consommation gaz (kWh) :</label><br>
+    <input type="number" name="conso_gaz_kwh" step="0.01"><br><br>
+
+    <label>Coût total de l'énergie (€) :</label><br>
+    <input type="number" name="cout_energie_euros" step="0.01"><br><br>
+
+    <label>Émissions de CO₂ (kg) :</label><br>
+    <input type="number" name="emission_co2_kg" step="0.01"><br><br>
+
+    <button type="submit">Envoyer</button>
+  </form>
+
+  <script src="form.js"></script>
+</body>
+</html>

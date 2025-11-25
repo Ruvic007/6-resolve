@@ -217,7 +217,7 @@ export function Contacts() {
               <Link to="/audit" className="btn btn-primary">
                  Démarrer un audit
               </Link>
-              <Link to="/qui-sommes-nous" className="btn btn-secondary">
+              <Link to="/about" className="btn btn-secondary">
                 Découvrir notre expertise
               </Link>
             </div>

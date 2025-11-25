@@ -1,23 +1,25 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-export function QuiSommesNous() {
+export function About() {
   return (
     <div className="page-container">
       <div className="content-wrapper">
         <header className="page-header">
           <h1>Qui Sommes-Nous ?</h1>
           <p className="page-subtitle">Votre partenaire pour la transition énergétique</p>
+           <p className="page-subtitle">
+            Découvrez l'équipe derrière EcoPulse et notre mission pour une énergie plus responsable
+          </p>
         </header>
 
         <section className="mission-section">
           <div className="section-content">
             <h2>Notre Mission</h2>
             <p>
-              Nous sommes une entreprise engagée dans la transition énergétique, 
-              convaincue que chaque organisation peut contribuer à un avenir plus durable.
-              Notre mission est d'accompagner les entreprises dans l'optimisation de leur 
-              consommation énergétique et la réduction de leur empreinte carbone.
+                Chez EcoPulse, nous croyons en un avenir énergétique plus durable et accessible 
+                à toutes les entreprises. Notre mission est d'accompagner les organisations dans 
+                leur transition énergétique grâce à des solutions innovantes et personnalisées.
             </p>
           </div>
         </section>
@@ -89,10 +91,9 @@ export function QuiSommesNous() {
 
         <section className="cta-section">
           <div className="section-content">
-            <h2>Prêt à optimiser votre énergie ?</h2>
+            <h2>Prêt à rejoindre l'aventure ?</h2>
             <p>
-              Rejoignez les entreprises qui ont déjà fait le choix d'une 
-              consommation énergétique plus responsable et économique.
+               Découvrez comment nous pouvons vous accompagner dans votre transition énergétique.
             </p>
             <div className="cta-buttons">
               <Link to="/contact" className="btn btn-primary">

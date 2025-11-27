@@ -227,6 +227,17 @@ Accédez ensuite à : [http://localhost:5173](http://localhost:5173)
 
 ---
 
+## Documentation MkDOcs
+
+# Installation  
+
+- Dans la racine du projet : pip install mkdocs mkdocs-material
+
+# Lancement  
+
+- Dans la racine du projet : mkdocs serve
+- Création d'un serveur en local sur http://127.0.0.1:8000
+
 ## ✨ Auteur
 
 **Equipe 419**  

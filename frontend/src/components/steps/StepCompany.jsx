@@ -1,11 +1,16 @@
-import React from "react";
+import React, {useEffect} from "react";
 import { useForm } from "react-hook-form";
 
-export default function StepCompany({ onNext }) {
-  const { register, handleSubmit } = useForm();
+export default function StepCompany({ onNext, defaultValues }) {
+  const { register, handleSubmit, reset } = useForm({
+    defaultValues: defaultValues,
+  });
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues, reset]);
 
   const onSubmit = (data) => {
-    console.log("Entreprise :", data);
     onNext(data);
   };
 

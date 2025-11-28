@@ -6,6 +6,7 @@ import { AuthenticationPage } from "./pages/AuthenticationPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { Contacts } from "./pages/Contacts"; 
 import { About } from "./pages/About"; 
+import { Dashboard } from "./pages/Dashboard"; // Import du Dashboard
 
 export default function App() {
   return (
@@ -25,9 +26,27 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-        {/* AJOUTEZ CES DEUX ROUTES */}
+        {/* Routes publiques */}
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contacts />} />
+        
+        {/* ROUTES DASHBOARD AJOUTÉES */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/:companyId"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
       </Route>
     </Routes>
   );

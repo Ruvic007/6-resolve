@@ -1,11 +1,14 @@
-import React from "react";
+import React, {useEffect} from "react";
 import { useForm } from "react-hook-form";
 
-export default function StepEnergy({ onNext, onBack }) {
-  const { register, handleSubmit } = useForm();
+export default function StepEnergy({ onNext, onBack, defaultValues }) {
+  const { register, handleSubmit, reset } = useForm({ defaultValues });
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues, reset]);
 
   const onSubmit = (data) => {
-    console.log("Énergie :", data);
     onNext(data);
   };
 

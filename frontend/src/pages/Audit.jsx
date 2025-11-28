@@ -10,16 +10,16 @@ export default function Audit() {
   const [formData, setFormData] = useState({});
 
   const nextStep = (data) => {
-    setFormData({ ...formData, ...data });
-    setStep(step + 1);
+    setFormData((prev) => ({ ...prev, ...data }));
+    setStep((prev) => (prev + 1));
   };
 
-  const prevStep = () => setStep(step - 1);
+  const prevStep = () => setStep((prev) => (prev - 1));
 
   const steps = [
-    <StepCompany onNext={nextStep} key="1" />,
-    <StepEnergy onNext={nextStep} onBack={prevStep} key="2" />,
-    <StepEquipment onNext={nextStep} onBack={prevStep} key="3" />,
+    <StepCompany onNext={nextStep} defaultValues={formData} key="1" />,
+    <StepEnergy onNext={nextStep} onBack={prevStep} defaultValues={formData} key="2" />,
+    <StepEquipment onNext={nextStep} onBack={prevStep} defaultValues={formData} key="3" />,
     <StepSummary data={formData} onBack={prevStep} key="4" />,
   ];
 

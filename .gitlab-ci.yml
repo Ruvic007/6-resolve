@@ -1,39 +1,21 @@
 pylint:
   stage: test
   image: python:latest
-
   before_script:
-  
-    # Dossiers pour artifacts
     - mkdir -p public/badges public/lint
     - echo undefined > public/badges/$CI_JOB_NAME.score
-    
-    # Installation des outils + dépendances courantes pour Pylint (uvicorn, fastapi, etc.)
-    - pip3 install anybadge pylint uvicorn fastapi pydantic python-jose passlib PyJWT python-decouple python-multipart click psycopg2-binary SQLAlchemy httpx
-    
-    # Script de scoring ESIEA
+    - pip3 install anybadge pylint
+    - pip3 install -r backend/requirements.txt
     - git clone https://gitlab.esiea.fr/gauthier.heiss/python-file-scorer.git /opt/python-file-scorer
-    
-    # bc pour les calculs du score
     - apt update
-    - apt install -y bc
-
+    - apt install bc -y
   script:
-    # Pylint via score.sh + log
     - /opt/python-file-scorer/score.sh | tee public/lint/lint.txt
-    # Score dans fichier dédié
     - tail -n 1 public/lint/lint.txt > public/badges/$CI_JOB_NAME.score
-
   after_script:
-    # Badge avec couleurs
-    - anybadge --overwrite \
-        --label $CI_JOB_NAME \
-        --value=$(cat public/badges/$CI_JOB_NAME.score) \
-        --file=public/badges/pylint.svg \
-        4=red 6=orange 8=yellow 10=green
-    - echo "Your score is: $(cat public/badges/$CI_JOB_NAME.score)"
-
+    - anybadge --overwrite --label $CI_JOB_NAME --value=$(cat public/badges/$CI_JOB_NAME.score) --file=pylint.svg 4=red 6=orange 8=yellow 10=green
   artifacts:
     paths:
       - public
+      - pylint.svg
     when: always

@@ -3,31 +3,19 @@ pylint:
   image: python:latest
 
   before_script:
-    # Dossiers pour les artifacts (score + log + badge)
     - mkdir -p public/badges public/lint
     - echo undefined > public/badges/$CI_JOB_NAME.score
-
-    # Outils pour le badge et l'analyse
     - pip3 install anybadge pylint
-
-    # Installation des dépendances backend (fichier que tu as montré)
-    - pip3 install -r backend/requirements.txt
-
-    # Script de scoring fourni par l'école
+    - pip3 install -r backend/requirements.txt      # <<< LIGNE MANQUANTE DANS TON LOG
     - git clone https://gitlab.esiea.fr/gauthier.heiss/python-file-scorer.git /opt/python-file-scorer
-
-    # bc pour les calculs dans score.sh
     - apt update
     - apt install -y bc
 
   script:
-    # Lance pylint via score.sh et enregistre le log
     - /opt/python-file-scorer/score.sh | tee public/lint/lint.txt
-    # Récupère uniquement la dernière ligne (score numérique)
     - tail -n 1 public/lint/lint.txt > public/badges/$CI_JOB_NAME.score
 
   after_script:
-    # Génère le badge dans public/badges/
     - anybadge --overwrite \
         --label $CI_JOB_NAME \
         --value=$(cat public/badges/$CI_JOB_NAME.score) \

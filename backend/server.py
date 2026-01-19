@@ -1,5 +1,6 @@
 """
-Module de serveur pour l'application 6ixResolve.
+Lanceur du serveur pour l'application 6ixResolve.
+Ce script démarre l'application FastAPI située dans le dossier src.
 """
 import uvicorn
 

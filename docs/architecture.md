@@ -1,16 +1,17 @@
 ## Structure du projet
 
 ```
-6ix-Resolve/
+6ixResolve/
 │
 ├── backend/
 │   ├── src/
 │   │   ├── database/       # Connexion et modèles SQLAlchemy
 │   │   ├── routes/         # Routes API (auth, onboarding, etc.)
-│   │   ├── main.py         # Point d’entrée FastAPI
-│   │   └── test_connection.py
+│   │   ├── services/       # Solar simulation
+│   │   └── main.py         # Point d’entrée FastAPI
 │   ├── .env
-│   └── requirements.txt
+│   ├── requirements.txt
+│   └── server.py
 │
 └── frontend/
     ├── src/

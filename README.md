@@ -238,6 +238,19 @@ Accédez ensuite à : [http://localhost:5173](http://localhost:5173)
 - Dans la racine du projet : mkdocs serve
 - Création d'un serveur en local sur http://127.0.0.1:8000
 
+
+## Dashboard
+
+# Installation  
+
+- Dans le dossier frontend du projet : npm install chart.js react-chartjs-2
+- chart.js et react-chartjs-2 doivent être présents dans les dependencies du fichier package.json
+
+# Lancement  
+
+- Sur le site web aller sur http://localhost:5173/dashboard
+
+
 ## ✨ Auteur
 
 **Equipe 419**  

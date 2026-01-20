@@ -23,3 +23,10 @@
     ├── package.json
     └── vite.config.js
 ```
+</br>
+
+## Schéma d'architecture :
+
+</br>
+
+![Schéma d'architecture](Schéma_architecture.png)

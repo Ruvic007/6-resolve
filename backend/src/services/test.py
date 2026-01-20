@@ -1,4 +1,5 @@
 import pandas as pd
+
 categories_a_garder = [
             # Commerce - Grande Surface Alimentaire
             'Commerce - Grande Surface Alimentaire - Petit supermarché (surface de vente comprise entre 400 m² et 1 000 m²)',
@@ -52,10 +53,21 @@ categories_a_garder = [
             #Sport
             'Sports'
         ]
-df= pd.read_csv("consommation_tertiaire_activite.csv")
-df["conso_m2"]=df["consommation_declaree"]/df["surface_declaree"]
-df_filtered = df[df["categorie_activite"].isin(categories_a_garder)].copy()
-df_res=df_filtered[["sous_categorie_activite","conso_m2"]]
-moyenne_conso_m2_secteur = dict(zip(df_filtered["sous_categorie_activite"], df_filtered["conso_m2"]))
-print(len(df_filtered["sous_categorie_activite"]),len(moyenne_conso_m2_secteur))
+df = pd.read_csv("consommation_tertiaire_activite.csv")
 
+df["conso_m2"] = df["consommation_declaree"] / df["surface_declaree"]
+
+# Normalisation (optionnel mais conseillé)
+df["categorie_activite"] = df["categorie_activite"].str.strip().str.lower()
+categories_a_garder = [c.lower() for c in categories_a_garder]
+
+# Filtrage
+df_filtered = df[df["categorie_activite"].isin(categories_a_garder)].copy()
+
+# Groupby → moyenne par sous-catégorie
+df_grouped = df_filtered.groupby("sous_categorie_activite")["conso_m2"].mean().round(2)
+
+# Conversion en dictionnaire
+moyenne_conso_m2_secteur = df_grouped.to_dict()
+
+print(moyenne_conso_m2_secteur)

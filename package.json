@@ -1,0 +1,15 @@
+{
+  "name": "6ixResolve",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "backend": "cd backend && pip install -r requirements.txt && uvicorn src.main:app --reload --port 8000",
+    "backend:dev": "cd backend && uvicorn src.main:app --reload --port 8000",
+    "frontend": "cd frontend && npm run dev",
+    "install": "cd backend && pip install -r requirements.txt && cd ../frontend && npm install",
+    "build": "cd frontend && npm run build"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

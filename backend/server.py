@@ -1,6 +1,5 @@
-"""
-Module de serveur pour l'application 6ixResolve.
-"""
+"""Server module."""
+
 import uvicorn
 
 if __name__ == "__main__":

@@ -344,3 +344,6 @@ async def get_simulations_entreprise(company_id: int):
         }
     except Exception as e:
         return {"status": "error", "message": f"Erreur lors de la récupération: {str(e)}"}
+@router.get("/")
+async def root():
+    return {"message": "API OK"}

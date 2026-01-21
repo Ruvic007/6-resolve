@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Request
 from src.database.db import supabase
 from src.services.solar_simulation import SolarSimulation
+from src.services.benchmark import moyenne_conso_m2_secteur
 from typing import Dict, Any
 
 router = APIRouter()
@@ -56,7 +57,24 @@ async def recevoir_questionnaire(request: Request):
 
         except Exception as e:
             return {"status": "error", "message": f"Erreur base de données: {str(e)}"}
+        secteur = company_data.get("secteur_activite")
+        surface_m2 = float(company_data.get("surface_locaux"))
 
+# Conso RÉELLE normalisée en kWh/m²
+        conso_reelle_m2 = float(data.get("conso_electricite_kwh")) / surface_m2
+
+# Benchmark secteur en kWh/m² (moyenne du CSV)
+        benchmark_secteur = moyenne_conso_m2_secteur.get(secteur, 150.0)
+
+# Pourcentage = (réelle / benchmark) * 100
+        benchmark_pourcentage = round((conso_reelle_m2 / benchmark_secteur) * 100)
+
+        audit_reports_data = {
+            "id": company_id,  # Pas "id" !
+            "benchmark": benchmark_pourcentage  # 85.3% par ex.
+        }
+
+        supabase.table("AuditReports").insert(audit_reports_data).execute()
         # --- 3. Simulation PV via le Service SolarSimulation ---
         simulation_results = {}
         surface_toit = company_data.get("surface_toit")

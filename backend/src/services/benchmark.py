@@ -70,5 +70,7 @@ df_res = df_res[df_res['count'] >= 3]
 
 moyenne_conso_m2_secteur = df_res['mean'].to_dict()
 print(len(df_filtered),len(moyenne_conso_m2_secteur))
-print("Exemple:", dict(list(moyenne_conso_m2_secteur.items())[:5]))
+
+
+
 

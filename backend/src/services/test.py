@@ -71,3 +71,4 @@ df_grouped = df_filtered.groupby("sous_categorie_activite")["conso_m2"].mean().r
 moyenne_conso_m2_secteur = df_grouped.to_dict()
 
 print(moyenne_conso_m2_secteur)
+

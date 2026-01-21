@@ -1,14 +1,23 @@
 import React from "react";
-import {SignedIn, SignedOut, SignInButton, UserButton} from "@clerk/clerk-react";
-import { Outlet, Link } from "react-router-dom";
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react";
+import { Outlet, Link, useNavigate } from "react-router-dom";
 import "../App.css";
+import { useApp } from "../components/AppContext.jsx";
+import { NavLink } from "react-router-dom";
 
 export function Layout() {
+  const { hasCompletedForm } = useApp();
+  const navigate = useNavigate();
+
   return (
     <div className="app-layout">
       <header className="app-header">
         <div className="header-content">
-          <div className="logo">
+          <div
+            className="logo"
+            onClick={() => navigate("/")}
+            style={{ cursor: "pointer" }}
+          >
             <img
               src="https://img.icons8.com/3d-fluency/94/greentech.png"
               alt="EcoPulse logo"
@@ -19,10 +28,20 @@ export function Layout() {
           </div>
 
           <nav className="navbar">
-            <Link to="/">Accueil</Link>
-            <Link to="/audit">Faire un audit</Link>
-            <Link to="/about">Qui sommes-nous ?</Link>
-            <Link to="/contact">Contacts</Link>
+            {!hasCompletedForm ? (
+              <>
+                <NavLink to="/" className={({ isActive }) => isActive ? "active-link" : ""}>Accueil</NavLink>
+                <NavLink to="/audit" className={({ isActive }) => isActive ? "active-link" : ""}>Faire un audit</NavLink>
+                <NavLink to="/about" className={({ isActive }) => isActive ? "active-link" : ""}>Qui sommes-nous ?</NavLink>
+                <NavLink to="/contact" className={({ isActive }) => isActive ? "active-link" : ""}>Contacts</NavLink>
+              </>
+            ) : (
+              <>
+                <Link to="/dashboard">Dashboard</Link>
+                <Link to="/profile">Profil</Link>
+              </>
+            )}
+
             <SignedOut>
               <SignInButton mode="modal">
                 <button className="btn-login">Se connecter</button>
@@ -40,7 +59,6 @@ export function Layout() {
         <Outlet />
       </main>
 
-        {/* FOOTER */}
       <footer className="footer">
         © 2025 EcoPulse – Développé par l’équipe 6ix-Resolve 🌱
       </footer>

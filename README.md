@@ -143,34 +143,7 @@ Sortie attendue :
 
 ---
 
-## 🧱 4. Structure du projet
-
-```
-6ix-Resolve/
-│
-├── backend/
-│   ├── src/
-│   │   ├── database/       # Connexion et modèles SQLAlchemy
-│   │   ├── routes/         # Routes API (auth, onboarding, etc.)
-│   │   ├── main.py         # Point d’entrée FastAPI
-│   │   └── test_connection.py
-│   ├── .env
-│   └── requirements.txt
-│
-└── frontend/
-    ├── src/
-    │   ├── components/     # Composants React
-    │   ├── pages/          # Pages principales
-    │   ├── auth/           # Gestion Clerk
-    │   └── layout/         # Structure / layout
-    ├── .env
-    ├── package.json
-    └── vite.config.js
-```
-
----
-
-## ▶️ 5. Démarrer l’application complète
+## ▶️ 4. Démarrer l’application complète
 
 ### Terminal 1 – Backend
 ```bash
@@ -226,27 +199,44 @@ Accédez ensuite à : [http://localhost:5173](http://localhost:5173)
 | ❌ `connection refused : 5432` | Port bloqué | Vérifier le pare-feu ou le proxy |
 
 ---
+<br/>
 
-## Documentation MkDOcs
 
-# Installation  
+# Démarrage du projet
+
+## Installation
+
+- Dans la racine du projet : 
+    - npm install
+    - npm run install (optionnel, uniquement si la premère commande ne suffit pas)
+
+## Lancement
+
+- Dans la racine du projet : npm run dev
+
+<br/>
+
+# Documentation MkDOcs
+
+## Installation  
 
 - Dans la racine du projet : pip install mkdocs mkdocs-material
 
-# Lancement  
+## Lancement  
 
 - Dans la racine du projet : mkdocs serve
 - Création d'un serveur en local sur http://127.0.0.1:8000
 
+<br/>
 
-## Dashboard
+# Dashboard
 
-# Installation  
+## Installation  
 
 - Dans le dossier frontend du projet : npm install chart.js react-chartjs-2
 - chart.js et react-chartjs-2 doivent être présents dans les dependencies du fichier package.json
 
-# Lancement  
+## Lancement  
 
 - Sur le site web aller sur http://localhost:5173/dashboard
 

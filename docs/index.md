@@ -9,3 +9,4 @@ Bienvenue dans la documentation du projet **6ix-Resolve**.
     - [API](backend/api.md)
     - [Base de données](backend/database.md)
 - [Frontend](frontend.md)
+- [Tests](tests.md)

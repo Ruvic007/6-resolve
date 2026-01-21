@@ -16,7 +16,7 @@ async def recevoir_questionnaire(request: Request):
         company_data = {
             "nom": data.get("nom"),
             "code_postal": data.get("code_postal"),
-            "secteur_activite": data.get("secteur_activite"),
+            "secteur_activite": data.get("sous_categorie"),
             "type_batiment": data.get("type_batiment"),
             "annee_construction": data.get("annee_construction"),
             "surface_locaux": data.get("surface_locaux"),
@@ -57,7 +57,7 @@ async def recevoir_questionnaire(request: Request):
 
         except Exception as e:
             return {"status": "error", "message": f"Erreur base de données: {str(e)}"}
-        secteur = company_data.get("secteur_activite")
+        secteur = company_data.get("sous_categorie")
         surface_m2 = float(company_data.get("surface_locaux"))
 
 # Conso RÉELLE normalisée en kWh/m²

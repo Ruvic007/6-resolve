@@ -69,8 +69,8 @@ df_res = df_filtered.groupby("categorie_activite")["conso_m2"].agg(['mean', 'cou
 df_res = df_res[df_res['count'] >= 3]  
 
 moyenne_conso_m2_secteur = df_res['mean'].to_dict()
-print(len(df_filtered),len(moyenne_conso_m2_secteur))
-
+#print(df_filtered[df_filtered["meta_categorie_activite"]=="Bureaux"]["sous_categorie_activite"].unique())
+print(len(moyenne_conso_m2_secteur.keys()))
 
 
 

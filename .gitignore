@@ -26,6 +26,11 @@ dist-ssr
 # Python
 __pycache__
 
+# Variables d'environnement (contiennent des secrets)
+.env
+backend/.env
+frontend/.env
+
 # Fichiers temporaires Claude Code
 tmpclaude-*-cwd
 frontend/tmpclaude-*-cwd

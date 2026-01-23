@@ -344,6 +344,87 @@ async def get_simulations_entreprise(company_id: int):
         }
     except Exception as e:
         return {"status": "error", "message": f"Erreur lors de la récupération: {str(e)}"}
+@router.get("/dashboard/{company_id}")
+async def get_dashboard_data(company_id: int):
+    """Récupère toutes les données nécessaires pour le dashboard"""
+    try:
+        # Récupérer les informations de l'entreprise
+        company_response = supabase.table("companies").select("*").eq("id", company_id).execute()
+        if not company_response.data:
+            return {"status": "error", "message": "Entreprise non trouvée"}
+
+        company = company_response.data[0]
+
+        # Récupérer les données énergétiques
+        energy_response = supabase.table("energytypes").select("*").eq("company_id", company_id).execute()
+        energy_data = energy_response.data[0] if energy_response.data else {}
+
+        # Récupérer la consommation
+        usage_response = supabase.table("energyusage").select("*").eq("company_id", company_id).execute()
+        usage_data = usage_response.data[0] if usage_response.data else {}
+
+        # Récupérer les simulations PV
+        sim_response = supabase.table("simulations_pv").select("*").eq("company_id", company_id).execute()
+        simulation_data = sim_response.data[0] if sim_response.data else {}
+
+        # Calculer les métriques
+        conso_elec = float(usage_data.get("conso_electricite_kwh", 0) or 0)
+        conso_gaz = float(usage_data.get("conso_gaz_kwh", 0) or 0)
+        cout_total = float(usage_data.get("cout_energie_euros", 0) or 0)
+        co2_emissions = float(usage_data.get("emission_co2_kg", 0) or 0)
+
+        # Calcul énergie renouvelable (%)
+        energie_renouvelable_pct = 0
+        if simulation_data and conso_elec > 0:
+            production_pv = float(simulation_data.get("production_annuelle_estimee_kwh", 0) or 0)
+            energie_renouvelable_pct = round((production_pv / conso_elec) * 100, 1)
+
+        # Préparer les données pour le dashboard
+        dashboard_data = {
+            "company_name": company.get("nom", "Entreprise"),
+            "metrics": {
+                "coutTotal": round(cout_total, 2),
+                "consommationTotale": round(conso_elec + conso_gaz, 2),
+                "impactCarbone": round(co2_emissions / 1000, 2),  # Conversion kg -> tonnes
+                "energieRenouvelable": energie_renouvelable_pct
+            },
+            "consommationParUsages": {
+                "labels": ["Électricité", "Gaz", "Autres"],
+                "data": {
+                    "electricite": conso_elec,
+                    "gaz": conso_gaz,
+                    "autres": 0
+                }
+            },
+            "repartitionCouts": {
+                "electricite": round((conso_elec / (conso_elec + conso_gaz) * 100) if (conso_elec + conso_gaz) > 0 else 50, 1),
+                "gaz": round((conso_gaz / (conso_elec + conso_gaz) * 100) if (conso_elec + conso_gaz) > 0 else 50, 1)
+            },
+            "detailsBatiment": [
+                {"label": "Nom", "value": company.get("nom", "—")},
+                {"label": "Surface locaux", "value": f"{company.get('surface_locaux', '—')} m²"},
+                {"label": "Surface toit", "value": f"{company.get('surface_toit', '—')} m²"},
+                {"label": "Type bâtiment", "value": company.get("type_batiment", "—")},
+                {"label": "Année construction", "value": str(company.get("annee_construction", "—"))},
+                {"label": "Secteur", "value": company.get("secteur_activite", "—")}
+            ],
+            "simulationPV": {
+                "puissance_kw": simulation_data.get("puissance_installee_kw", 0),
+                "production_kwh": simulation_data.get("production_annuelle_estimee_kwh", 0),
+                "economies_annuelles": simulation_data.get("economies_annuelles_estimees", 0),
+                "reduction_co2_kg": simulation_data.get("reduction_co2_annuelle_kg", 0),
+                "roi_annees": simulation_data.get("roi_annees", 0)
+            } if simulation_data else None
+        }
+
+        return {
+            "status": "success",
+            "data": dashboard_data
+        }
+
+    except Exception as e:
+        return {"status": "error", "message": f"Erreur lors de la récupération des données: {str(e)}"}
+
 @router.get("/")
 async def root():
     return {"message": "API OK"}

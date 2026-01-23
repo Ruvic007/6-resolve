@@ -41,15 +41,15 @@ export default function StepCompany({ onNext, defaultValues }) {
       </div>
 
       <div className="field-group">
-        <input {...register("annee_construction")} type="number" placeholder="Année de construction" />
+        <input {...register("annee_construction")} type="number" placeholder="Année de construction" min="1800" max="2025" />
       </div>
 
       <div className="field-group">
-        <input {...register("surface_locaux")} type="number" placeholder="Surface des locaux (m²)" step="0.1" />
+        <input {...register("surface_locaux")} type="number" placeholder="Surface des locaux (m²)" step="0.1" min="0" />
       </div>
 
       <div className="field-group">
-        <input {...register("surface_toit")} type="number" placeholder="Surface du toit (m²)" step="0.1" />
+        <input {...register("surface_toit")} type="number" placeholder="Surface du toit (m²)" step="0.1" min="0" />
       </div>
 
       <div className="field-group">

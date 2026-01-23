@@ -28,19 +28,13 @@ export function Layout() {
           </div>
 
           <nav className="navbar">
-            {!hasCompletedForm ? (
-              <>
-                <NavLink to="/" className={({ isActive }) => isActive ? "active-link" : ""}>Accueil</NavLink>
-                <NavLink to="/audit" className={({ isActive }) => isActive ? "active-link" : ""}>Faire un audit</NavLink>
-                <NavLink to="/about" className={({ isActive }) => isActive ? "active-link" : ""}>Qui sommes-nous ?</NavLink>
-                <NavLink to="/contact" className={({ isActive }) => isActive ? "active-link" : ""}>Contacts</NavLink>
-              </>
-            ) : (
-              <>
-                <Link to="/dashboard">Dashboard</Link>
-                <Link to="/profile">Profil</Link>
-              </>
+            <NavLink to="/" className={({ isActive }) => isActive ? "active-link" : ""}>Accueil</NavLink>
+            <NavLink to="/audit" className={({ isActive }) => isActive ? "active-link" : ""}>Faire un audit</NavLink>
+            {hasCompletedForm && (
+              <NavLink to="/dashboard" className={({ isActive }) => isActive ? "active-link" : ""}>Dashboard</NavLink>
             )}
+            <NavLink to="/about" className={({ isActive }) => isActive ? "active-link" : ""}>Qui sommes-nous ?</NavLink>
+            <NavLink to="/contact" className={({ isActive }) => isActive ? "active-link" : ""}>Contacts</NavLink>
 
             <SignedOut>
               <SignInButton mode="modal">

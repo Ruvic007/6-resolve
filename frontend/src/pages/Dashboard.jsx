@@ -11,7 +11,7 @@ import {
   Legend,
 } from "chart.js";
 import { Bar, Doughnut } from "react-chartjs-2";
-import "../App.css";
+import "../Dashboard.css";
 
 // Enregistrer les composants Chart.js
 ChartJS.register(
@@ -109,8 +109,12 @@ export function Dashboard() {
           throw new Error(`Erreur ${response.status}: ${response.statusText}`);
         }
 
-        const data = await response.json();
-        setDashboardData(data);
+        const result = await response.json();
+        if (result.status === "success" && result.data) {
+          setDashboardData(result.data);
+        } else {
+          throw new Error(result.message || "Données invalides");
+        }
         
       } catch (err) {
         console.error("Erreur API:", err);
@@ -131,11 +135,11 @@ export function Dashboard() {
     datasets: [
       {
         label: "Consommation (kWh)",
-        data: dashboardData?.consommationParUsages?.data 
+        data: dashboardData?.consommationParUsages?.data
           ? [
-              dashboardData.consommationParUsages.data.chauffage || 0,
-              dashboardData.consommationParUsages.data.eclairage || 0,
-              dashboardData.consommationParUsages.data.climatisation || 0,
+              dashboardData.consommationParUsages.data.electricite || 0,
+              dashboardData.consommationParUsages.data.gaz || 0,
+              dashboardData.consommationParUsages.data.autres || 0,
             ]
           : [650, 250, 56],
         backgroundColor: ["#10b981", "#fbbf24", "#6b7280"],
@@ -266,51 +270,21 @@ export function Dashboard() {
   const finalData = dashboardData || DEMO_DATA;
 
   return (
-    <div className="dashboard-container">
-      {/* Sidebar */}
-      <aside className="dashboard-sidebar">
-        <div 
-          className="sidebar-icon active" 
-          onClick={() => handleNavigation("/dashboard")}
-          title="Dashboard"
-        >
-          🏠
-        </div>
-        <div 
-          className="sidebar-icon" 
-          onClick={() => handleNavigation("/audit")}
-          title="Audit"
-        >
-          📋
-        </div>
-        <div 
-          className="sidebar-icon" 
-          onClick={() => handleNavigation("/settings")}
-          title="Paramètres"
-        >
-          ⚙️
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <div className="dashboard-main">
-        {/* Header */}
-        <header className="dashboard-header">
-          <div className="header-left">
-            <span className="header-logo">🌱</span>
-            <h1 className="header-title">ECO-DASH</h1>
-            <h2 className="header-subtitle">
-              Synthèse Énergétique: {currentCompanyId ? `Company ${currentCompanyId}` : 'Junior'}
-            </h2>
+    <div className="dashboard-wrapper">
+      {/* Header Dashboard */}
+      <div className="dashboard-header-simple">
+        <h1 className="dashboard-title">
+          📊 Dashboard Énergétique - {finalData.company_name || currentCompanyId ? `Entreprise ${currentCompanyId}` : 'Données de démonstration'}
+        </h1>
+        {error && !dashboardData && (
+          <div className="dashboard-warning">
+            ⚠️ Utilisation des données de démonstration
           </div>
-          <div className="header-right">
-            <button className="header-icon-btn" title="Notifications">🔔</button>
-            <button className="header-icon-btn" title="Profil">👤</button>
-          </div>
-        </header>
+        )}
+      </div>
 
-        {/* Content */}
-        <div className="dashboard-content">
+      {/* Content */}
+      <div className="dashboard-content-clean">
           {/* Métriques */}
           <div className="metrics-grid">
             <div className="metric-card">

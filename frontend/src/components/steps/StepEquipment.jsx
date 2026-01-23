@@ -21,19 +21,19 @@ export default function StepEquipment({ onNext, onBack, defaultValues }) {
       </div>
 
       <div className="field-group">
-        <input {...register("conso_electricite_kwh")} type="number" placeholder="Consommation électricité (kWh)" step="0.01" />
+        <input {...register("conso_electricite_kwh")} type="number" placeholder="Consommation électricité (kWh)" step="0.01" min="0" />
       </div>
 
       <div className="field-group">
-        <input {...register("conso_gaz_kwh")} type="number" placeholder="Consommation gaz (kWh)" step="0.01" />
+        <input {...register("conso_gaz_kwh")} type="number" placeholder="Consommation gaz (kWh)" step="0.01" min="0" />
       </div>
 
       <div className="field-group">
-        <input {...register("cout_energie_euros")} type="number" placeholder="Coût total de l'énergie (€)" step="0.01" />
+        <input {...register("cout_energie_euros")} type="number" placeholder="Coût total de l'énergie (€)" step="0.01" min="0" />
       </div>
 
       <div className="field-group">
-        <input {...register("emission_co2_kg")} type="number" placeholder="Émissions de CO₂ (kg)" step="0.01" />
+        <input {...register("emission_co2_kg")} type="number" placeholder="Émissions de CO₂ (kg)" step="0.01" min="0" />
       </div>
 
       <div className="actions">

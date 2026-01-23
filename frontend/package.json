@@ -4,11 +4,6 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "backend:install": "cd ../backend && pip install -r requirements.txt",
-    "backend:dev": "cd ../backend && uvicorn src.main:app --reload",
-    "frontend:dev": "npm run dev",
-    "dev:all": "npm-run-all --parallel backend:dev frontend:dev",
-    "setup": "npm-run-all backend:install dev:all",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",

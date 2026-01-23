@@ -4,6 +4,9 @@ import { useForm } from "react-hook-form";
 export default function StepEquipment({ onNext, onBack, defaultValues }) {
   const { register, handleSubmit, reset } = useForm({ defaultValues });
 
+  // Récupération dynamique de l'année en cours
+  const currentYear = new Date().getFullYear();
+
   useEffect(() => {
     reset(defaultValues);
   }, [defaultValues, reset]);
@@ -17,22 +20,56 @@ export default function StepEquipment({ onNext, onBack, defaultValues }) {
       <h2>Données de consommation</h2>
 
       <div className="field-group">
-        <input {...register("annee")} type="number" placeholder="Année de référence" min="2000" max="2025" />
+        <input 
+          {...register("annee")} 
+          type="number" 
+          placeholder="Année de référence" 
+          min="1960" 
+          max={currentYear} 
+        />
       </div>
 
       <div className="field-group">
+        <input 
+          {...register("conso_electricite_kwh")} 
+          type="number" 
+          placeholder="Consommation électricité (kWh)" 
+          step="0.01" 
+          min="0" 
+        />
         <input {...register("conso_electricite_kwh")} type="number" placeholder="Consommation électricité (kWh)" step="0.01" min="0" />
       </div>
 
       <div className="field-group">
+        <input 
+          {...register("conso_gaz_kwh")} 
+          type="number" 
+          placeholder="Consommation gaz (kWh)" 
+          step="0.01" 
+          min="0" 
+        />
         <input {...register("conso_gaz_kwh")} type="number" placeholder="Consommation gaz (kWh)" step="0.01" min="0" />
       </div>
 
       <div className="field-group">
+        <input 
+          {...register("cout_energie_euros")} 
+          type="number" 
+          placeholder="Coût total de l'énergie (€)" 
+          step="0.01" 
+          min="0" 
+        />
         <input {...register("cout_energie_euros")} type="number" placeholder="Coût total de l'énergie (€)" step="0.01" min="0" />
       </div>
 
       <div className="field-group">
+        <input 
+          {...register("emission_co2_kg")} 
+          type="number" 
+          placeholder="Émissions de CO₂ (kg)" 
+          step="0.01" 
+          min="0" 
+        />
         <input {...register("emission_co2_kg")} type="number" placeholder="Émissions de CO₂ (kg)" step="0.01" min="0" />
       </div>
 
@@ -42,4 +79,4 @@ export default function StepEquipment({ onNext, onBack, defaultValues }) {
       </div>
     </form>
   );
-}
+}44

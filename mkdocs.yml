@@ -9,3 +9,4 @@ nav:
       - API: backend/api.md
       - Base de données: backend/database.md
   - Frontend: frontend.md
+  - Tests: tests.md

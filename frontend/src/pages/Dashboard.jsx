@@ -1,90 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  ArcElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
 import { Bar, Doughnut } from "react-chartjs-2";
 import "../Dashboard.css";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend } from "chart.js";
 
-// Enregistrer les composants Chart.js
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  ArcElement,
-  Title,
-  Tooltip,
-  Legend
-);
+import { useDashboardData } from "../hooks/useDashboardData";
+import { getBarConfig, getDonutConfig } from "../utils/chartConfigs";
+import { MetricCard, ActionItem, SidebarIcon } from "../components/DashboardWidgets";
+import "../App.css";
 
-// Données de démonstration
-const DEMO_DATA = {
-  metrics: {
-    coutTotal: 787,
-    consommationTotale: 956,
-    impactCarbone: 11,
-    energieRenouvelable: 0,
-  },
-  consommationParUsages: {
-    labels: ["Chauffage", "Éclairage", "Climatisation"],
-    data: {
-      chauffage: 650,
-      eclairage: 250,
-      climatisation: 56,
-    },
-  },
-  repartitionCouts: {
-    electricite: 70,
-    gaz: 30,
-  },
-  detailsBatiment: [
-    { label: "Bâtiment name", value: "" },
-    { label: "Aux liets", value: "22 m²" },
-    { label: "Bâtiment", value: "70 m²" },
-    { label: "Condition", value: "Brosis Canside" },
-  ],
-  actionsPrioritaires: [
-    {
-      id: 1,
-      titre: "Isolation comble",
-      statut: "Complet",
-      couleur: "green",
-      icon: "💡",
-    },
-    {
-      id: 2,
-      titre: "Isolation corrátle",
-      statut: "En cours",
-      couleur: "orange",
-      icon: "💡",
-    },
-    {
-      id: 3,
-      titre: "Conversion mantiaire",
-      statut: "Planifié",
-      couleur: "red",
-      icon: "⭐",
-    },
-    {
-      id: 4,
-      titre: "Ponlectivite glonitaire",
-      statut: "Terminé",
-      couleur: "green",
-      icon: "⭐",
-    },
-  ],
-};
+// Enregistrement ChartJS
+ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
 export function Dashboard() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { companyId } = useParams();
   
   const [dashboardData, setDashboardData] = useState(null);
@@ -294,6 +223,15 @@ export function Dashboard() {
   }
 
   const finalData = dashboardData || DEMO_DATA;
+  const { state } = useLocation();
+  const currentId = companyId || state?.companyId;
+
+  const { data, loading, error } = useDashboardData(currentId);
+
+  if (loading) return <div className="dashboard-loading"><div className="loading-spinner" /></div>;
+
+  const barConfig = getBarConfig(data);
+  const donutConfig = getDonutConfig(data);
 
   return (
     <div className="dashboard-wrapper">
@@ -308,65 +246,36 @@ export function Dashboard() {
           </div>
         )}
       </div>
+    <div className="dashboard-container">
+      <aside className="dashboard-sidebar">
+        <SidebarIcon icon="🏠" title="Dashboard" active onClick={() => navigate("/dashboard")} />
+        <SidebarIcon icon="📋" title="Audit" onClick={() => navigate("/audit")} />
+        <SidebarIcon icon="⚙️" title="Paramètres" onClick={() => navigate("/settings")} />
+      </aside>
+
+      <div className="dashboard-main">
+        <header className="dashboard-header">
+          <div className="header-left">
+            <span className="header-logo">🌱</span>
+            <h1 className="header-title">EcoPulse-Dashboard</h1>
+            <h2 className="header-subtitle">ID: {currentId || 'Latest'}</h2>
+          </div>
+        </header>
 
       {/* Content */}
       <div className="dashboard-content-clean">
           {/* Métriques */}
+        <div className="dashboard-content">
           <div className="metrics-grid">
-            <div className="metric-card">
-              <div className="metric-icon blue">💰</div>
-              <div className="metric-info">
-                <div className="metric-label">Coût Total Annuel</div>
-                <div className="metric-value">
-                  {finalData.metrics.coutTotal} €
-                </div>
-              </div>
-            </div>
-
-            <div className="metric-card">
-              <div className="metric-icon yellow">⚡</div>
-              <div className="metric-info">
-                <div className="metric-label">Consommation Totale</div>
-                <div className="metric-value">
-                  {finalData.metrics.consommationTotale} kWh
-                </div>
-              </div>
-            </div>
-
-            <div className="metric-card">
-              <div className="metric-icon grey">☁️</div>
-              <div className="metric-info">
-                <div className="metric-label">Impact Carbone</div>
-                <div className="metric-value">
-                  {finalData.metrics.impactCarbone} tCO₂e
-                </div>
-              </div>
-            </div>
-
-            <div className="metric-card">
-              <div className="metric-icon green">🌿</div>
-              <div className="metric-info">
-                <div className="metric-label">Énergie Renouvelable</div>
-                <div className="metric-value">
-                  {finalData.metrics.energieRenouvelable} %
-                </div>
-              </div>
-            </div>
+            <MetricCard icon="💰" label="Coût Annuel" value={`${data.metrics.coutTotal} €`} colorClass="blue" />
+            <MetricCard icon="⚡" label="Consommation" value={`${data.metrics.consommationTotale} kWh`} colorClass="yellow" />
+            <MetricCard icon="☁️" label="Carbone" value={`${data.metrics.impactCarbone} tCO₂e`} colorClass="grey" />
+            <MetricCard icon="🌿" label="Renouvelable" value={`${data.metrics.energieRenouvelable} %`} colorClass="green" />
           </div>
 
-          {/* Graphiques */}
           <div className="charts-grid">
-            <div className="chart-card">
-              <div className="chart-container">
-                <Bar data={barChartData} options={barChartOptions} />
-              </div>
-            </div>
-
-            <div className="chart-card">
-              <div className="chart-container">
-                <Doughnut data={donutChartData} options={donutChartOptions} />
-              </div>
-            </div>
+            <div className="chart-card"><Bar {...barConfig} /></div>
+            <div className="chart-card"><Doughnut {...donutConfig} /></div>
           </div>
 
           {/* Détails et Simulation PV */}
@@ -381,8 +290,13 @@ export function Dashboard() {
                   </div>
                 ))}
               </div>
+              <h3 className="card-title">Bâtiment</h3>
+              {data.detailsBatiment.map((d, i) => (
+                <div key={i} className="details-row">
+                  <span>{d.label}</span><b>{d.value || "—"}</b>
+                </div>
+              ))}
             </div>
-
             <div className="actions-card">
               <h3 className="card-title">Simulation Panneaux Solaires</h3>
               {finalData.simulationPV ? (
@@ -413,6 +327,11 @@ export function Dashboard() {
               )}
             </div>
           </div>
+              <h3 className="card-title">Actions</h3>
+              {data.actionsPrioritaires.map(a => <ActionItem key={a.id} action={a} />)}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

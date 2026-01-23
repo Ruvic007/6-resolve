@@ -1,4 +1,6 @@
+from pathlib import Path
 import pandas as pd
+import numpy as np
 categories_a_garder = [
             # Commerce - Grande Surface Alimentaire
             'Commerce - Grande Surface Alimentaire - Petit supermarché (surface de vente comprise entre 400 m² et 1 000 m²)',
@@ -52,10 +54,23 @@ categories_a_garder = [
             #Sport
             'Sports'
         ]
-df= pd.read_csv("consommation_tertiaire_activite.csv")
-df["conso_m2"]=df["consommation_declaree"]/df["surface_declaree"]
+
+CSV_PATH = Path(__file__).parent / "consommation_tertiaire_activite.csv"
+df= pd.read_csv(CSV_PATH)
+df["conso_m2"] = np.where(
+    df["surface_declaree"] > 0, 
+    df["consommation_declaree"] / df["surface_declaree"], 
+    0
+)
+
 df_filtered = df[df["categorie_activite"].isin(categories_a_garder)].copy()
-df_res=df_filtered[["sous_categorie_activite","conso_m2"]]
-moyenne_conso_m2_secteur = dict(zip(df_filtered["sous_categorie_activite"], df_filtered["conso_m2"]))
-print(len(df_filtered["sous_categorie_activite"]),len(moyenne_conso_m2_secteur))
+
+df_res = df_filtered.groupby("categorie_activite")["conso_m2"].agg(['mean', 'count'])
+df_res = df_res[df_res['count'] >= 3]  
+
+moyenne_conso_m2_secteur = df_res['mean'].to_dict()
+#print(df_filtered[df_filtered["meta_categorie_activite"]=="Bureaux"]["sous_categorie_activite"].unique())
+print(len(moyenne_conso_m2_secteur.keys()))
+
+
 

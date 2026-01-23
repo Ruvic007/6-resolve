@@ -96,13 +96,20 @@ export function Dashboard() {
 
   useEffect(() => {
     const fetchDashboardData = async () => {
+      // Si pas de company_id, ne pas faire d'appel API
+      if (!currentCompanyId) {
+        setLoading(false);
+        setError("no_company");
+        return;
+      }
+
       try {
         setLoading(true);
         setError(null);
-        
+
         const apiUrl = import.meta.env?.VITE_API_BASE_URL || "http://localhost:8000";
         const response = await fetch(
-          `${apiUrl}/api/dashboard/${currentCompanyId || "latest"}`
+          `${apiUrl}/api/dashboard/${currentCompanyId}`
         );
 
         if (!response.ok) {
@@ -174,7 +181,7 @@ export function Dashboard() {
       },
       y: {
         beginAtZero: true,
-        max: 1200,
+        max: 5000,
         ticks: {
           callback: function(value) {
             return value + ' kWh';
@@ -240,7 +247,7 @@ export function Dashboard() {
 
   if (loading) {
     return (
-      <div className="dashboard-container">
+      <div className="dashboard-wrapper">
         <div className="dashboard-loading">
           <div className="loading-spinner"></div>
           <p>Chargement des données du dashboard...</p>
@@ -249,14 +256,33 @@ export function Dashboard() {
     );
   }
 
+  // Cas spécial: pas de company_id fourni
+  if (error === "no_company") {
+    return (
+      <div className="dashboard-wrapper">
+        <div className="dashboard-error">
+          <div className="error-icon">📋</div>
+          <h3>Aucun audit sélectionné</h3>
+          <p>Vous devez d'abord compléter un audit énergétique pour voir votre dashboard.</p>
+          <button
+            className="retry-btn"
+            onClick={() => navigate("/audit")}
+          >
+            Commencer un audit
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (error && !dashboardData) {
     return (
-      <div className="dashboard-container">
+      <div className="dashboard-wrapper">
         <div className="dashboard-error">
           <div className="error-icon">⚠️</div>
           <h3>Erreur de chargement</h3>
           <p>{error}</p>
-          <button 
+          <button
             className="retry-btn"
             onClick={() => window.location.reload()}
           >
@@ -274,7 +300,7 @@ export function Dashboard() {
       {/* Header Dashboard */}
       <div className="dashboard-header-simple">
         <h1 className="dashboard-title">
-          📊 Dashboard Énergétique - {finalData.company_name || currentCompanyId ? `Entreprise ${currentCompanyId}` : 'Données de démonstration'}
+          📊 Dashboard Énergétique - {finalData.company_name || (currentCompanyId ? `Entreprise ${currentCompanyId}` : 'Données de démonstration')}
         </h1>
         {error && !dashboardData && (
           <div className="dashboard-warning">
@@ -343,12 +369,12 @@ export function Dashboard() {
             </div>
           </div>
 
-          {/* Détails et Actions */}
+          {/* Détails et Simulation PV */}
           <div className="details-actions-grid">
             <div className="details-card">
               <h3 className="card-title">Détails du Bâtiment</h3>
               <div className="details-table">
-                {finalData.detailsBatiment.map((item, index) => (
+                {(finalData.detailsBatiment || []).map((item, index) => (
                   <div key={index} className="details-row">
                     <span className="details-label">{item.label}</span>
                     <span className="details-value">{item.value || "—"}</span>
@@ -358,24 +384,35 @@ export function Dashboard() {
             </div>
 
             <div className="actions-card">
-              <h3 className="card-title">Actions Prioritaires</h3>
-              <div className="actions-list">
-                {finalData.actionsPrioritaires.map((action) => (
-                  <div key={action.id} className="action-item">
-                    <span className="action-icon">{action.icon}</span>
-                    <div className="action-content">
-                      <div className="action-titre">{action.titre}</div>
-                      <div className={`action-statut ${action.couleur}`}>
-                        {action.statut}
-                      </div>
-                    </div>
-                    <span className="action-arrow">▼</span>
+              <h3 className="card-title">Simulation Panneaux Solaires</h3>
+              {finalData.simulationPV ? (
+                <div className="details-table">
+                  <div className="details-row">
+                    <span className="details-label">Puissance installée</span>
+                    <span className="details-value">{finalData.simulationPV.puissance_kw || 0} kW</span>
                   </div>
-                ))}
-              </div>
+                  <div className="details-row">
+                    <span className="details-label">Production annuelle</span>
+                    <span className="details-value">{finalData.simulationPV.production_kwh || 0} kWh</span>
+                  </div>
+                  <div className="details-row">
+                    <span className="details-label">Économies annuelles</span>
+                    <span className="details-value">{finalData.simulationPV.economies_annuelles || 0} €</span>
+                  </div>
+                  <div className="details-row">
+                    <span className="details-label">Réduction CO2</span>
+                    <span className="details-value">{finalData.simulationPV.reduction_co2_kg || 0} kg/an</span>
+                  </div>
+                  <div className="details-row">
+                    <span className="details-label">Retour sur investissement</span>
+                    <span className="details-value">{finalData.simulationPV.roi_annees || "—"} ans</span>
+                  </div>
+                </div>
+              ) : (
+                <p className="no-data">Aucune simulation disponible</p>
+              )}
             </div>
           </div>
-        </div>
       </div>
     </div>
   );

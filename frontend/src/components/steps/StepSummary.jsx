@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useApp } from "../AppContext";
 
 export default function StepSummary({ data, onBack }) {
   const navigate = useNavigate();
+  const { user } = useUser();
+  const { completeForm } = useApp();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // ✅ Vérification avant envoi (ex : valeurs négatives interdites)
@@ -28,10 +32,19 @@ export default function StepSummary({ data, onBack }) {
 
     setIsSubmitting(true);
     try {
-      const response = await fetch("http://localhost:8000/api/questionnaire", {
+      // Utiliser la variable d'environnement pour l'URL de l'API
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+
+      // Ajouter l'ID utilisateur Clerk aux données
+      const dataWithUser = {
+        ...data,
+        user_id: user?.id || null
+      };
+
+      const response = await fetch(`${apiUrl}/api/questionnaire`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(dataWithUser),
       });
 
       const result = await response.json();
@@ -40,8 +53,14 @@ export default function StepSummary({ data, onBack }) {
         toast.success("✅ Données envoyées avec succès !");
         console.log(result);
 
+        // Récupérer le company_id de la réponse
+        const companyId = result.company_id;
+
+        // Marquer le formulaire comme complété et stocker l'ID dans le contexte
+        completeForm(companyId);
+
         // ⏳ petit délai pour afficher le toast avant redirection
-        setTimeout(() => navigate("/dashboard"), 1500);
+        setTimeout(() => navigate(`/dashboard/${companyId}`), 1500);
       } else {
         toast.error("❌ Erreur : " + (result.message || "Échec d’envoi"));
         console.error(result);

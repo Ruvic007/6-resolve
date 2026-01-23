@@ -118,7 +118,8 @@ async def recevoir_questionnaire(request: Request):
             "type_facture": data.get("type_facture"),
             "utilisation_energie_renouvelable": data.get("utilisation_energie_renouvelable"),
             "type_energie_renouvelable": data.get("type_energie_renouvelable"),
-            "monitoring_consommation": data.get("monitoring_consommation")
+            "monitoring_consommation": data.get("monitoring_consommation"),
+            "user_id": data.get("user_id")  # ID utilisateur Clerk
         }
 
         energy_data = {
@@ -424,6 +425,36 @@ async def get_dashboard_data(company_id: int):
 
     except Exception as e:
         return {"status": "error", "message": f"Erreur lors de la récupération des données: {str(e)}"}
+
+@router.get("/companies")
+async def get_all_companies(user_id: str = None):
+    """Récupère la liste des entreprises/audits, filtré par user_id si fourni"""
+    try:
+        # Construire la requête de base
+        query = supabase.table("companies").select("*")
+
+        # Filtrer par user_id si fourni
+        if user_id:
+            query = query.eq("user_id", user_id)
+
+        # Trier par date de création (plus récent en premier)
+        response = query.order("created_at", desc=True).execute()
+
+        if not response.data:
+            return {
+                "status": "success",
+                "data": [],
+                "message": "Aucun audit trouvé" if user_id else "Aucune entreprise trouvée"
+            }
+
+        return {
+            "status": "success",
+            "data": response.data,
+            "count": len(response.data)
+        }
+
+    except Exception as e:
+        return {"status": "error", "message": f"Erreur lors de la récupération des entreprises: {str(e)}"}
 
 @router.get("/")
 async def root():

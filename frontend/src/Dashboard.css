@@ -291,6 +291,13 @@
   color: #9ca3af;
 }
 
+.no-data {
+  color: #6b7280;
+  font-style: italic;
+  text-align: center;
+  padding: 2rem;
+}
+
 /* === RESPONSIVE === */
 @media (max-width: 768px) {
   .dashboard-wrapper {

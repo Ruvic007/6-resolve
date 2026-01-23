@@ -1,13 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react";
-import { Outlet, Link, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, NavLink } from "react-router-dom";
 import "../App.css";
 import { useApp } from "../components/AppContext.jsx";
-import { NavLink } from "react-router-dom";
 
 export function Layout() {
-  const { hasCompletedForm } = useApp();
+  const { hasCompletedForm, lastCompanyId } = useApp();
   const navigate = useNavigate();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   return (
     <div className="app-layout">
@@ -28,11 +28,44 @@ export function Layout() {
           </div>
 
           <nav className="navbar">
-            <NavLink to="/" className={({ isActive }) => isActive ? "active-link" : ""}>Accueil</NavLink>
-            <NavLink to="/audit" className={({ isActive }) => isActive ? "active-link" : ""}>Faire un audit</NavLink>
-            {hasCompletedForm && (
-              <NavLink to="/dashboard" className={({ isActive }) => isActive ? "active-link" : ""}>Dashboard</NavLink>
-            )}
+            {/* Accueil - toujours vers la page d'accueil */}
+            <NavLink
+              to="/"
+              className={({ isActive }) => isActive ? "active-link" : ""}
+            >
+              Accueil
+            </NavLink>
+
+            {/* Dropdown pour les audits - toujours visible avec toutes les options */}
+            <div
+              className="nav-dropdown"
+              onMouseEnter={() => setIsDropdownOpen(true)}
+              onMouseLeave={() => setIsDropdownOpen(false)}
+            >
+              <button className="nav-dropdown-trigger">
+                Audit <span className="dropdown-arrow">▼</span>
+              </button>
+
+              {isDropdownOpen && (
+                <div className="nav-dropdown-menu">
+                  <NavLink
+                    to="/audit"
+                    className="dropdown-item"
+                    onClick={() => setIsDropdownOpen(false)}
+                  >
+                    📝 Faire un audit
+                  </NavLink>
+                  <NavLink
+                    to="/historique"
+                    className="dropdown-item"
+                    onClick={() => setIsDropdownOpen(false)}
+                  >
+                    📜 Historique des audits
+                  </NavLink>
+                </div>
+              )}
+            </div>
+
             <NavLink to="/about" className={({ isActive }) => isActive ? "active-link" : ""}>Qui sommes-nous ?</NavLink>
             <NavLink to="/contact" className={({ isActive }) => isActive ? "active-link" : ""}>Contacts</NavLink>
 

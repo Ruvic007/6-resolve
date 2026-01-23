@@ -4,9 +4,10 @@ import HomePage from "./pages/HomePage.jsx";
 import Audit from "./pages/Audit";
 import { AuthenticationPage } from "./pages/AuthenticationPage";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { Contacts } from "./pages/Contacts"; 
-import { About } from "./pages/About"; 
-import { Dashboard } from "./pages/Dashboard"; // Import du Dashboard
+import { Contacts } from "./pages/Contacts";
+import { About } from "./pages/About";
+import { Dashboard } from "./pages/Dashboard";
+import { Historique } from "./pages/Historique";
 
 export default function App() {
   return (
@@ -44,6 +45,16 @@ export default function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ROUTE HISTORIQUE */}
+        <Route
+          path="/historique"
+          element={
+            <ProtectedRoute>
+              <Historique />
             </ProtectedRoute>
           }
         />

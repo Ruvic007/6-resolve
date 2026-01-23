@@ -5,6 +5,21 @@ import { BrowserRouter } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import StepSummary from '../StepSummary';
 
+// Mock Clerk useUser hook
+vi.mock('@clerk/clerk-react', () => ({
+  useUser: () => ({
+    user: { id: 'test-user-123' }
+  })
+}));
+
+// Mock AppContext useApp hook
+const mockCompleteForm = vi.fn();
+vi.mock('../../AppContext', () => ({
+  useApp: () => ({
+    completeForm: mockCompleteForm
+  })
+}));
+
 // Mock toast
 vi.mock('react-toastify', () => ({
   toast: {
@@ -50,6 +65,7 @@ describe('StepSummary', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockCompleteForm.mockClear();
   });
 
   it('affiche toutes les données du formulaire', () => {

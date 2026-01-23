@@ -1727,3 +1727,240 @@ body::before {
   font-weight: bold;
   border-bottom: 2px solid #efb009;
 }
+
+/* ===== NAV DROPDOWN ===== */
+.nav-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.nav-dropdown-trigger {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.nav-dropdown-trigger:hover {
+  color: var(--primary-color);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.nav-dropdown-trigger.has-audit {
+  color: #10b981;
+}
+
+.dropdown-arrow {
+  font-size: 0.7rem;
+  transition: transform 0.3s ease;
+}
+
+.nav-dropdown:hover .dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+.nav-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 180px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--border-color);
+  padding: 0.5rem 0;
+  z-index: 100;
+  animation: dropdownFadeIn 0.2s ease;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  display: block;
+  padding: 0.75rem 1rem;
+  color: var(--text-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--primary-color);
+}
+
+/* Responsive dropdown */
+@media (max-width: 768px) {
+  .nav-dropdown-menu {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 300px;
+  }
+}
+
+/* ===== HISTORIQUE PAGE ===== */
+.historique-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: calc(100vh - 80px);
+}
+
+.historique-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: linear-gradient(to bottom, rgba(236, 253, 245, 0.95), rgba(255, 255, 255, 0.95));
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.historique-header h1 {
+  font-size: 2rem;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.historique-header p {
+  color: var(--text-light);
+  font-size: 1rem;
+}
+
+.historique-loading,
+.historique-error,
+.historique-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.historique-error .error-icon,
+.historique-empty .empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.historique-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.audit-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.audit-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.audit-card-header {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.audit-card-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.audit-badge {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+}
+
+.audit-card-body {
+  padding: 1.25rem;
+}
+
+.audit-info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.audit-info-row:last-child {
+  border-bottom: none;
+}
+
+.audit-label {
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
+.audit-value {
+  font-weight: 500;
+  color: var(--text-color);
+  font-size: 0.9rem;
+}
+
+.audit-card-footer {
+  padding: 1rem 1.25rem;
+  background: #f9fafb;
+  border-top: 1px solid #f3f4f6;
+}
+
+.audit-card-footer .btn {
+  width: 100%;
+}
+
+.historique-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+  .historique-container {
+    padding: 1rem;
+  }
+
+  .historique-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .historique-header h1 {
+    font-size: 1.5rem;
+  }
+}

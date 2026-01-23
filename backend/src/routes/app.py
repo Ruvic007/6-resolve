@@ -266,5 +266,3 @@ async def get_all_companies(user_id: str = None):
 @router.get("/")
 async def root():
     return {"message": "API OK"}
-
-        return {"status": "error", "message": str(e)}

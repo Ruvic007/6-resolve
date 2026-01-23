@@ -15,55 +15,10 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tool
 export function Dashboard() {
   const navigate = useNavigate();
   const { companyId } = useParams();
+  const { state } = useLocation();
   
-  const [dashboardData, setDashboardData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  // Récupérer l'ID de la company depuis les paramètres ou la location state
-  const currentCompanyId = companyId || location.state?.companyId;
-
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      // Si pas de company_id, ne pas faire d'appel API
-      if (!currentCompanyId) {
-        setLoading(false);
-        setError("no_company");
-        return;
-      }
-
-      try {
-        setLoading(true);
-        setError(null);
-
-        const apiUrl = import.meta.env?.VITE_API_BASE_URL || "http://localhost:8000";
-        const response = await fetch(
-          `${apiUrl}/api/dashboard/${currentCompanyId}`
-        );
-
-        if (!response.ok) {
-          throw new Error(`Erreur ${response.status}: ${response.statusText}`);
-        }
-
-        const result = await response.json();
-        if (result.status === "success" && result.data) {
-          setDashboardData(result.data);
-        } else {
-          throw new Error(result.message || "Données invalides");
-        }
-        
-      } catch (err) {
-        console.error("Erreur API:", err);
-        setError(err.message);
-        // Fallback sur les données de démonstration
-        setDashboardData(DEMO_DATA);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDashboardData();
-  }, [currentCompanyId]);
+  const currentId = companyId || state?.companyId;
+  const { data, loading, error } = useDashboardData(currentId);
 
   // Configuration du graphique bar chart
   const barChartData = {
@@ -222,11 +177,7 @@ export function Dashboard() {
     );
   }
 
-  const finalData = dashboardData || DEMO_DATA;
-  const { state } = useLocation();
-  const currentId = companyId || state?.companyId;
-
-  const { data, loading, error } = useDashboardData(currentId);
+  const finalData = data || DEMO_DATA;
 
   if (loading) return <div className="dashboard-loading"><div className="loading-spinner" /></div>;
 

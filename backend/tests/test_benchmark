@@ -1,0 +1,17 @@
+import pytest
+from src.services.benchmark import moyenne_conso_m2_secteur
+
+def test_benchmark_data_integrity():
+    """Vérifie que le dictionnaire de benchmark est chargé et valide."""
+    # Vérifie que le dictionnaire n'est pas vide
+    assert len(moyenne_conso_m2_secteur) > 0
+    
+    # Vérifie la présence de catégories clés
+    assert "Hôtellerie" in moyenne_conso_m2_secteur
+    assert "Bureaux - Services Publics - Banque" in moyenne_conso_m2_secteur
+
+def test_benchmark_values():
+    """Vérifie que les valeurs de consommation par m2 sont réalistes."""
+    for secteur, conso in moyenne_conso_m2_secteur.items():
+        assert conso > 0  # Une consommation ne peut pas être négative ou nulle
+        assert isinstance(conso, float)

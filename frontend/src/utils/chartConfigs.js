@@ -1,12 +1,12 @@
 export const getBarConfig = (data) => ({
   data: {
-    labels: data.consommationParUsages.labels,
+    labels: data?.consommationParUsages?.labels || ["Électricité", "Gaz", "Autres"],
     datasets: [{
       label: "Consommation (kWh)",
       data: [
-        data.consommationParUsages.data.chauffage || 0,
-        data.consommationParUsages.data.eclairage || 0,
-        data.consommationParUsages.data.climatisation || 0,
+        data?.consommationParUsages?.data?.electricite || 0,
+        data?.consommationParUsages?.data?.gaz || 0,
+        data?.consommationParUsages?.data?.autres || 0,
       ],
       backgroundColor: ["#10b981", "#fbbf24", "#6b7280"],
       borderWidth: 1,
@@ -24,7 +24,10 @@ export const getDonutConfig = (data) => ({
   data: {
     labels: ["Électricité", "Gaz"],
     datasets: [{
-      data: [data.repartitionCouts.electricite, data.repartitionCouts.gaz],
+      data: [
+        data?.repartitionCouts?.electricite || 50,
+        data?.repartitionCouts?.gaz || 50
+      ],
       backgroundColor: ["#10b981", "#fbbf24"],
       hoverOffset: 8,
     }],
@@ -32,7 +35,7 @@ export const getDonutConfig = (data) => ({
   options: {
     responsive: true,
     maintainAspectRatio: false,
-    plugins: { 
+    plugins: {
         title: { display: true, text: "Répartition des Coûts (%)", font: { size: 16 } },
         legend: { position: "bottom" }
     },

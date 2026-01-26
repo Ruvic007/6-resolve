@@ -23,14 +23,27 @@ export function useDashboardData(companyId) {
 
   useEffect(() => {
     const fetchData = async () => {
+      // Si pas de companyId, retourner une erreur spécifique
+      if (!companyId) {
+        setError("no_company");
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
         const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
-        const response = await fetch(`${baseUrl}/api/dashboard/${companyId || "latest"}`);
+        const response = await fetch(`${baseUrl}/api/dashboard/${companyId}`);
         
         if (!response.ok) throw new Error(`Erreur ${response.status}`);
         const result = await response.json();
-        setData(result);
+
+        // Extraire les données de la réponse API
+        if (result.status === "success" && result.data) {
+          setData(result.data);
+        } else {
+          throw new Error(result.message || "Données invalides");
+        }
       } catch (err) {
         console.error("API Fallback:", err);
         setError(err.message);

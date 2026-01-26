@@ -1,38 +1,97 @@
-/* === DASHBOARD SIMPLIFIÉ === */
+/* === DASHBOARD LAYOUT === */
 
-.dashboard-wrapper {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem;
+.dashboard-container {
+  display: flex;
   min-height: calc(100vh - 80px);
+  background: #f3f4f6;
 }
 
-.dashboard-header-simple {
-  background: white;
-  padding: 2rem;
+/* === SIDEBAR === */
+.dashboard-sidebar {
+  width: 70px;
+  background: #1f2937;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 0;
+  gap: 0.5rem;
+}
+
+.sidebar-icon {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  color: #9ca3af;
 }
 
-.dashboard-title {
+.sidebar-icon:hover {
+  background: #374151;
+  color: white;
+}
+
+.sidebar-icon.active {
+  background: #10b981;
+  color: white;
+}
+
+/* === MAIN CONTENT === */
+.dashboard-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+/* === HEADER === */
+.dashboard-header {
+  background: white;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.header-logo {
   font-size: 1.75rem;
+}
+
+.header-title {
+  font-size: 1.25rem;
   font-weight: 700;
   color: #1f2937;
   margin: 0;
 }
 
-.dashboard-warning {
-  margin-top: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: #fef3c7;
-  border-left: 4px solid #f59e0b;
-  border-radius: 4px;
-  color: #92400e;
-  font-size: 0.875rem;
+.header-right {
+  display: flex;
+  align-items: center;
 }
 
-.dashboard-content-clean {
+.company-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+}
+
+/* === DASHBOARD CONTENT === */
+.dashboard-content {
+  padding: 2rem;
   display: flex;
   flex-direction: column;
   gap: 2rem;
@@ -96,7 +155,7 @@
 /* === METRICS GRID === */
 .metrics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
 }
 
@@ -165,7 +224,7 @@
 /* === CHARTS GRID === */
 .charts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
 }
 
@@ -174,16 +233,13 @@
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.chart-container {
-  height: 300px;
+  height: 350px;
 }
 
 /* === DETAILS & ACTIONS === */
 .details-actions-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
 }
 
@@ -229,68 +285,6 @@
   color: #1f2937;
 }
 
-.actions-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.action-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background: #f9fafb;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.action-item:hover {
-  background: #f3f4f6;
-}
-
-.action-icon {
-  font-size: 1.5rem;
-}
-
-.action-content {
-  flex: 1;
-}
-
-.action-titre {
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 0.25rem;
-}
-
-.action-statut {
-  font-size: 0.875rem;
-  font-weight: 500;
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  display: inline-block;
-}
-
-.action-statut.green {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.action-statut.orange {
-  background: #fed7aa;
-  color: #c2410c;
-}
-
-.action-statut.red {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.action-arrow {
-  color: #9ca3af;
-}
-
 .no-data {
   color: #6b7280;
   font-style: italic;
@@ -299,8 +293,25 @@
 }
 
 /* === RESPONSIVE === */
+@media (max-width: 1200px) {
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
-  .dashboard-wrapper {
+  .dashboard-container {
+    flex-direction: column;
+  }
+
+  .dashboard-sidebar {
+    width: 100%;
+    flex-direction: row;
+    justify-content: center;
+    padding: 0.5rem;
+  }
+
+  .dashboard-content {
     padding: 1rem;
   }
 
@@ -316,7 +327,9 @@
     grid-template-columns: 1fr;
   }
 
-  .dashboard-title {
-    font-size: 1.25rem;
+  .dashboard-header {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
   }
 }

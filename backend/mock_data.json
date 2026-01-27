@@ -1,0 +1,23 @@
+{
+  "nom": "Test Entreprise SARL",
+  "code_postal": "75001",
+  "sous_categorie": "restaurant",
+  "type_batiment": "bureaux",
+  "annee_construction": 1990,
+  "surface_locaux": 500,
+  "surface_toit": 300,
+  "horaire_ouverture": "9h-18h",
+  "type_facture": "annuelle",
+  "utilisation_energie_renouvelable": false,
+  "type_energie_renouvelable": null,
+  "monitoring_consommation": false,
+  "user_id": "test_user_123",
+  "annee": 2025,
+  "conso_electricite_kwh": 75000,
+  "conso_gaz_kwh": 20000,
+  "cout_energie_euros": 15000,
+  "emission_co2_kg": 35000,
+  "type_chauffage": "gaz",
+  "type_eclairage": "led",
+  "niveau_isolation": "moyen"
+}

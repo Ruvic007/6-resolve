@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.routes.app import router as questionnaire_router
+from src.routes.subventions import router as subventions_router
 
 
 app = FastAPI()
@@ -14,4 +15,5 @@ app.add_middleware(
 )
 
 app.include_router(questionnaire_router, prefix="/api")
+app.include_router(subventions_router, prefix="/api")
 

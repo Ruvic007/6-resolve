@@ -1,5 +1,5 @@
 {
-  "name": "6ix-resolve",
+  "name": "6ix-energy-ai",
   "private": true,
   "scripts": {
     "install:all": "npm run install:backend && npm run install:frontend",
@@ -9,15 +9,12 @@
     "dev": "concurrently \"npm run backend:dev\" \"npm run frontend:dev\"",
     "backend:dev": "cd backend && python server.py",
     "frontend:dev": "cd frontend && npm run dev",
-    
-    "test": "npm run test:mock",
-    "test:mock": "npm run backend:dev & timeout /t 3 && npm run test:api:mock",
+    "test": "npm run backend:dev & start http://localhost:8000/docs",
+    "test:mock": "powershell -c \"cd backend; python server.py; Start-Sleep 5; Invoke-RestMethod -Uri 'http://localhost:8000/api/questionnaire/test' -Method POST\"",
     "test:api": "start http://localhost:8000/docs",
-    "test:api:mock": "powershell -c \"Invoke-RestMethod -Uri 'http://localhost:8000/api/questionnaire/test' -Method POST\"",
-    "test:mock:curl": "curl.exe -X POST http://localhost:8000/api/questionnaire/test"
+    "test:mock:ps": "powershell -c \"Invoke-RestMethod -Uri 'http://localhost:8000/api/questionnaire/test' -Method POST | ConvertTo-Json\""
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
   }
 }
-

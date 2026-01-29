@@ -9,10 +9,11 @@
     "dev": "concurrently \"npm run backend:dev\" \"npm run frontend:dev\"",
     "backend:dev": "cd backend && python server.py",
     "frontend:dev": "cd frontend && npm run dev",
-    "test": "npm run backend:dev & start http://localhost:8000/docs",
-    "test:mock": "powershell -c \"cd backend; python server.py; Start-Sleep 5; Invoke-RestMethod -Uri 'http://localhost:8000/api/questionnaire/test' -Method POST\"",
+    "test": "npm run test:back && npm run test:front",
+    "test:back": "cd backend && pytest",
+    "test:front": "cd frontend && npm test",
     "test:api": "start http://localhost:8000/docs",
-    "test:mock:ps": "powershell -c \"Invoke-RestMethod -Uri 'http://localhost:8000/api/questionnaire/test' -Method POST | ConvertTo-Json\""
+    "test:mock": "powershell -c \"Invoke-RestMethod -Uri 'http://localhost:8000/api/questionnaire/test' -Method POST | ConvertTo-Json\""
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

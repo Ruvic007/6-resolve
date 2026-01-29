@@ -166,7 +166,7 @@ export function Dashboard() {
       {/* Simulations */}
       <section className="dashboard-section">
         <h2 className="section-title">Simulations d'optimisation</h2>
-        <SimulationPanel simulationPV={finalData.simulationPV} />
+        <SimulationPanel simulationPV={finalData.simulationPV} simulationThermique={finalData.simulationThermique} />
       </section>
 
       {/* Aides financières */}

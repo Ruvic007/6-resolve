@@ -220,6 +220,10 @@ async def get_dashboard_data(company_id: int):
         sim_response = supabase.table("simulations_pv").select("*").eq("company_id", company_id).execute()
         simulation_data = sim_response.data[0] if sim_response.data else {}
 
+        # Récupérer les simulations thermiques
+        thermal_response = supabase.table("thermal_simulations").select("*").eq("company_id", company_id).execute()
+        thermal_data = thermal_response.data[0] if thermal_response.data else {}
+
         # Récupérer le benchmark depuis AuditReports
         audit_response = supabase.table("AuditReports").select("*").eq("id", company_id).execute()
         audit_data = audit_response.data[0] if audit_response.data else {}
@@ -273,6 +277,14 @@ async def get_dashboard_data(company_id: int):
                 "roi_annees": simulation_data.get("roi_annees", 0),
                 "prix_installation": simulation_data.get("prix_installation_ht", 0)
             } if simulation_data else None,
+            "simulationThermique": {
+                "surface_m2": thermal_data.get("surface_m2", 0),
+                "production_kwh": thermal_data.get("production_kwh", 0),
+                "economies_annuelles": thermal_data.get("economies_annuelles_estimees", 0),
+                "reduction_co2_kg": thermal_data.get("reduction_co2_kg", 0),
+                "roi_annees": thermal_data.get("roi_annees", 0),
+                "prix_installation": thermal_data.get("cout_installation_estime", 0)
+            } if thermal_data else None,
             "benchmark": {
                 "pourcentage": audit_data.get("benchmark", 100),
                 "secteur": company.get("secteur_activite", "Non spécifié"),

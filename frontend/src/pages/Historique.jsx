@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
+import { AlertTriangle, ClipboardList, LayoutDashboard, ScrollText } from "lucide-react";
 import "../App.css";
 
 export function Historique() {
@@ -73,7 +74,7 @@ export function Historique() {
     return (
       <div className="historique-container">
         <div className="historique-error">
-          <div className="error-icon">⚠️</div>
+          <div className="error-icon"><AlertTriangle size={48} /></div>
           <h3>Erreur de chargement</h3>
           <p>{error}</p>
           <button className="btn btn-primary" onClick={() => window.location.reload()}>
@@ -87,13 +88,13 @@ export function Historique() {
   return (
     <div className="historique-container">
       <div className="historique-header">
-        <h1>📜 Historique des Audits</h1>
+        <h1><ScrollText size={28} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '0.5rem' }} />Historique des Audits</h1>
         <p>Retrouvez tous vos audits énergétiques et accédez à leurs dashboards.</p>
       </div>
 
       {audits.length === 0 ? (
         <div className="historique-empty">
-          <div className="empty-icon">📋</div>
+          <div className="empty-icon"><ClipboardList size={48} /></div>
           <h3>Aucun audit trouvé</h3>
           <p>Vous n'avez pas encore réalisé d'audit énergétique.</p>
           <button className="btn btn-primary" onClick={() => navigate("/audit")}>
@@ -137,7 +138,7 @@ export function Historique() {
                   className="btn btn-primary"
                   onClick={() => handleViewDashboard(audit.id)}
                 >
-                  📊 Voir le Dashboard
+                  <LayoutDashboard size={16} style={{ marginRight: '0.4rem' }} /> Voir le Dashboard
                 </button>
               </div>
             </div>

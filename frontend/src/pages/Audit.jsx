@@ -1,38 +1,70 @@
-import React, { useState } from "react";
-import StepCompany from "../components/steps/StepCompany";
-import StepEnergy from "../components/steps/StepEnergy";
-import StepEquipment from "../components/steps/StepEquipment";
-import StepSummary from "../components/steps/StepSummary";
-import "../App.css"; // ✅ pour utiliser les variables et classes globales
+import { useState } from "react";
+import Stepper, { Step } from "../components/Stepper";
+import StepCompanyContent from "../components/steps/StepCompany";
+import StepEnergyContent from "../components/steps/StepEnergy";
+import StepEquipmentContent from "../components/steps/StepEquipment";
+import StepSummaryContent from "../components/steps/StepSummary";
+import "../App.css";
 
 export default function Audit() {
-  const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({});
 
-  const nextStep = (data) => {
+  const handleStepData = (data) => {
     setFormData((prev) => ({ ...prev, ...data }));
-    setStep((prev) => (prev + 1));
   };
-
-  const prevStep = () => setStep((prev) => (prev - 1));
-
-  const steps = [
-    <StepCompany onNext={nextStep} defaultValues={formData} key="1" />,
-    <StepEnergy onNext={nextStep} onBack={prevStep} defaultValues={formData} key="2" />,
-    <StepEquipment onNext={nextStep} onBack={prevStep} defaultValues={formData} key="3" />,
-    <StepSummary data={formData} onBack={prevStep} key="4" />,
-  ];
 
   return (
     <div className="audit-container">
-      <h1 className="audit-title">Audit énergétique 🌱</h1>
-
-      <div className="audit-card">
-        {steps[step - 1]}
-        <p className="audit-progress">
-          Étape {step} sur {steps.length}
-        </p>
-      </div>
+      <Stepper
+        initialStep={1}
+        onStepChange={(step) => console.log('Step:', step)}
+        onFinalStepCompleted={() => console.log('Completed!')}
+      >
+        <Step>
+          {({ onNext, isFirstStep }) => (
+            <StepCompanyContent
+              defaultValues={formData}
+              isFirstStep={isFirstStep}
+              onNext={(data) => {
+                handleStepData(data);
+                onNext();
+              }}
+            />
+          )}
+        </Step>
+        <Step>
+          {({ onNext, onBack }) => (
+            <StepEnergyContent
+              defaultValues={formData}
+              onBack={onBack}
+              onNext={(data) => {
+                handleStepData(data);
+                onNext();
+              }}
+            />
+          )}
+        </Step>
+        <Step>
+          {({ onNext, onBack }) => (
+            <StepEquipmentContent
+              defaultValues={formData}
+              onBack={onBack}
+              onNext={(data) => {
+                handleStepData(data);
+                onNext();
+              }}
+            />
+          )}
+        </Step>
+        <Step>
+          {({ onBack }) => (
+            <StepSummaryContent
+              data={formData}
+              onBack={onBack}
+            />
+          )}
+        </Step>
+      </Stepper>
     </div>
   );
 }

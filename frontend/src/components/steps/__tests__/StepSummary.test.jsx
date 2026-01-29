@@ -42,23 +42,30 @@ vi.mock('react-router-dom', async () => {
 global.fetch = vi.fn();
 
 describe('StepSummary', () => {
+  // Données au format attendu par le nouveau composant (clés françaises)
   const mockData = {
-    companyName: 'Test Company',
-    postalCode: '75001',
-    sector: 'Services',
-    buildingType: 'Bureau',
-    buildingAge: 2010,
-    surfaceArea: 500,
-    operatingHours: 40,
-    heatingType: 'Pompe à chaleur',
-    lightingType: 'LED',
-    insulationLevel: 'Bonne',
-    ventilationType: 'Naturelle',
-    electricityConsumption: 10000,
-    gasConsumption: 5000,
-    electricityCost: 1500,
-    gasCost: 800,
-    co2Emissions: 2000
+    nom: 'Test Company',
+    code_postal: '75001',
+    categorie_activite: 'Services',
+    sous_categorie: 'Bureaux',
+    type_batiment: 'Bureau',
+    annee_construction: 2010,
+    surface_locaux: 500,
+    surface_toit: 200,
+    horaire_ouverture: '9h-18h',
+    type_facture: 'mixte',
+    type_chauffage: 'Pompe à chaleur',
+    type_eclairage: 'LED',
+    niveau_isolation: 'Bonne',
+    ventilation: 'Naturelle',
+    utilisation_energie_renouvelable: 'false',
+    type_energie_renouvelable: '',
+    monitoring_consommation: 'false',
+    annee: 2024,
+    conso_electricite_kwh: 10000,
+    conso_gaz_kwh: 5000,
+    cout_energie_euros: 2300,
+    emission_co2_kg: 2000
   };
 
   const mockOnBack = vi.fn();
@@ -87,7 +94,7 @@ describe('StepSummary', () => {
       </BrowserRouter>
     );
 
-    expect(screen.getByText(/résumé de votre audit énergétique/i)).toBeInTheDocument();
+    expect(screen.getByText(/résumé de votre audit/i)).toBeInTheDocument();
   });
 
   it('affiche les boutons Retour et Envoyer', () => {
@@ -98,14 +105,14 @@ describe('StepSummary', () => {
     );
 
     expect(screen.getByRole('button', { name: /retour/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /envoyer/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /envoyer l'audit/i })).toBeInTheDocument();
   });
 
   it('affiche une erreur si valeurs négatives détectées', async () => {
     const user = userEvent.setup();
     const invalidData = {
       ...mockData,
-      electricityConsumption: -100
+      conso_electricite_kwh: -100
     };
 
     render(
@@ -114,7 +121,7 @@ describe('StepSummary', () => {
       </BrowserRouter>
     );
 
-    const submitButton = screen.getByRole('button', { name: /envoyer/i });
+    const submitButton = screen.getByRole('button', { name: /envoyer l'audit/i });
     await user.click(submitButton);
 
     await waitFor(() => {
@@ -131,7 +138,7 @@ describe('StepSummary', () => {
 
     fetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ status: 'success', id: 123 })
+      json: async () => ({ status: 'success', company_id: 123 })
     });
 
     render(
@@ -140,7 +147,7 @@ describe('StepSummary', () => {
       </BrowserRouter>
     );
 
-    const submitButton = screen.getByRole('button', { name: /envoyer/i });
+    const submitButton = screen.getByRole('button', { name: /envoyer l'audit/i });
     await user.click(submitButton);
 
     await waitFor(() => {
@@ -175,7 +182,7 @@ describe('StepSummary', () => {
       </BrowserRouter>
     );
 
-    const submitButton = screen.getByRole('button', { name: /envoyer/i });
+    const submitButton = screen.getByRole('button', { name: /envoyer l'audit/i });
     await user.click(submitButton);
 
     await waitFor(() => {
@@ -198,12 +205,12 @@ describe('StepSummary', () => {
       </BrowserRouter>
     );
 
-    const submitButton = screen.getByRole('button', { name: /envoyer/i });
+    const submitButton = screen.getByRole('button', { name: /envoyer l'audit/i });
     await user.click(submitButton);
 
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith(
-        expect.stringContaining('serveur backend')
+        expect.stringContaining('serveur')
       );
     });
   });
@@ -215,7 +222,7 @@ describe('StepSummary', () => {
     fetch.mockImplementationOnce(
       () => new Promise(resolve => setTimeout(() => resolve({
         ok: true,
-        json: async () => ({ status: 'success' })
+        json: async () => ({ status: 'success', company_id: 123 })
       }), 100))
     );
 
@@ -225,7 +232,7 @@ describe('StepSummary', () => {
       </BrowserRouter>
     );
 
-    const submitButton = screen.getByRole('button', { name: /envoyer/i });
+    const submitButton = screen.getByRole('button', { name: /envoyer l'audit/i });
     const backButton = screen.getByRole('button', { name: /retour/i });
 
     expect(submitButton).not.toBeDisabled();
@@ -235,7 +242,7 @@ describe('StepSummary', () => {
 
     expect(submitButton).toBeDisabled();
     expect(backButton).toBeDisabled();
-    expect(screen.getByText(/envoi\.\.\./i)).toBeInTheDocument();
+    expect(screen.getByText(/envoi en cours/i)).toBeInTheDocument();
 
     await waitFor(() => {
       expect(submitButton).not.toBeDisabled();
@@ -257,14 +264,17 @@ describe('StepSummary', () => {
     expect(mockOnBack).toHaveBeenCalledTimes(1);
   });
 
-  it('formate correctement les clés des données affichées', () => {
+  it('affiche les labels corrects pour chaque section', () => {
     render(
       <BrowserRouter>
-        <StepSummary data={{ company_name: 'Test' }} onBack={mockOnBack} />
+        <StepSummary data={{ nom: 'Test Company', code_postal: '75001' }} onBack={mockOnBack} />
       </BrowserRouter>
     );
 
-    // Vérifie que "company_name" est formaté en "Company Name"
-    expect(screen.getByText(/Company Name/i)).toBeInTheDocument();
+    // Vérifie que les labels du FIELD_LABELS sont utilisés
+    expect(screen.getByText('Nom')).toBeInTheDocument();
+    expect(screen.getByText('Code postal')).toBeInTheDocument();
+    // Vérifie les sections
+    expect(screen.getByText('Entreprise')).toBeInTheDocument();
   });
 });

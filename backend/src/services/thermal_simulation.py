@@ -11,15 +11,22 @@ class ThermalSimulation:
             "mediterranee": 650
         }
         
-        # Facteurs d'émission (kg CO₂/kWh) - Harmonisé avec app.py
+        # Facteurs d'émission (kg CO₂/kWh)
         self.facteurs_co2 = {
             "gaz": 0.227,
-            "électrique": 0.055,
+            "electrique": 0.055,
             "electricite": 0.055,
             "fioul": 0.324
         }
         
-        self.prix_m2_installation = 1100
+        # On ne définit plus un prix fixe unique, mais une méthode dégressive
+
+    def _calculer_prix_m2_degressif(self, surface: float) -> float:
+        """Calcule un prix au m2 qui baisse avec la surface."""
+        if surface < 20: return 1300
+        if surface < 100: return 1100
+        if surface < 500: return 950
+        return 850  # Tarif pour les très grandes surfaces industrielles
 
     def _determiner_region(self, code_postal: str) -> str:
         """Détermine la zone climatique."""
@@ -27,16 +34,16 @@ class ThermalSimulation:
             return "sud"
         
         pref = str(code_postal)[:2]
-        # Utilisation de strings pour éviter les erreurs avec la Corse (2A/2B)
         if pref in ['02', '59', '62', '80']: return "nord"
         if pref in ['67', '68', '57', '54', '55', '88']: return "est"
         if pref in ['35', '56', '29', '22', '44', '85', '17', '79', '86']: return "ouest"
         if pref in ['83', '84', '13', '30', '34', '66', '11', '12', '48', '07', '26', '38']: return "mediterranee"
+        # Ajout du 91 explicitement au Nord si tu veux éviter le "sud" par défaut
+        if pref in ['91', '75', '77', '78', '92', '93', '94', '95']: return "nord" 
         return "sud"
 
     def calculer_simulation_complete(self, surface_toit: float, cp: str, type_chauffage: str, prix_kwh: float) -> Dict[str, Any]:
-        """Méthode principale pour app.py : calcule tout d'un coup."""
-        # On estime que 10% de la surface du toit est utilisée pour le thermique
+        """Méthode principale : le ROI variera désormais selon la surface."""
         surface_th = float(surface_toit or 0) * 0.1
         
         if surface_th <= 0:
@@ -45,22 +52,22 @@ class ThermalSimulation:
                 "economies_annuelles": 0, "reduction_co2_kg": 0, "roi_annees": 0
             }
 
-        # 1. Production
+        # 1. Production (dépend de la région)
         region = self._determiner_region(cp)
         production = surface_th * self.rendement_regions[region]
         
-        # 2. Coût
-        cout = surface_th * self.prix_m2_installation
+        # 2. Coût avec dégressivité (Rend le ROI dynamique !)
+        prix_unitaire = self._calculer_prix_m2_degressif(surface_th)
+        cout = surface_th * prix_unitaire
         
-        # 3. Impact CO2 et financier
-        # Normalisation du type de chauffage pour matcher le dictionnaire
+        # 3. Impact financier
         type_key = type_chauffage.lower().replace('é', 'e')
         facteur = self.facteurs_co2.get(type_key, 0.2)
         
         reduction_co2 = production * facteur
         economies = production * prix_kwh
         
-        # 4. ROI
+        # 4. ROI : La surface ne s'annule plus car prix_unitaire change
         roi = cout / economies if economies > 0 else 99
         
         return {

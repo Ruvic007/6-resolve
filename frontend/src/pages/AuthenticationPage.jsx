@@ -28,7 +28,7 @@ export function AuthenticationPage() {
 
       <SignedIn>
         <div className="redirect-message">
-          <Navigate to="/" replace />
+          <Navigate to="/dashboard" replace />
         </div>
       </SignedIn>
     </div>

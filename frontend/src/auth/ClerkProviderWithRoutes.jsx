@@ -10,7 +10,11 @@ if (!PUBLISHABLE_KEY) {
 
 export default function ClerkProviderWithRoutes({children}){
     return(
-        <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+        <ClerkProvider
+            publishableKey={PUBLISHABLE_KEY}
+            afterSignInUrl="/dashboard"
+            afterSignUpUrl="/dashboard"
+        >
             <BrowserRouter>{children}</BrowserRouter>
         </ClerkProvider>
     )

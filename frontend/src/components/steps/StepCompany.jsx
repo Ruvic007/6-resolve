@@ -195,9 +195,27 @@ export default function StepCompany({ onNext, defaultValues, isFirstStep }) {
         </div>
       </div>
 
-      <div className="field-group">
-        <label>Horaires d'ouverture</label>
-        <input {...register("horaire_ouverture")} placeholder="Ex: 9h-18h du lundi au vendredi" />
+      <div className="form-row">
+        <div className="field-group">
+          <label>Jours d'ouverture par semaine *</label>
+          <select {...register("jours_ouverture_semaine", { required: true })}>
+            <option value="">-- Sélectionnez --</option>
+            <option value="lun-ven">Lundi à vendredi</option>
+            <option value="lun-sam">Lundi à samedi</option>
+            <option value="lun-dim">Lundi à dimanche</option>
+          </select>
+        </div>
+        <div className="field-group">
+          <label>Plage horaire d'ouverture *</label>
+          <select {...register("plage_horaire", { required: true })}>
+            <option value="">-- Sélectionnez --</option>
+            <option value="8h-12h_14h-18h">8h-12h / 14h-18h</option>
+            <option value="9h-17h">9h-17h (continu)</option>
+            <option value="8h30-19h">8h30-19h</option>
+            <option value="10h-22h">10h-22h</option>
+            <option value="24h/24">24h/24</option>
+          </select>
+        </div>
       </div>
 
       <div className="form-row">

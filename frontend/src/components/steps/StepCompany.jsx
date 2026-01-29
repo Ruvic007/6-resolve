@@ -179,15 +179,7 @@ export default function StepCompany({ onNext, defaultValues }) {
         )}
       </div>
 
-      <div className="field-group">
-        <select {...register("type_batiment")} required>
-          <option value="">-- Type de bâtiment --</option>
-          <option value="bureau">Bureau</option>
-          <option value="commerce">Commerce</option>
-          <option value="industriel">Industriel</option>
-          <option value="autre">Autre</option>
-        </select>
-      </div>
+    
 
       <div className="field-group">
         <input {...register("annee_construction")} type="number" placeholder="Année de construction" min="1800" max="2025" />
@@ -201,30 +193,29 @@ export default function StepCompany({ onNext, defaultValues }) {
         <input {...register("surface_toit")} type="number" placeholder="Surface du toit (m²)" step="0.1" min="0" />
       </div>
 
-      <div className="field-group">
-        <input {...register("horaire_ouverture")} placeholder="Horaires d'ouverture" />
-      </div>
+    
 
       <div className="field-group">
-        <select {...register("type_facture")}>
-          <option value="">-- Type de facture énergétique --</option>
-          <option value="electricite">Électricité</option>
-          <option value="gaz">Gaz</option>
-          <option value="mixte">Mixte</option>
-        </select>
-      </div>
+      <label>Jours d'ouverture par semaine</label>
+       <select {...register("jours_ouverture_semaine")} required>
+         <option value="">-- Jours d'ouverture --</option>
+         <option value="lun-ven">Lundi à vendredi</option>
+         <option value="lun-sam">Lundi à samedi</option>
+         <option value="lun-dim">Lundi à dimanche</option>
+      </select>
+     </div>
 
-      <div className="field-group">
-        <select {...register("utilisation_energie_renouvelable")}>
-          <option value="false">Énergie renouvelable ?</option>
-          <option value="true">Oui</option>
-          <option value="false">Non</option>
-        </select>
-      </div>
-
-      <div className="field-group">
-        <input {...register("type_energie_renouvelable")} placeholder="Type d'énergie renouvelable (si applicable)" />
-      </div>
+     <div className="field-group">
+      <label>Temps d'ouverture journalier</label>
+       <select {...register("plage_horaire")} required>
+         <option value="">-- Sélectionnez une plage horaire --</option>
+         <option value="8h-12h_14h-18h">8h-12h / 14h-18h</option>
+         <option value="9h-17h">9h-17h (continu)</option>
+         <option value="8h30-19h">8h30-19h</option>
+         <option value="10h-22h">10h-22h</option>
+         <option value="24h/24">24h/24</option>
+       </select>
+    </div>
 
       <div className="field-group">
         <select {...register("monitoring_consommation")}>

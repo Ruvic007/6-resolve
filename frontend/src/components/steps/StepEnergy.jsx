@@ -44,7 +44,8 @@ export default function StepEnergy({ onNext, onBack, defaultValues }) {
           <option value="excellent">Excellent</option>
         </select>
       </div>
-
+      {/*
+      
       <div className="field-group">
         <select {...register("ventilation")}>
           <option value="">-- Type de ventilation --</option>
@@ -57,7 +58,7 @@ export default function StepEnergy({ onNext, onBack, defaultValues }) {
       <div className="field-group">
         <textarea {...register("autres")} placeholder="Autres informations énergétiques..." rows="3" />
       </div>
-
+       */}
       <div className="actions">
         <button type="button" onClick={onBack} className="btn-secondary">Retour</button>
         <button type="submit" className="btn-primary">Suivant</button>

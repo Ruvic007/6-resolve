@@ -1,0 +1,23 @@
+services:
+  backend:
+    build:
+      context: ./backend        # Contexte = dossier backend/
+      dockerfile: Dockerfile    # Dockerfile dans backend/
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/src
+    env_file:
+      - ./backend/.env         # Ton .env backend
+
+  frontend:
+    build:
+      context: ./frontend      # Contexte = dossier frontend/
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    env_file:
+      - ./frontend/.env        # Ton .env frontend

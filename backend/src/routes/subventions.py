@@ -1,4 +1,3 @@
-# backend/src/routes/subventions.py
 from fastapi import APIRouter
 from src.services.subventions_data import SUBVENTIONS_LIST
 

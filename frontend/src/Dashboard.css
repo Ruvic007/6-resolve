@@ -549,6 +549,34 @@
   background: #059669;
 }
 
+/* === BANNIERE SUBVENTIONS (DASHBOARD) === */
+.subventions-banner-card {
+  grid-column: span 2; /* Prend toute la largeur si possible */
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.2s;
+  margin-top: 1rem;
+}
+
+.subventions-banner-card:hover {
+  transform: scale(1.01);
+}
+
+.banner-content h3 { margin: 0 0 0.5rem 0; font-size: 1.5rem; }
+.banner-content p { margin: 0; color: #94a3b8; }
+
+.banner-btn {
+  background: #10b981; color: white;
+  border: none; padding: 0.75rem 1.5rem;
+  border-radius: 8px; font-weight: 600; cursor: pointer;
+}
+
 /* === RESPONSIVE === */
 @media (max-width: 1200px) {
   .metrics-grid,
@@ -578,4 +606,14 @@
   .chart-card {
     height: 260px;
   }
+
+  .subventions-banner-card { 
+    flex-direction: column; 
+    text-align: center; 
+    gap: 1rem; 
+  }
+
+  .subventions-banner-card { 
+    grid-column: span 1; 
+  } /* Reset sur mobile */
 }

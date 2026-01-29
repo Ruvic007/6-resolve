@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Request
 from src.database.db import supabase
 from src.services.solar_simulation import SolarSimulation
+from src.services.thermal_simulation import ThermalSimulation  # Import du service thermique
 from src.services.benchmark import moyenne_conso_m2_secteur
 from typing import Dict, Any
 
@@ -48,9 +49,10 @@ async def recevoir_questionnaire(request: Request):
             supabase.table("energyusage").insert(energy_usage_data).execute()
             
             # Insertion Types d'énergie (si présents)
+            type_chauffage_client = data.get("type_chauffage")
             energy_types = {
                 "company_id": company_id,
-                "type_chauffage": data.get("type_chauffage"),
+                "type_chauffage": type_chauffage_client,
                 "type_eclairage": data.get("type_eclairage"),
                 "niveau_isolation": data.get("niveau_isolation")
             }
@@ -58,16 +60,17 @@ async def recevoir_questionnaire(request: Request):
 
         except Exception as e:
             return {"status": "error", "message": f"Erreur base de données: {str(e)}"}
+        
         secteur = company_data.get("sous_categorie")
         surface_m2 = float(company_data.get("surface_locaux"))
 
-# Conso RÉELLE normalisée en kWh/m²
+        # Conso RÉELLE normalisée en kWh/m²
         conso_reelle_m2 = float(data.get("conso_electricite_kwh")) / surface_m2
 
-# Benchmark secteur en kWh/m² (moyenne du CSV)
+        # Benchmark secteur en kWh/m² (moyenne du CSV)
         benchmark_secteur = moyenne_conso_m2_secteur.get(secteur, 150.0)
 
-# Pourcentage = (réelle / benchmark) * 100
+        # Pourcentage = (réelle / benchmark) * 100
         benchmark_pourcentage = round((conso_reelle_m2 / benchmark_secteur) * 100)
 
         audit_reports_data = {
@@ -76,43 +79,38 @@ async def recevoir_questionnaire(request: Request):
         }
 
         supabase.table("AuditReports").insert(audit_reports_data).execute()
-        # --- 3. Simulation PV via le Service SolarSimulation ---
+        
+        # --- 3. Simulations via les Services ---
         simulation_results = {}
         surface_toit = company_data.get("surface_toit")
         code_postal = company_data.get("code_postal")
 
         if surface_toit and code_postal:
-            simulation = SolarSimulation()
-            
-            # Conversion pour les calculs
             s_toit_float = float(surface_toit)
             cp_str = str(code_postal)
             
-            # Calculs de base
+            # --- 3.1 Simulation PHOTOVOLTAÏQUE ---
+            simulation = SolarSimulation()
             p_installee = simulation.estimer_puissance_installation(s_toit_float)
             prix_inst = simulation.estimer_cout_installation(p_installee)
             prod_annuelle = simulation.estimer_production_annuelle(cp_str, p_installee)
             
-            # Calcul du prix du kWh réel (ou défaut)
             prix_kwh_reel = simulation.prix_kwh_entreprise
             conso = energy_usage_data.get("conso_electricite_kwh")
             cout = energy_usage_data.get("cout_energie_euros")
             
             if conso and cout and float(conso) > 0:
                 prix_kwh_reel = float(cout) / float(conso)
-                prix_kwh_reel = max(prix_kwh_reel, 0.10) # Sécurité minimum
+                prix_kwh_reel = max(prix_kwh_reel, 0.10)
 
-            # Calculs avancés
             economies = simulation.calculer_economies_annuelles(prod_annuelle, 0.7, 0.10, prix_kwh_reel)
             co2_kg = simulation.calculer_reduction_co2(prod_annuelle)
             analyse_roi = simulation.calculer_roi(prix_inst, economies["economies_totales"])
 
-            # --- 4. Correction de l'erreur NOT NULL ---
-            # On prépare TOUTES les colonnes attendues par la table simulations_pv
             sim_db_data = {
                 "company_id": company_id,
                 "puissance_installee_kw": p_installee,
-                "surface_panneaux_m2": s_toit_float * 0.6,  # Valeur manquante précédemment
+                "surface_panneaux_m2": s_toit_float * 0.6,
                 "taux_autoconsommation": 0.7,
                 "tarif_rachat_kwh": 0.10,
                 "prix_installation_ht": prix_inst,
@@ -122,10 +120,9 @@ async def recevoir_questionnaire(request: Request):
                 "roi_annees": analyse_roi["roi_annees"]
             }
 
-            # Insertion de la simulation
             try:
                 supabase.table("simulations_pv").insert(sim_db_data).execute()
-                simulation_results = {
+                simulation_results["pv"] = {
                     "puissance_kw": p_installee,
                     "production_kwh": prod_annuelle,
                     "economies_annuelles": economies["economies_totales"],
@@ -133,7 +130,35 @@ async def recevoir_questionnaire(request: Request):
                     "rentable": analyse_roi["rentable"]
                 }
             except Exception as e:
-                simulation_results["erreur_sauvegarde"] = str(e)
+                simulation_results["erreur_pv"] = str(e)
+
+            # --- 3.2 Simulation THERMIQUE (AJOUT) ---
+            try:
+                thermal_service = ThermalSimulation()
+                # Prix énergie selon chauffage : 0.18 si élec, 0.12 sinon
+                prix_th = 0.18 if type_chauffage_client == "Électrique" else 0.12
+                
+                res_th = thermal_service.calculer_simulation_complete(
+                    surface_toit=s_toit_float,
+                    cp=cp_str,
+                    type_chauffage=type_chauffage_client or "Gaz",
+                    prix_kwh=prix_th
+                )
+
+                thermal_db_data = {
+                    "company_id": company_id,
+                    "surface_m2": res_th["surface_m2"],
+                    "production_kwh": res_th["production_kwh"],
+                    "cout_installation_estime": res_th["cout_installation"],
+                    "economies_annuelles_estimees": res_th["economies_annuelles"],
+                    "roi_annees": res_th["roi_annees"],
+                    "reduction_co2_kg": res_th["reduction_co2_kg"]
+                }
+                
+                supabase.table("thermal_simulations").insert(thermal_db_data).execute()
+                simulation_results["thermal"] = res_th
+            except Exception as e:
+                simulation_results["erreur_thermal"] = str(e)
 
         return {
             "status": "success",
@@ -152,6 +177,7 @@ async def get_simulations_entreprise(company_id: int):
         return {"status": "success", "simulations": res.data}
     except Exception as e:
         return {"status": "error", "message": f"Erreur lors de la récupération: {str(e)}"}
+
 @router.get("/dashboard/{company_id}")
 async def get_dashboard_data(company_id: int):
     """Récupère toutes les données nécessaires pour le dashboard"""
@@ -174,6 +200,10 @@ async def get_dashboard_data(company_id: int):
         # Récupérer les simulations PV
         sim_response = supabase.table("simulations_pv").select("*").eq("company_id", company_id).execute()
         simulation_data = sim_response.data[0] if sim_response.data else {}
+        
+        # Récupérer les simulations Thermiques
+        th_response = supabase.table("thermal_simulations").select("*").eq("company_id", company_id).execute()
+        thermal_data = th_response.data[0] if th_res.data else {}
 
         # Calculer les métriques
         conso_elec = float(usage_data.get("conso_electricite_kwh", 0) or 0)
@@ -193,7 +223,7 @@ async def get_dashboard_data(company_id: int):
             "metrics": {
                 "coutTotal": round(cout_total, 2),
                 "consommationTotale": round(conso_elec + conso_gaz, 2),
-                "impactCarbone": round(co2_emissions / 1000, 2),  # Conversion kg -> tonnes
+                "impactCarbone": round(co2_emissions / 1000, 2),
                 "energieRenouvelable": energie_renouvelable_pct
             },
             "consommationParUsages": {
@@ -222,7 +252,8 @@ async def get_dashboard_data(company_id: int):
                 "economies_annuelles": simulation_data.get("economies_annuelles_estimees", 0),
                 "reduction_co2_kg": simulation_data.get("reduction_co2_annuelle_kg", 0),
                 "roi_annees": simulation_data.get("roi_annees", 0)
-            } if simulation_data else None
+            } if simulation_data else None,
+            "simulationThermal": thermal_data if thermal_data else None
         }
 
         return {

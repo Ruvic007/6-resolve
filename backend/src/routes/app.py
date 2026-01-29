@@ -220,6 +220,10 @@ async def get_dashboard_data(company_id: int):
         sim_response = supabase.table("simulations_pv").select("*").eq("company_id", company_id).execute()
         simulation_data = sim_response.data[0] if sim_response.data else {}
 
+        # Récupérer le benchmark depuis AuditReports
+        audit_response = supabase.table("AuditReports").select("*").eq("id", company_id).execute()
+        audit_data = audit_response.data[0] if audit_response.data else {}
+
         # Calculer les métriques
         conso_elec = float(usage_data.get("conso_electricite_kwh", 0) or 0)
         conso_gaz = float(usage_data.get("conso_gaz_kwh", 0) or 0)
@@ -266,8 +270,14 @@ async def get_dashboard_data(company_id: int):
                 "production_kwh": simulation_data.get("production_annuelle_estimee_kwh", 0),
                 "economies_annuelles": simulation_data.get("economies_annuelles_estimees", 0),
                 "reduction_co2_kg": simulation_data.get("reduction_co2_annuelle_kg", 0),
-                "roi_annees": simulation_data.get("roi_annees", 0)
-            } if simulation_data else None
+                "roi_annees": simulation_data.get("roi_annees", 0),
+                "prix_installation": simulation_data.get("prix_installation_ht", 0)
+            } if simulation_data else None,
+            "benchmark": {
+                "pourcentage": audit_data.get("benchmark", 100),
+                "secteur": company.get("secteur_activite", "Non spécifié"),
+                "moyenne_secteur": moyenne_conso_m2_secteur.get(company.get("secteur_activite"), 150)
+            }
         }
 
         return {

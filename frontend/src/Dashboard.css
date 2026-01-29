@@ -444,6 +444,134 @@
   max-width: 460px;
 }
 
+/* Benchmark avec données */
+.benchmark-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1rem;
+}
+
+.benchmark-gauge-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.benchmark-gauge {
+  width: 100%;
+  height: 20px;
+  background: #f3f4f6;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.gauge-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.5s ease;
+}
+
+.gauge-fill.excellent { background: linear-gradient(90deg, #10b981, #34d399); }
+.gauge-fill.good { background: linear-gradient(90deg, #22c55e, #86efac); }
+.gauge-fill.average { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.gauge-fill.poor { background: linear-gradient(90deg, #ef4444, #f87171); }
+
+.gauge-marker {
+  position: absolute;
+  top: -4px;
+  width: 3px;
+  height: 28px;
+  background: #374151;
+  border-radius: 2px;
+}
+
+.benchmark-value {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.benchmark-percentage {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.benchmark-label {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.benchmark-status {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.benchmark-status.excellent {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.benchmark-status.good {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.benchmark-status.average {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.benchmark-status.poor {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.benchmark-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.benchmark-detail-item {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.benchmark-detail-item .detail-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.benchmark-detail-item .detail-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+@media (max-width: 768px) {
+  .benchmark-content {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* === BUILDING INFO === */
 .building-grid {
   display: grid;
@@ -551,7 +679,7 @@
 
 /* === BANNIERE SUBVENTIONS (DASHBOARD) === */
 .subventions-banner-card {
-  grid-column: span 2; /* Prend toute la largeur si possible */
+  grid-column: span 2;
   background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   color: white;
   padding: 2rem;
@@ -577,11 +705,151 @@
   border-radius: 8px; font-weight: 600; cursor: pointer;
 }
 
+/* === SUBVENTIONS GRID === */
+.subventions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.subvention-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.subvention-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #d1d5db;
+}
+
+.subvention-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.subvention-category {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding: 0.25rem 0.6rem;
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-radius: 6px;
+}
+
+.subvention-organisme {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.subvention-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.subvention-description {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.subvention-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #f3f4f6;
+}
+
+.subvention-detail {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.subvention-detail.highlight {
+  color: #059669;
+  font-weight: 600;
+}
+
+.subvention-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #10b981;
+  text-decoration: none;
+  margin-top: 0.25rem;
+  transition: color 0.2s;
+}
+
+.subvention-link:hover {
+  color: #059669;
+}
+
+.subventions-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.loading-spinner-small {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e5e7eb;
+  border-top-color: #10b981;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.subventions-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2.5rem;
+  color: #9ca3af;
+}
+
+.subventions-empty h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0.75rem 0 0.5rem 0;
+}
+
+.subventions-empty p {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
 /* === RESPONSIVE === */
 @media (max-width: 1200px) {
   .metrics-grid,
   .simulation-grid,
-  .building-grid {
+  .building-grid,
+  .subventions-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
@@ -594,7 +862,8 @@
   .metrics-grid,
   .charts-grid,
   .simulation-grid,
-  .building-grid {
+  .building-grid,
+  .subventions-grid {
     grid-template-columns: 1fr;
   }
 

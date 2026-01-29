@@ -10,6 +10,7 @@ import { DollarSign, Zap, Cloud, Leaf, ClipboardList, AlertTriangle, RefreshCw, 
 import { useDashboardData } from "../hooks/useDashboardData";
 import { getBarConfig, getDonutConfig } from "../utils/chartConfigs";
 import { SimulationPanel } from "../components/SimulationPanel";
+import { SubventionsPanel } from "../components/SubventionsPanel";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
@@ -168,34 +169,62 @@ export function Dashboard() {
         <SimulationPanel simulationPV={finalData.simulationPV} />
       </section>
 
-      {/* Recommandations */}
+      {/* Aides financières */}
       <section className="dashboard-section">
-        <h2 className="section-title">Recommandations</h2>
-        <div className="card recommendations-card">
-          <Leaf size={32} strokeWidth={1.5} className="recommendations-icon" />
-          <h3>Recommandations personnalisées</h3>
-          <p>Des recommandations d'optimisation énergétique seront bientôt disponibles ici.</p>
-          <div className="tag-list">
-            <span className="tag">Priorités d'action</span>
-            <span className="tag">ROI estimé</span>
-            <span className="tag">Impact carbone</span>
-          </div>
-        </div>
+        <h2 className="section-title">Aides financières disponibles</h2>
+        <SubventionsPanel />
       </section>
 
       {/* Benchmark */}
       <section className="dashboard-section">
         <h2 className="section-title">Benchmark sectoriel</h2>
-        <div className="card benchmark-card">
-          <BarChart2 size={32} strokeWidth={1.5} className="benchmark-icon" />
-          <h3>Comparaison avec votre secteur</h3>
-          <p>Comparez vos performances énergétiques avec d'autres entreprises de votre secteur d'activité.</p>
-          <div className="tag-list">
-            <span className="tag">Consommation moyenne</span>
-            <span className="tag">Classement</span>
-            <span className="tag">Tendances</span>
+        {finalData.benchmark ? (
+          <div className="benchmark-content">
+            <div className="benchmark-gauge-card">
+              <div className="benchmark-gauge">
+                <div
+                  className={`gauge-fill ${
+                    finalData.benchmark.pourcentage <= 80 ? 'excellent' :
+                    finalData.benchmark.pourcentage <= 100 ? 'good' :
+                    finalData.benchmark.pourcentage <= 120 ? 'average' : 'poor'
+                  }`}
+                  style={{ width: `${Math.min(finalData.benchmark.pourcentage, 150) / 1.5}%` }}
+                />
+                <div className="gauge-marker" style={{ left: '66.67%' }} />
+              </div>
+              <div className="benchmark-value">
+                <span className="benchmark-percentage">{finalData.benchmark.pourcentage}%</span>
+                <span className="benchmark-label">de la moyenne sectorielle</span>
+              </div>
+              <div className={`benchmark-status ${
+                finalData.benchmark.pourcentage <= 80 ? 'excellent' :
+                finalData.benchmark.pourcentage <= 100 ? 'good' :
+                finalData.benchmark.pourcentage <= 120 ? 'average' : 'poor'
+              }`}>
+                {finalData.benchmark.pourcentage <= 80 ? 'Excellent ! Vous consommez bien moins que la moyenne' :
+                 finalData.benchmark.pourcentage <= 100 ? 'Bien ! Vous consommez moins que la moyenne' :
+                 finalData.benchmark.pourcentage <= 120 ? 'Attention : Légèrement au-dessus de la moyenne' :
+                 'À améliorer : Consommation supérieure à la moyenne'}
+              </div>
+            </div>
+            <div className="benchmark-details">
+              <div className="benchmark-detail-item">
+                <span className="detail-label">Secteur</span>
+                <span className="detail-value">{finalData.benchmark.secteur || "Non spécifié"}</span>
+              </div>
+              <div className="benchmark-detail-item">
+                <span className="detail-label">Moyenne du secteur</span>
+                <span className="detail-value">{formatNumber(finalData.benchmark.moyenne_secteur)} kWh/m²/an</span>
+              </div>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="card benchmark-card">
+            <BarChart2 size={32} strokeWidth={1.5} className="benchmark-icon" />
+            <h3>Comparaison avec votre secteur</h3>
+            <p>Les données de benchmark seront disponibles après votre premier audit.</p>
+          </div>
+        )}
       </section>
 
       {/* Détails bâtiment */}

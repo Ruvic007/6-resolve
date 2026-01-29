@@ -1,28 +1,48 @@
-import React from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
 import { Bar, Doughnut } from "react-chartjs-2";
 import "../Dashboard.css";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend } from "chart.js";
+import { DollarSign, Zap, Cloud, Leaf, ClipboardList, AlertTriangle, RefreshCw, BarChart2, ScrollText, Plus } from "lucide-react";
 
 import { useDashboardData } from "../hooks/useDashboardData";
 import { getBarConfig, getDonutConfig } from "../utils/chartConfigs";
-import { MetricCard } from "../components/DashboardWidgets";
 import { SimulationPanel } from "../components/SimulationPanel";
 
-// Enregistrement ChartJS
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
+
+// Fonction pour formater les nombres avec séparateur de milliers
+const formatNumber = (num) => {
+  if (num === null || num === undefined) return "0";
+  return Number(num).toLocaleString("fr-FR");
+};
+
+function MetricCard({ icon: Icon, label, value, colorClass }) {
+  return (
+    <div className={`metric-card ${colorClass}`}>
+      <div className={`metric-icon ${colorClass}`}>
+        <Icon size={24} />
+      </div>
+      <div className="metric-info">
+        <span className="metric-label">{label}</span>
+        <span className="metric-value">{value}</span>
+      </div>
+    </div>
+  );
+}
 
 export function Dashboard() {
   const navigate = useNavigate();
   const { companyId } = useParams();
   const { state } = useLocation();
+  const { user } = useUser();
 
-  const currentId = companyId || state?.companyId;
-  const { data, loading, error } = useDashboardData(currentId);
+  const paramId = companyId || state?.companyId;
+  const { data, loading, error, currentCompanyId } = useDashboardData(paramId, user?.id);
 
   if (loading) {
     return (
-      <div className="app-container">
+      <div className="dashboard-page">
         <div className="dashboard-loading">
           <div className="loading-spinner"></div>
           <p>Chargement des données...</p>
@@ -31,16 +51,18 @@ export function Dashboard() {
     );
   }
 
-  if (error === "no_company") {
+  if (error === "no_audit") {
     return (
-      <div className="app-container">
+      <div className="dashboard-page">
         <div className="dashboard-empty-state">
-          <div className="empty-icon">📋</div>
-          <h2>Aucun audit sélectionné</h2>
-          <p>Complétez un audit énergétique pour voir votre dashboard personnalisé.</p>
-          <button className="btn-primary" onClick={() => navigate("/audit")}>
-            Commencer un audit
-          </button>
+          <ClipboardList size={48} strokeWidth={1.5} />
+          <h2>Bienvenue sur votre Dashboard</h2>
+          <p>Vous n'avez pas encore réalisé d'audit énergétique. Commencez dès maintenant pour analyser vos consommations.</p>
+          <div className="empty-state-actions">
+            <button className="btn-primary" onClick={() => navigate("/audit")}>
+              <Plus size={18} /> Faire mon premier audit
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -48,13 +70,13 @@ export function Dashboard() {
 
   if (error && !data) {
     return (
-      <div className="app-container">
-        <div className="dashboard-empty-state error">
-          <div className="empty-icon">⚠️</div>
+      <div className="dashboard-page">
+        <div className="dashboard-empty-state">
+          <AlertTriangle size={48} strokeWidth={1.5} />
           <h2>Erreur de chargement</h2>
           <p>{error}</p>
           <button className="btn-primary" onClick={() => window.location.reload()}>
-            Réessayer
+            <RefreshCw size={16} /> Réessayer
           </button>
         </div>
       </div>
@@ -63,16 +85,8 @@ export function Dashboard() {
 
   const defaultData = {
     company_name: "Données de démonstration",
-    metrics: {
-      coutTotal: 0,
-      consommationTotale: 0,
-      impactCarbone: 0,
-      energieRenouvelable: 0
-    },
-    consommationParUsages: {
-      labels: ["Électricité", "Gaz", "Autres"],
-      data: { electricite: 0, gaz: 0, autres: 0 }
-    },
+    metrics: { coutTotal: 0, consommationTotale: 0, impactCarbone: 0, energieRenouvelable: 0 },
+    consommationParUsages: { labels: ["Électricité", "Gaz", "Autres"], data: { electricite: 0, gaz: 0, autres: 0 } },
     repartitionCouts: { electricite: 50, gaz: 50 },
     detailsBatiment: [],
     simulationPV: null
@@ -83,94 +97,98 @@ export function Dashboard() {
   const donutConfig = getDonutConfig(finalData);
 
   return (
-    <div className="app-container">
-      {/* App Header */}
-      <header className="app-header">
-        <div className="app-header-left">
-          <span className="app-logo">🌱</span>
-          <h1 className="app-title">EcoPulse</h1>
-        </div>
-        <div className="app-header-center">
-          <span className="company-badge">{finalData.company_name || `Entreprise #${currentId}`}</span>
-        </div>
-        <div className="app-header-right">
-          <button className="btn-icon" onClick={() => navigate("/audit")} title="Nouvel audit">
-            ➕
+    <div className="dashboard-page">
+      {/* Barre d'info entreprise */}
+      <div className="dashboard-topbar">
+        <span className="topbar-company">{finalData.company_name || `Entreprise #${currentCompanyId}`}</span>
+        <div className="topbar-actions">
+          <button className="btn-secondary-small" onClick={() => navigate("/historique")}>
+            <ScrollText size={16} /> Voir l'historique
           </button>
-          <button className="btn-icon" onClick={() => navigate("/historique")} title="Historique">
-            📜
+          <button className="btn-primary-small" onClick={() => navigate("/audit")}>
+            <Plus size={16} /> Nouvel audit
           </button>
         </div>
-      </header>
+      </div>
 
-      {/* Main App Content */}
-      <main className="app-main">
-        {/* Section: Métriques clés */}
-        <section className="app-section">
-          <h2 className="section-title">Vue d'ensemble</h2>
-          <div className="metrics-grid">
-            <MetricCard icon="💰" label="Coût Annuel" value={`${finalData.metrics?.coutTotal || 0} €`} colorClass="blue" />
-            <MetricCard icon="⚡" label="Consommation" value={`${finalData.metrics?.consommationTotale || 0} kWh`} colorClass="yellow" />
-            <MetricCard icon="☁️" label="Carbone" value={`${finalData.metrics?.impactCarbone || 0} tCO₂e`} colorClass="grey" />
-            <MetricCard icon="🌿" label="Renouvelable" value={`${finalData.metrics?.energieRenouvelable || 0} %`} colorClass="green" />
+      {/* Métriques */}
+      <section className="dashboard-section">
+        <h2 className="section-title">Vue d'ensemble</h2>
+        <div className="metrics-grid">
+          <MetricCard icon={DollarSign} label="Coût Annuel" value={`${formatNumber(finalData.metrics?.coutTotal || 0)} €`} colorClass="blue" />
+          <MetricCard icon={Zap} label="Consommation" value={`${formatNumber(finalData.metrics?.consommationTotale || 0)} kWh`} colorClass="yellow" />
+          <MetricCard icon={Cloud} label="Carbone" value={`${formatNumber(finalData.metrics?.impactCarbone || 0)} tCO₂e`} colorClass="grey" />
+          <MetricCard icon={Leaf} label="Renouvelable" value={`${formatNumber(finalData.metrics?.energieRenouvelable || 0)} %`} colorClass="green" />
+        </div>
+      </section>
+
+      {/* Graphiques */}
+      <section className="dashboard-section">
+        <h2 className="section-title">Analyse de consommation</h2>
+        <div className="charts-grid">
+          <div className="chart-card">
+            <Bar {...barConfig} />
           </div>
-        </section>
+          <div className="chart-card">
+            <Doughnut {...donutConfig} />
+          </div>
+        </div>
+      </section>
 
-        {/* Section: Graphiques */}
-        <section className="app-section">
-          <h2 className="section-title">Analyse de consommation</h2>
-          <div className="charts-grid">
-            <div className="chart-card">
-              <Bar {...barConfig} />
+      {/* Simulations */}
+      <section className="dashboard-section">
+        <h2 className="section-title">Simulations d'optimisation</h2>
+        <SimulationPanel simulationPV={finalData.simulationPV} />
+      </section>
+
+      {/* Recommandations */}
+      <section className="dashboard-section">
+        <h2 className="section-title">Recommandations</h2>
+        <div className="card recommendations-card">
+          <Leaf size={32} strokeWidth={1.5} className="recommendations-icon" />
+          <h3>Recommandations personnalisées</h3>
+          <p>Des recommandations d'optimisation énergétique seront bientôt disponibles ici.</p>
+          <div className="tag-list">
+            <span className="tag">Priorités d'action</span>
+            <span className="tag">ROI estimé</span>
+            <span className="tag">Impact carbone</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Benchmark */}
+      <section className="dashboard-section">
+        <h2 className="section-title">Benchmark sectoriel</h2>
+        <div className="card benchmark-card">
+          <BarChart2 size={32} strokeWidth={1.5} className="benchmark-icon" />
+          <h3>Comparaison avec votre secteur</h3>
+          <p>Comparez vos performances énergétiques avec d'autres entreprises de votre secteur d'activité.</p>
+          <div className="tag-list">
+            <span className="tag">Consommation moyenne</span>
+            <span className="tag">Classement</span>
+            <span className="tag">Tendances</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Détails bâtiment */}
+      <section className="dashboard-section">
+        <h2 className="section-title">Informations du bâtiment</h2>
+        <div className="card">
+          {(finalData.detailsBatiment || []).length > 0 ? (
+            <div className="building-grid">
+              {finalData.detailsBatiment.map((item, index) => (
+                <div key={index} className="building-item">
+                  <span className="building-label">{item.label}</span>
+                  <span className="building-value">{item.value || "—"}</span>
+                </div>
+              ))}
             </div>
-            <div className="chart-card">
-              <Doughnut {...donutConfig} />
-            </div>
-          </div>
-        </section>
-
-        {/* Section: Simulations */}
-        <section className="app-section">
-          <h2 className="section-title">Simulations d'optimisation</h2>
-          <SimulationPanel simulationPV={finalData.simulationPV} />
-        </section>
-
-        {/* Section: Recommandations (placeholder) */}
-        <section className="app-section">
-          <h2 className="section-title">Recommandations</h2>
-          <div className="recommendations-panel">
-            <div className="recommendations-placeholder">
-              <div className="placeholder-icon">💡</div>
-              <h3>Recommandations personnalisées</h3>
-              <p>Basées sur votre audit, des recommandations d'optimisation énergétique seront bientôt disponibles ici.</p>
-              <div className="placeholder-features">
-                <span className="feature-tag">Priorités d'action</span>
-                <span className="feature-tag">ROI estimé</span>
-                <span className="feature-tag">Impact carbone</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Section: Détails du bâtiment */}
-        <section className="app-section">
-          <h2 className="section-title">Informations du bâtiment</h2>
-          <div className="building-info-card">
-            {(finalData.detailsBatiment || []).length > 0 ? (
-              <div className="building-info-grid">
-                {finalData.detailsBatiment.map((item, index) => (
-                  <div key={index} className="building-info-item">
-                    <span className="info-label">{item.label}</span>
-                    <span className="info-value">{item.value || "—"}</span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="no-data">Aucune information disponible</p>
-            )}
-          </div>
-        </section>
-      </main>
+          ) : (
+            <p className="no-data">Aucune information disponible</p>
+          )}
+        </div>
+      </section>
     </div>
   );
 }

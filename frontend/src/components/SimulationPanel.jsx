@@ -1,48 +1,51 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { Sun, Thermometer, Globe, Zap, BarChart3, DollarSign, Leaf, Clock, Construction } from "lucide-react";
+
+// Fonction pour formater les nombres avec séparateur de milliers
+const formatNumber = (num) => {
+  if (num === null || num === undefined || num === "—") return "—";
+  return Number(num).toLocaleString("fr-FR");
+};
 
 const SIMULATION_TABS = [
-  { id: "pv", label: "Panneaux Solaires", icon: "☀️", available: true },
-  { id: "isolation", label: "Isolation", icon: "🏠", available: false },
-  { id: "chauffage", label: "Chauffage", icon: "🔥", available: false },
-  { id: "eclairage", label: "Éclairage LED", icon: "💡", available: false },
+  { id: "pv", label: "Solaire", icon: Sun, available: true },
+  { id: "thermique", label: "Thermique", icon: Thermometer, available: false },
+  { id: "geothermique", label: "Géothermique", icon: Globe, available: false },
 ];
 
 export function SimulationPanel({ simulationPV }) {
   const [activeTab, setActiveTab] = useState("pv");
 
-  const renderSimulationContent = () => {
+  const renderContent = () => {
     switch (activeTab) {
       case "pv":
         return <SimulationPV data={simulationPV} />;
-      case "isolation":
-        return <SimulationComingSoon type="Isolation thermique" />;
-      case "chauffage":
-        return <SimulationComingSoon type="Système de chauffage" />;
-      case "eclairage":
-        return <SimulationComingSoon type="Éclairage LED" />;
       default:
-        return null;
+        return <SimulationComingSoon type={SIMULATION_TABS.find(t => t.id === activeTab)?.label} />;
     }
   };
 
   return (
     <div className="simulation-panel">
       <div className="simulation-tabs">
-        {SIMULATION_TABS.map((tab) => (
-          <button
-            key={tab.id}
-            className={`simulation-tab ${activeTab === tab.id ? "active" : ""} ${!tab.available ? "disabled" : ""}`}
-            onClick={() => tab.available && setActiveTab(tab.id)}
-            disabled={!tab.available}
-          >
-            <span className="tab-icon">{tab.icon}</span>
-            <span className="tab-label">{tab.label}</span>
-            {!tab.available && <span className="tab-badge">Bientôt</span>}
-          </button>
-        ))}
+        {SIMULATION_TABS.map((tab) => {
+          const TabIcon = tab.icon;
+          return (
+            <button
+              key={tab.id}
+              className={`simulation-tab ${activeTab === tab.id ? "active" : ""} ${!tab.available ? "disabled" : ""}`}
+              onClick={() => tab.available && setActiveTab(tab.id)}
+              disabled={!tab.available}
+            >
+              <TabIcon size={16} />
+              <span className="tab-label">{tab.label}</span>
+              {!tab.available && <span className="tab-badge">Bientôt</span>}
+            </button>
+          );
+        })}
       </div>
       <div className="simulation-content">
-        {renderSimulationContent()}
+        {renderContent()}
       </div>
     </div>
   );
@@ -52,7 +55,7 @@ function SimulationPV({ data }) {
   if (!data) {
     return (
       <div className="simulation-empty">
-        <div className="empty-icon">☀️</div>
+        <Sun size={40} strokeWidth={1.5} />
         <h4>Simulation non disponible</h4>
         <p>Les données de simulation photovoltaïque ne sont pas encore calculées pour ce bâtiment.</p>
       </div>
@@ -61,40 +64,32 @@ function SimulationPV({ data }) {
 
   return (
     <div className="simulation-pv">
-      <div className="simulation-header">
-        <h4>Simulation Panneaux Photovoltaïques</h4>
-        <span className="simulation-status active">Disponible</span>
-      </div>
-
       <div className="simulation-grid">
         <div className="simulation-stat">
-          <span className="stat-icon">⚡</span>
+          <Zap size={20} className="stat-icon" />
           <div className="stat-content">
-            <span className="stat-value">{data.puissance_kw || 0} kW</span>
+            <span className="stat-value">{formatNumber(data.puissance_kw || 0)} kW</span>
             <span className="stat-label">Puissance installée</span>
           </div>
         </div>
-
         <div className="simulation-stat">
-          <span className="stat-icon">📊</span>
+          <BarChart3 size={20} className="stat-icon" />
           <div className="stat-content">
-            <span className="stat-value">{data.production_kwh || 0} kWh</span>
+            <span className="stat-value">{formatNumber(data.production_kwh || 0)} kWh</span>
             <span className="stat-label">Production annuelle</span>
           </div>
         </div>
-
         <div className="simulation-stat highlight">
-          <span className="stat-icon">💰</span>
+          <DollarSign size={20} className="stat-icon" />
           <div className="stat-content">
-            <span className="stat-value">{data.economies_annuelles || 0} €/an</span>
+            <span className="stat-value">{formatNumber(data.economies_annuelles || 0)} €/an</span>
             <span className="stat-label">Économies annuelles</span>
           </div>
         </div>
-
         <div className="simulation-stat">
-          <span className="stat-icon">🌱</span>
+          <Leaf size={20} className="stat-icon" />
           <div className="stat-content">
-            <span className="stat-value">{data.reduction_co2_kg || 0} kg</span>
+            <span className="stat-value">{formatNumber(data.reduction_co2_kg || 0)} kg</span>
             <span className="stat-label">CO₂ évité / an</span>
           </div>
         </div>
@@ -102,12 +97,12 @@ function SimulationPV({ data }) {
 
       <div className="simulation-details">
         <div className="detail-row">
-          <span className="detail-label">Retour sur investissement</span>
+          <span className="detail-label"><Clock size={14} /> Retour sur investissement</span>
           <span className="detail-value">{data.roi_annees || "—"} ans</span>
         </div>
         <div className="detail-row estimation">
-          <span className="detail-label">Estimation des coûts d'installation</span>
-          <span className="detail-value">{data.cout_installation || "À calculer"} €</span>
+          <span className="detail-label"><DollarSign size={14} /> Estimation des coûts d'installation</span>
+          <span className="detail-value">{formatNumber(data.cout_installation) || "À calculer"} €</span>
         </div>
       </div>
     </div>
@@ -117,12 +112,9 @@ function SimulationPV({ data }) {
 function SimulationComingSoon({ type }) {
   return (
     <div className="simulation-coming-soon">
-      <div className="coming-soon-content">
-        <div className="coming-soon-icon">🚧</div>
-        <h4>Simulation {type}</h4>
-        <p>Cette simulation sera bientôt disponible.</p>
-        <p className="coming-soon-hint">Nous travaillons activement sur cette fonctionnalité pour vous aider à optimiser votre consommation énergétique.</p>
-      </div>
+      <Construction size={40} strokeWidth={1.5} />
+      <h4>Simulation {type}</h4>
+      <p>Cette simulation sera bientôt disponible.</p>
     </div>
   );
 }

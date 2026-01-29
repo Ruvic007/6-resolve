@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import { Layout } from "./layout/Layout.jsx";
+import { AppLayout } from "./layout/AppLayout.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import Audit from "./pages/Audit";
 import { AuthenticationPage } from "./pages/AuthenticationPage";
@@ -12,13 +13,19 @@ import { Historique } from "./pages/Historique";
 export default function App() {
   return (
     <Routes>
-      {/* Routes d'authentification séparées */}
+      {/* Routes d'authentification */}
       <Route path="/sign-in/*" element={<AuthenticationPage />} />
       <Route path="/sign-up/*" element={<AuthenticationPage />} />
 
-      {/* Routes principales */}
+      {/* Routes publiques avec Layout classique */}
       <Route element={<Layout />}>
         <Route path="/" element={<HomePage />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contacts />} />
+      </Route>
+
+      {/* Routes applicatives avec AppLayout (dock) */}
+      <Route element={<AppLayout />}>
         <Route
           path="/audit"
           element={
@@ -27,11 +34,6 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-        {/* Routes publiques */}
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contacts />} />
-        
-        {/* ROUTES DASHBOARD AJOUTÉES */}
         <Route
           path="/dashboard"
           element={
@@ -48,8 +50,6 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-
-        {/* ROUTE HISTORIQUE */}
         <Route
           path="/historique"
           element={

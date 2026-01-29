@@ -1,0 +1,124 @@
+/* === DOCK CONTAINER === */
+.dock-outer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.dock-panel {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem 0.5rem;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: none;
+  border-radius: 20px 20px 0 0;
+  box-shadow:
+    0 -4px 20px rgba(0, 0, 0, 0.08),
+    0 -1px 4px rgba(0, 0, 0, 0.04);
+  pointer-events: auto;
+}
+
+/* === DOCK ITEM === */
+.dock-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #ffffff, #f3f4f6);
+  border: 1px solid #e5e7eb;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.08),
+    0 1px 2px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dock-item:hover {
+  border-color: #10b981;
+  box-shadow:
+    0 4px 12px rgba(16, 185, 129, 0.15),
+    0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.dock-item:focus-visible {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.dock-item.active {
+  background: linear-gradient(145deg, #10b981, #059669);
+  border-color: #059669;
+}
+
+.dock-item.active .dock-icon {
+  color: #ffffff;
+}
+
+.dock-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  background: #10b981;
+  border-radius: 50%;
+}
+
+/* === DOCK ICON === */
+.dock-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #374151;
+  transition: color 0.2s ease;
+}
+
+.dock-item:hover .dock-icon {
+  color: #10b981;
+}
+
+/* === DOCK LABEL === */
+.dock-label {
+  position: absolute;
+  top: -2.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #374151;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 640px) {
+  .dock-panel {
+    gap: 0.5rem;
+    padding: 0.4rem 0.5rem 0.4rem;
+  }
+
+  .dock-label {
+    font-size: 0.65rem;
+    padding: 0.25rem 0.5rem;
+  }
+}

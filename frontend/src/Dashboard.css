@@ -246,6 +246,8 @@
 .tab-badge.no-data {
   background: #f3f4f6;
   color: #6b7280;
+  font-size: 0.55rem;
+  padding: 0.05rem 0.3rem;
 }
 
 .simulation-content {

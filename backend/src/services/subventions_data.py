@@ -5,9 +5,10 @@ SUBVENTIONS_LIST = [
         "organisme": "ADEME",
         "categorie": "Efficacité Énergétique",
         "cible": "PME < 250 salariés",
-        "aide_max": "80% de l'investissement",
-        "description": "Aide forfaitaire pour l'isolation, l'éclairage LED, ou le froid commercial.",
-        "url": "https://agirpourlatransition.ademe.fr/entreprises/aides-financieres/catalogue/2026/tremplin-pour-la-transition-ecologique-des-pme"
+        "aide_max": "Aide forfaitaire",
+        "description": "Accédez à des aides forfaitaires simplifiées pour vos premières actions de transition écologique (éclairage, isolation, froid).",
+        # Lien vers le portail général Agir pour la transition (plus stable)
+        "url": "https://agirpourlatransition.ademe.fr/entreprises/"
     },
     {
         "id": "diag-decarbonaction",
@@ -15,8 +16,9 @@ SUBVENTIONS_LIST = [
         "organisme": "Bpifrance",
         "categorie": "Conseil & Stratégie",
         "cible": "PME & ETI < 500 salariés",
-        "aide_max": "Prise en charge jusqu'à 60%",
-        "description": "Bilan gaz à effet de serre (GES) et plan d'action de décarbonation avec un expert.",
+        "aide_max": "Jusqu'à 60% pris en charge",
+        "description": "Mesurez vos émissions de gaz à effet de serre et construisez votre plan d'action avec un expert financé par Bpifrance.",
+        # Lien officiel du programme Climat Bpifrance
         "url": "https://diag.bpifrance.fr/diag-decarbon-action"
     },
     {
@@ -25,18 +27,20 @@ SUBVENTIONS_LIST = [
         "organisme": "Fournisseurs d'énergie",
         "categorie": "Rénovation",
         "cible": "Tous secteurs",
-        "aide_max": "Variable (Prime directe)",
-        "description": "Primes pour le remplacement de chaudières, isolation, ou variateurs de vitesse.",
-        "url": "https://www.ecologie.gouv.fr/politiques-publiques/dispositif-des-certificats-deconomies-denergie-cee"
+        "aide_max": "Variable (Prime CEE)",
+        "description": "Financement de travaux standards (isolation, chauffage) par les fournisseurs d'énergie (EDF, Engie, Total...).",
+        # Lien vers la page explicative du ministère
+        "url": "https://www.ecologie.gouv.fr/politiques-publiques/dispositif-certificats-deconomies-denergie"
     },
     {
         "id": "fonds-chaleur",
         "nom": "Le Fonds Chaleur",
         "organisme": "ADEME",
         "categorie": "Énergies Renouvelables",
-        "cible": "Entreprises avec besoins thermiques",
-        "aide_max": "45% de l'investissement",
-        "description": "Soutient la production de chaleur via biomasse, géothermie ou solaire thermique.",
+        "cible": "Entreprises (gros besoins)",
+        "aide_max": "Sur dossier (subvention d'inv.)",
+        "description": "Soutien massif pour les installations de production de chaleur renouvelable (biomasse, géothermie, solaire thermique).",
+        # Site dédié du Fonds Chaleur
         "url": "https://fondschaleur.ademe.fr/"
     }
 ]

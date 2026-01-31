@@ -9,6 +9,7 @@ import { Contacts } from "./pages/Contacts";
 import { About } from "./pages/About";
 import { Dashboard } from "./pages/Dashboard";
 import { Historique } from "./pages/Historique";
+import Recommendations from "./pages/Recommendations";
 
 export default function App() {
   return (
@@ -58,7 +59,17 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/recommendations"
+          element={
+            <ProtectedRoute>
+              <Recommendations />
+            </ProtectedRoute>
+          }
+        />
       </Route>
+      {/* Route 404 - Optionnel mais recommandé */}
+      <Route path="*" element={<div>404 - Page non trouvée</div>} />
     </Routes>
   );
 }

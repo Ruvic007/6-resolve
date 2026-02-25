@@ -30,7 +30,9 @@ unit_tests:
   stage: test
   image: python:latest
   variables:
-    PYTHONPATH: "backend" # Pour que les tests trouvent le dossier src
+    PYTHONPATH: "backend"
+    SUPABASE_URL: $SUPABASE_URL
+    SUPABASE_KEY: $SUPABASE_KEY
   before_script:
     - pip3 install -r backend/requirements.txt
     - pip3 install pytest httpx # S'assure que pytest est là

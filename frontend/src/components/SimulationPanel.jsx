@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sun, Thermometer, Globe, Zap, BarChart3, DollarSign, Leaf, Clock, Construction, Ruler } from "lucide-react";
+import { Sun, Thermometer, Globe, Zap, BarChart3, DollarSign, Leaf, Clock, Construction, Ruler, ChevronDown, ChevronUp, MapPin, Layers, Calculator } from "lucide-react";
 
 // Fonction pour formater les nombres avec séparateur de milliers
 const formatNumber = (num) => {
@@ -50,6 +50,60 @@ export function SimulationPanel({ simulationPV, simulationThermique }) {
       <div className="simulation-content">
         {renderContent()}
       </div>
+    </div>
+  );
+}
+
+// --- Dropdown détail coût ---
+function CostBreakdown({ detail, type }) {
+  const [open, setOpen] = useState(false);
+
+  if (!detail) return null;
+
+  const isPV = type === "pv";
+
+  const lignes = isPV ? [
+    { icon: <Layers size={13} />, label: "Surface de toit totale", value: `${formatNumber(detail.surface_toit_m2)} m²` },
+    { icon: <Layers size={13} />, label: "Surface panneaux (60 % du toit)", value: `${formatNumber(detail.surface_panneaux_m2)} m²` },
+    { icon: <Zap size={13} />,    label: "Rendement des panneaux", value: detail.puissance_par_m2 },
+    { icon: <Zap size={13} />,    label: "Puissance installée", value: `${formatNumber(detail.puissance_kw)} kWc` },
+    { icon: <MapPin size={13} />, label: "Région", value: detail.region },
+    { icon: <Sun size={13} />,    label: "Ensoleillement régional", value: detail.ensoleillement },
+    { icon: <DollarSign size={13} />, label: "Prix unitaire", value: detail.prix_par_kw },
+  ] : [
+    { icon: <Layers size={13} />, label: "Surface de toit totale", value: `${formatNumber(detail.surface_toit_m2)} m²` },
+    { icon: <Layers size={13} />, label: "Surface capteurs (10 % du toit)", value: `${formatNumber(detail.surface_capteurs_m2)} m²` },
+    { icon: <MapPin size={13} />, label: "Région", value: detail.region },
+    { icon: <Sun size={13} />,    label: "Rendement régional", value: detail.rendement_region },
+    { icon: <DollarSign size={13} />, label: "Palier tarifaire", value: detail.palier_tarif },
+    { icon: <DollarSign size={13} />, label: "Prix au m²", value: detail.prix_par_m2 },
+  ];
+
+  return (
+    <div className="cost-breakdown">
+      <button className="cost-breakdown-toggle" onClick={() => setOpen(!open)}>
+        <Calculator size={14} />
+        <span>Détail du calcul du coût d'{isPV ? "installation photovoltaïque" : "installation thermique"}</span>
+        {open ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+      </button>
+
+      {open && (
+        <div className="cost-breakdown-body">
+          <div className="cost-breakdown-lines">
+            {lignes.map((l, i) => (
+              <div className="cost-breakdown-line" key={i}>
+                <span className="cb-icon">{l.icon}</span>
+                <span className="cb-label">{l.label}</span>
+                <span className="cb-value">{l.value}</span>
+              </div>
+            ))}
+          </div>
+          <div className="cost-breakdown-formula">
+            <Calculator size={12} />
+            <span>{detail.formule} = {detail.resultat_cout ? `${formatNumber(detail.resultat_cout)} €` : "Calcul en cours"}</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -108,6 +162,8 @@ function SimulationPV({ data }) {
           <span className="detail-value">{data.roi_annees ? `${data.roi_annees} ans` : "—"}</span>
         </div>
       </div>
+
+      <CostBreakdown detail={data.detail_cout} type="pv" />
     </div>
   );
 }
@@ -166,6 +222,8 @@ function SimulationThermique({ data }) {
           <span className="detail-value">{data.roi_annees ? `${data.roi_annees} ans` : "—"}</span>
         </div>
       </div>
+
+      <CostBreakdown detail={data.detail_cout} type="thermique" />
     </div>
   );
 }

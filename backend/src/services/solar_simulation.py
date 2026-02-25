@@ -1,4 +1,5 @@
 from typing import Dict, Any
+from src.services.region_utils import determiner_region
 
 class SolarSimulation:
     def __init__(self):
@@ -22,27 +23,9 @@ class SolarSimulation:
         region = self._determiner_region(code_postal)
         production_kwh = puissance_kw * self.ensoleillement_regions[region]
         return round(production_kwh, 2)
-    
+
     def _determiner_region(self, code_postal: str) -> str:
-        """Détermine la région d'ensoleillement basée sur le code postal"""
-        if not code_postal or len(code_postal) < 2:
-            return "ouest"  # Valeur par défaut
-        
-        try:
-            prefixe = int(code_postal[:2])
-            
-            if prefixe in [2, 59, 62, 80,75, 77, 78, 91, 92, 93, 94, 95, 60, 14, 50, 61, 27, 76]:  # Nord, et IDF
-                return "nord"
-            elif prefixe in [67, 68, 57, 54, 55, 88, 21, 25, 39, 70, 71, 89, 52, 10, 51]:  # Alsace, Lorraine
-                return "est"
-            elif prefixe in [35, 56, 29, 22, 44, 85, 17, 79, 86, 18, 28, 36, 37, 41, 45]:  # Bretagne, Pays de la Loire, Poitou
-                return "ouest"
-            elif prefixe in [83, 84, 13, 30, 34, 66, 11, 12, 48, 7, 26, 38]:  # PACA, Occitanie, Auvergne-Rhône-Alpes
-                return "mediterranee"
-            else: 
-                return "sud"
-        except ValueError:
-            return "sud"  # Valeur par défaut en cas d'erreur
+        return determiner_region(code_postal)
     
     def calculer_economies_annuelles(self, production_kwh: float, taux_autoconsommation: float, 
                                    tarif_rachat: float, prix_kwh_achete: float) -> Dict[str, float]:

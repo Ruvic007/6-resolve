@@ -1,4 +1,5 @@
 from typing import Dict, Any
+from src.services.region_utils import determiner_region
 
 class ThermalSimulation:
     def __init__(self):
@@ -29,18 +30,7 @@ class ThermalSimulation:
         return 850  # Tarif pour les très grandes surfaces industrielles
 
     def _determiner_region(self, code_postal: str) -> str:
-        """Détermine la zone climatique."""
-        if not code_postal or len(str(code_postal)) < 2:
-            return "sud"
-        
-        pref = str(code_postal)[:2]
-        if pref in ['02', '59', '62', '80']: return "nord"
-        if pref in ['67', '68', '57', '54', '55', '88']: return "est"
-        if pref in ['35', '56', '29', '22', '44', '85', '17', '79', '86']: return "ouest"
-        if pref in ['83', '84', '13', '30', '34', '66', '11', '12', '48', '07', '26', '38']: return "mediterranee"
-        # Ajout du 91 explicitement au Nord si tu veux éviter le "sud" par défaut
-        if pref in ['91', '75', '77', '78', '92', '93', '94', '95']: return "nord" 
-        return "sud"
+        return determiner_region(code_postal)
 
     def calculer_simulation_complete(self, surface_toit: float, cp: str, type_chauffage: str, prix_kwh: float) -> Dict[str, Any]:
         """Méthode principale : le ROI variera désormais selon la surface."""

@@ -197,6 +197,91 @@ async def get_simulations_entreprise(company_id: int):
     except Exception as e:
         return {"status": "error", "message": f"Erreur lors de la récupération: {str(e)}"}
     
+NOMS_REGIONS = {
+    "nord": "Nord / Nord-Est",
+    "est": "Est / Alsace-Lorraine",
+    "ouest": "Ouest / Bretagne",
+    "sud": "Sud / Centre",
+    "mediterranee": "Méditerranée / PACA",
+}
+
+PRIX_KW_PV = 1500  # €/kWc
+
+
+def _build_simulation_pv(simulation_data: dict, company: dict) -> dict:
+    puissance_kw = simulation_data.get("puissance_installee_kw", 0) or 0
+    prix_installation = simulation_data.get("prix_installation_ht", 0) or 0
+    surface_panneaux = simulation_data.get("surface_panneaux_m2", 0) or 0
+    surface_toit = float(company.get("surface_toit") or 0)
+    code_postal = str(company.get("code_postal") or "")
+
+    solar = SolarSimulation()
+    region_key = solar._determiner_region(code_postal)
+    ensoleillement = solar.ensoleillement_regions.get(region_key, 1000)
+
+    prix_par_kw = round(prix_installation / puissance_kw) if puissance_kw > 0 else PRIX_KW_PV
+
+    return {
+        "puissance_kw": puissance_kw,
+        "production_kwh": simulation_data.get("production_annuelle_estimee_kwh", 0),
+        "economies_annuelles": simulation_data.get("economies_annuelles_estimees", 0),
+        "reduction_co2_kg": simulation_data.get("reduction_co2_annuelle_kg", 0),
+        "roi_annees": simulation_data.get("roi_annees", 0),
+        "prix_installation": prix_installation,
+        "detail_cout": {
+            "surface_toit_m2": surface_toit,
+            "surface_panneaux_m2": round(surface_panneaux, 1),
+            "taux_utilisation_toit": "60 %",
+            "puissance_par_m2": "150 Wc/m²",
+            "puissance_kw": puissance_kw,
+            "prix_par_kw": f"{prix_par_kw} €/kWc",
+            "region": NOMS_REGIONS.get(region_key, region_key),
+            "ensoleillement": f"{ensoleillement} kWh/kWc/an",
+            "formule": f"{round(surface_panneaux, 1)} m² × 0,15 kWc/m² = {puissance_kw} kWc  ×  {prix_par_kw} €/kWc",
+            "resultat_cout": round(prix_installation),
+        },
+    }
+
+
+def _build_simulation_thermique(thermal_data: dict, company: dict) -> dict:
+    surface_m2 = thermal_data.get("surface_m2", 0) or 0
+    prix_installation = thermal_data.get("cout_installation_estime", 0) or 0
+    surface_toit = float(company.get("surface_toit") or 0)
+    code_postal = str(company.get("code_postal") or "")
+
+    thermal = ThermalSimulation()
+    region_key = thermal._determiner_region(code_postal)
+    rendement = thermal.rendement_regions.get(region_key, 550)
+    prix_m2 = thermal._calculer_prix_m2_degressif(surface_m2)
+
+    return {
+        "surface_m2": surface_m2,
+        "production_kwh": thermal_data.get("production_kwh", 0),
+        "economies_annuelles": thermal_data.get("economies_annuelles_estimees", 0),
+        "reduction_co2_kg": thermal_data.get("reduction_co2_kg", 0),
+        "roi_annees": thermal_data.get("roi_annees", 0),
+        "prix_installation": prix_installation,
+        "detail_cout": {
+            "surface_toit_m2": surface_toit,
+            "surface_capteurs_m2": round(surface_m2, 1),
+            "taux_utilisation_toit": "10 %",
+            "region": NOMS_REGIONS.get(region_key, region_key),
+            "rendement_region": f"{rendement} kWh/m²/an",
+            "prix_par_m2": f"{prix_m2} €/m²",
+            "palier_tarif": _palier_thermique(surface_m2),
+            "formule": f"{round(surface_m2, 1)} m² × {prix_m2} €/m²",
+            "resultat_cout": round(prix_installation),
+        },
+    }
+
+
+def _palier_thermique(surface: float) -> str:
+    if surface < 20:   return "< 20 m² → 1 300 €/m²"
+    if surface < 100:  return "20–100 m² → 1 100 €/m²"
+    if surface < 500:  return "100–500 m² → 950 €/m²"
+    return "> 500 m² → 850 €/m²"
+
+
 @router.get("/dashboard/{company_id}")
 async def get_dashboard_data(company_id: int):
     """Récupère toutes les données nécessaires pour le dashboard"""
@@ -269,22 +354,8 @@ async def get_dashboard_data(company_id: int):
                 {"label": "Année construction", "value": str(company.get("annee_construction", "—"))},
                 {"label": "Secteur", "value": company.get("secteur_activite", "—")}
             ],
-            "simulationPV": {
-                "puissance_kw": simulation_data.get("puissance_installee_kw", 0),
-                "production_kwh": simulation_data.get("production_annuelle_estimee_kwh", 0),
-                "economies_annuelles": simulation_data.get("economies_annuelles_estimees", 0),
-                "reduction_co2_kg": simulation_data.get("reduction_co2_annuelle_kg", 0),
-                "roi_annees": simulation_data.get("roi_annees", 0),
-                "prix_installation": simulation_data.get("prix_installation_ht", 0)
-            } if simulation_data else None,
-            "simulationThermique": {
-                "surface_m2": thermal_data.get("surface_m2", 0),
-                "production_kwh": thermal_data.get("production_kwh", 0),
-                "economies_annuelles": thermal_data.get("economies_annuelles_estimees", 0),
-                "reduction_co2_kg": thermal_data.get("reduction_co2_kg", 0),
-                "roi_annees": thermal_data.get("roi_annees", 0),
-                "prix_installation": thermal_data.get("cout_installation_estime", 0)
-            } if thermal_data else None,
+            "simulationPV": _build_simulation_pv(simulation_data, company) if simulation_data else None,
+            "simulationThermique": _build_simulation_thermique(thermal_data, company) if thermal_data else None,
             "benchmark": {
                 "pourcentage": audit_data.get("benchmark", 100),
                 "secteur": company.get("secteur_activite", "Non spécifié"),

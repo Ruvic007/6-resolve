@@ -1,3 +1,8 @@
+stages:
+  - lint
+  - test
+
+# linter
 pylint:
   stage: test
   image: python:latest
@@ -19,3 +24,21 @@ pylint:
       - public
       - pylint.svg
     when: always
+
+    #exécution des tests
+unit_tests:
+  stage: test
+  image: python:latest
+  variables:
+    PYTHONPATH: "backend"
+    SUPABASE_URL: $SUPABASE_URL
+    SUPABASE_KEY: $SUPABASE_KEY
+  before_script:
+    - pip3 install -r backend/requirements.txt
+    - pip3 install pytest httpx # S'assure que pytest est là
+  script:
+    - cd backend && pytest tests/ -v
+  artifacts:
+    when: always
+    paths:
+      - backend/tests/

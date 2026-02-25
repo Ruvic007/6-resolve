@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { HandCoins, ExternalLink, Building2, Target, BadgeEuro } from "lucide-react";
+import { HandCoins, ExternalLink, Target, BadgeEuro } from "lucide-react";
 
 export function SubventionsPanel() {
   const [subventions, setSubventions] = useState([]);
@@ -9,12 +9,12 @@ export function SubventionsPanel() {
     const fetchSubventions = async () => {
       const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
       try {
-        const response = await fetch(`${baseUrl}/subventions/`);
+        const response = await fetch(`${baseUrl}/api/subventions/`);
         if (response.ok) {
           const result = await response.json();
-          if (result.status === "success") {
-            setSubventions(result.data);
-          }
+          const data = result.data || result; 
+          setSubventions(data);
+          setSubventions(result.data);
         }
       } catch (err) {
         console.error("Erreur chargement subventions:", err);

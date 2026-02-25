@@ -1,6 +1,7 @@
 stages:
   - lint
   - test
+  - coverage
 
 # linter
 pylint:
@@ -24,6 +25,38 @@ pylint:
       - public
       - pylint.svg
     when: always
+
+    # Tests unitaires frontend (Vitest)
+frontend_tests:
+  stage: test
+  image: node:20-alpine
+  before_script:
+    - cd frontend
+    - npm ci
+  script:
+    - npm run test -- --run --reporter=verbose
+  artifacts:
+    when: always
+    paths:
+      - frontend/coverage/
+
+frontend_coverage:
+  stage: coverage
+  image: node:20-alpine
+  before_script:
+    - cd frontend
+    - npm ci
+  script:
+    - npm run test:coverage -- --run
+  coverage: '/^All files\s+\|\s+[\d.]+/'
+  artifacts:
+    when: always
+    paths:
+      - frontend/coverage/
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: frontend/coverage/cobertura-coverage.xml
 
     #exécution des tests
 unit_tests:

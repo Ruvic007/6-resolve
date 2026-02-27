@@ -237,7 +237,7 @@ export default function Recommendations() {
     <div className="recommendations-header">
       <button 
         className="back-button"
-        onClick={() => navigate(-1)}
+        onClick={() => navigate("/")}
       >
         <ArrowLeft size={20} />
         Retour

@@ -164,6 +164,21 @@ export function Dashboard() {
         <h2 className="section-title">Simulations d'optimisation</h2>
         <SimulationPanel simulationPV={finalData.simulationPV} simulationThermique={finalData.simulationThermique} />
       </section>
+      
+   {/* Onglet vers les recommandations */}
+      <section className="dashboard-section recommendations-tab">
+        <div className="recommendations-card">
+          <h2 className="section-title">Recommandations personnalisées</h2>
+          <p>Consultez nos recommandations d'optimisation énergétique</p>
+          <button 
+            className="primary-btn"
+            onClick={() => navigate("/recommendations")} // Adaptez le chemin selon votre route
+          >
+            Voir mes recommandations
+          </button>
+        </div>
+      </section>
+
 
       {/* Aides financières */}
       <section className="dashboard-section">

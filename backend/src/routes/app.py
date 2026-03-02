@@ -1,33 +1,15 @@
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, Request, Depends, HTTPException
 from sqlalchemy.orm import Session
 from src.database.db import get_db
 from src.database.models import (Company, Energy, AuditReport, SimulationPV, ThermalSimulation as ModelThermal)
+from src.auth.clerk_auth import verify_clerk_token
 from src.services.solar_simulation import SolarSimulation
 from src.services.thermal_simulation import ThermalSimulation as ServiceThermal
 from src.services.benchmark import moyenne_conso_m2_secteur
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from pathlib import Path
 import json
-
-# Fonction utilitaire pour convertir proprement "Oui"/"Non" ou True/False en booléen Python
-def parse_bool(value):
-    if isinstance(value, bool):
-        return value
-    if isinstance(value, str):
-        return value.lower() in ["oui", "true", "1", "yes"]
-    return False
-
-def parse_int(value):
-    try:
-        return int(value)
-    except (ValueError, TypeError):
-        return 0
-
-def parse_float(value):
-    try:
-        return float(value)
-    except (ValueError, TypeError):
-        return 0.0
+from pydantic import BaseModel
 
 BASE_DIR = Path(__file__).parent.parent.parent
 MOCK_FILE = BASE_DIR / "mock_data.json"
@@ -35,13 +17,23 @@ MOCK_FILE = BASE_DIR / "mock_data.json"
 router = APIRouter()
 
 # --- UTILS ---
+
 def model_to_dict(model):
     """Convertit un modèle SQLAlchemy en dictionnaire."""
     if not model:
         return {}
     return {c.name: getattr(model, c.name) for c in model.__table__.columns}
 
+def parse_int(val):
+    try: return int(val)
+    except: return None
+
+def parse_float(val):
+    try: return float(val)
+    except: return None
+
 # --- CONSTANTES ---
+
 NOMS_REGIONS = {
     "nord": "Nord / Nord-Est",
     "est": "Est / Alsace-Lorraine",
@@ -53,9 +45,9 @@ PRIX_KW_PV = 1500
 
 # --- LOGIQUE MÉTIER ---
 
-async def traiter_questionnaire_data(data: Dict[str, Any], db: Session) -> Dict[str, Any]:
+async def traiter_questionnaire_data(data: Dict[str, Any], db: Session, user_id: str) -> Dict[str, Any]:
     """Logique métier utilisant SQLAlchemy Session."""
-    
+
     try:
         # --- 1. Création Entreprise ---
         new_company = Company(
@@ -68,14 +60,14 @@ async def traiter_questionnaire_data(data: Dict[str, Any], db: Session) -> Dict[
             surface_toit=parse_float(data.get("surface_toit")),
             jours_semaine=parse_int(data.get("jours_semaine")),
             heures_par_jour=parse_float(data.get("heures_par_jour")),
-            user_id=data.get("user_id")
+            user_id=user_id  # Extrait du JWT — jamais du body client
         )
         db.add(new_company)
-        db.flush() # Important: génère l'ID sans commiter la transaction
+        db.flush()  # Génère l'ID sans commiter
         company_id = new_company.id
 
         # --- 2. Création Données Énergétiques ---
-        energy_data = Energy(
+        energy_model = Energy(
             company_id=company_id,
             annee=parse_int(data.get("annee")),
             conso_elec=parse_float(data.get("conso_elec")),
@@ -87,22 +79,21 @@ async def traiter_questionnaire_data(data: Dict[str, Any], db: Session) -> Dict[
             type_chauffage=data.get("type_chauffage"),
             type_eclairage=data.get("type_eclairage"),
             niveau_isolation=data.get("niveau_isolation"),
-            emission_co2_kg=parse_float(data.get("emission_co2_kg"))
+            emission_co2_kg=parse_float(data.get("emission_co2_kg")) or 0
         )
-        db.add(energy_data)
+        db.add(energy_model)
 
         # --- 3. Benchmark ---
         secteur = new_company.secteur_activite
-        surface_m2 = new_company.surface_locaux
-        # Évite division par zéro
-        conso_reelle_m2 = (energy_data.conso_elec / surface_m2) if surface_m2 > 0 else 0
+        surface_m2 = new_company.surface_locaux or 0
+        conso_reelle_m2 = ((energy_model.conso_elec or 0) / surface_m2) if surface_m2 > 0 else 0
         benchmark_secteur = moyenne_conso_m2_secteur.get(secteur, 150.0)
         benchmark_pourcentage = round((conso_reelle_m2 / benchmark_secteur) * 100) if benchmark_secteur > 0 else 0
 
         audit_report = AuditReport(
             id=company_id,
             benchmark=benchmark_pourcentage,
-            energy_score=0, 
+            energy_score=0,
             part_electricite_sur_total=0
         )
         db.add(audit_report)
@@ -114,18 +105,12 @@ async def traiter_questionnaire_data(data: Dict[str, Any], db: Session) -> Dict[
 
         if surface_toit and code_postal:
             simulation = SolarSimulation()
-            
+
             p_installee = simulation.estimer_puissance_installation(surface_toit)
             prix_inst = simulation.estimer_cout_installation(p_installee)
-            prod_annuelle = simulation.estimer_production_annuelle(code_postal, p_installee)
-            
-            # Calcul prix kWh réel
-            prix_kwh_reel = simulation.prix_kwh_entreprise
-            conso = energy_data.conso_elec
-            cout = energy_data.prix_elec
-            
-            if conso > 0 and cout > 0:
-                prix_kwh_reel = max((cout / conso), 0.10)
+            prod_annuelle = simulation.estimer_production_annuelle(str(code_postal), p_installee)
+
+            prix_kwh_reel = max(parse_float(data.get("prix_elec")) or simulation.prix_kwh_entreprise, 0.10)
 
             economies = simulation.calculer_economies_annuelles(prod_annuelle, 0.7, 0.10, prix_kwh_reel)
             co2_kg = simulation.calculer_reduction_co2(prod_annuelle)
@@ -155,30 +140,34 @@ async def traiter_questionnaire_data(data: Dict[str, Any], db: Session) -> Dict[
 
             # --- 5. Simulation Thermique ---
             try:
-                type_chauffage_client = data.get("type_chauffage", "Gaz")
+                type_chauffage_client = data.get("type_chauffage") or "gaz"
                 thermal_service = ServiceThermal()
-                prix_th = 0.18 if type_chauffage_client == "Électrique" else 0.12 
-                
+                prix_th = max(
+                    parse_float(data.get("prix_gaz")) or parse_float(data.get("prix_elec")) or 0.10,
+                    0.10
+                )
+
                 res_th = thermal_service.calculer_simulation_complete(
                     surface_toit=surface_toit,
-                    cp=code_postal,
+                    cp=str(code_postal),
                     type_chauffage=type_chauffage_client,
                     prix_kwh=prix_th
                 )
 
-                sim_th = ModelThermal(
-                    company_id=company_id,
-                    surface_m2=res_th["surface_m2"],
-                    production_kwh=res_th["production_kwh"],
-                    cout_installation_estime=res_th["cout_installation"],
-                    economies_annuelles_estimees=res_th["economies_annuelles"],
-                    roi_annees=res_th["roi_annees"],
-                    reduction_co2_kg=res_th["reduction_co2_kg"]
-                )
-                db.add(sim_th)
+                if res_th["surface_m2"] > 0:
+                    sim_th = ModelThermal(
+                        company_id=company_id,
+                        surface_m2=res_th["surface_m2"],
+                        production_kwh=res_th["production_kwh"],
+                        cout_installation_estime=res_th["cout_installation"],
+                        economies_annuelles_estimees=res_th["economies_annuelles"],
+                        roi_annees=res_th["roi_annees"],
+                        reduction_co2_kg=res_th["reduction_co2_kg"]
+                    )
+                    db.add(sim_th)
 
             except Exception as e:
-                print(f"DEBUG: Échec enregistrement thermique : {str(e)}")
+                print(f"Échec simulation thermique : {str(e)}")
 
         # Validation finale de la transaction
         db.commit()
@@ -190,35 +179,53 @@ async def traiter_questionnaire_data(data: Dict[str, Any], db: Session) -> Dict[
         }
 
     except Exception as e:
-        db.rollback() # Annule tout en cas d'erreur
-        raise e 
+        db.rollback()
+        raise e
 
 
 # --- ROUTES ---
 
 @router.post("/questionnaire")
-async def recevoir_questionnaire(request: Request, db: Session = Depends(get_db)):
-    """Reçoit les données du questionnaire depuis le frontend."""
+async def recevoir_questionnaire(
+    request: Request,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(verify_clerk_token)
+):
+    """Reçoit les données du questionnaire depuis le frontend authentifié."""
     try:
         data = await request.json()
-        return await traiter_questionnaire_data(data, db)
+        return await traiter_questionnaire_data(data, db, user_id)
     except Exception as e:
         return {"status": "error", "message": f"Erreur générale: {str(e)}"}
 
+
+class TestRequest(BaseModel):
+    exemple_id: Optional[int] = 1
+
 @router.post("/questionnaire/test")
-async def recevoir_questionnaire_test(db: Session = Depends(get_db)):
-    """Charge mock_data.json et exécute la logique."""
+async def recevoir_questionnaire_test(request: TestRequest, db: Session = Depends(get_db)):
+    """Charge mock_data.json et exécute la logique (sans auth)."""
     try:
         if not MOCK_FILE.exists():
             return {"status": "error", "message": f"Fichier mock introuvable: {MOCK_FILE}"}
-        
+
         with MOCK_FILE.open(encoding="utf-8") as f:
             data = json.load(f)
-        
-        return await traiter_questionnaire_data(data, db)
-        
+
+        if not data:
+            return {"status": "error", "message": "Fichier mock vide !"}
+
+        if not (1 <= request.exemple_id <= len(data)):
+            return {"status": "error", "message": f"exemple_id doit être 1-{len(data)}"}
+
+        exemple = data[request.exemple_id - 1]
+        return await traiter_questionnaire_data(exemple, db, user_id="test_mock_user")
+
+    except json.JSONDecodeError as e:
+        return {"status": "error", "message": f"JSON invalide: {str(e)}"}
     except Exception as e:
-        return {"status": "error", "message": f"Erreur test: {str(e)}"}
+        return {"status": "error", "message": f"Erreur: {type(e).__name__}: {str(e)}"}
+
 
 @router.get("/simulations/{company_id}")
 async def get_simulations_entreprise(company_id: int, db: Session = Depends(get_db)):
@@ -229,16 +236,20 @@ async def get_simulations_entreprise(company_id: int, db: Session = Depends(get_
     except Exception as e:
         return {"status": "error", "message": f"Erreur lors de la récupération: {str(e)}"}
 
+
 @router.get("/companies")
-async def get_all_companies(user_id: str = None, db: Session = Depends(get_db)):
-    """Récupère la liste des entreprises."""
+async def get_all_companies(
+    user_id: str = Depends(verify_clerk_token),
+    db: Session = Depends(get_db)
+):
+    """Récupère uniquement les entreprises/audits de l'utilisateur connecté."""
     try:
-        query = db.query(Company)
-        if user_id:
-            query = query.filter(Company.user_id == user_id)
-        
-        companies = query.order_by(Company.created_at.desc()).all()
-        
+        companies = (
+            db.query(Company)
+            .filter(Company.user_id == user_id)
+            .order_by(Company.created_at.desc())
+            .all()
+        )
         return {
             "status": "success",
             "data": [model_to_dict(c) for c in companies],
@@ -247,24 +258,28 @@ async def get_all_companies(user_id: str = None, db: Session = Depends(get_db)):
     except Exception as e:
         return {"status": "error", "message": f"Erreur lors de la récupération des entreprises: {str(e)}"}
 
+
 @router.get("/dashboard/{company_id}")
-async def get_dashboard_data(company_id: int, db: Session = Depends(get_db)):
-    """Récupère toutes les données nécessaires pour le dashboard"""
+async def get_dashboard_data(
+    company_id: int,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(verify_clerk_token)
+):
+    """Récupère toutes les données nécessaires pour le dashboard."""
     try:
-        # Récupération via ORM
         company = db.query(Company).filter(Company.id == company_id).first()
         if not company:
             return {"status": "error", "message": "Entreprise non trouvée"}
 
+        # CONTRÔLE D'ACCÈS : vérifier que cette entreprise appartient bien à l'utilisateur connecté.
+        if company.user_id != user_id:
+            raise HTTPException(status_code=403, detail="Accès refusé : cette entreprise ne vous appartient pas.")
+
         energy_model = db.query(Energy).filter(Energy.company_id == company_id).first()
         simulation_data = db.query(SimulationPV).filter(SimulationPV.company_id == company_id).first()
         thermal_data = db.query(ModelThermal).filter(ModelThermal.company_id == company_id).first()
-        
-        # Pour AuditReport, attention à la clé primaire
         audit_data = db.query(AuditReport).filter(AuditReport.id == company_id).first()
 
-        # Conversion en Dictionnaires pour faciliter la manipulation
-        # (Les fonctions _build_simulation attendent des dicts, pas des objets ORM)
         comp_dict = model_to_dict(company)
         energy_dict = model_to_dict(energy_model)
         sim_dict = model_to_dict(simulation_data)
@@ -274,20 +289,18 @@ async def get_dashboard_data(company_id: int, db: Session = Depends(get_db)):
         # Calculs des métriques
         conso_elec = float(energy_dict.get("conso_elec", 0) or 0)
         conso_gaz = float(energy_dict.get("conso_gaz", 0) or 0)
-        cout_elec = float(energy_dict.get("prix_elec", 0) or 0)
-        cout_gaz = float(energy_dict.get("prix_gaz", 0) or 0)
-        cout_total = cout_elec + cout_gaz
+        prix_elec = float(energy_dict.get("prix_elec", 0) or 0)
+        prix_gaz = float(energy_dict.get("prix_gaz", 0) or 0)
+        cout_total = round(conso_elec * prix_elec + conso_gaz * prix_gaz, 2)
         co2_emissions = float(energy_dict.get("emission_co2_kg", 0) or 0)
 
-        energie_renouvelable_pct = 0
-        if sim_dict and conso_elec > 0:
-            production_pv = float(sim_dict.get("production_annuelle_estimee_kwh", 0) or 0)
-            energie_renouvelable_pct = round((production_pv / conso_elec) * 100, 1)
+        # Énergie renouvelable : % déclaré par l'utilisateur dans le questionnaire
+        energie_renouvelable_pct = float(energy_dict.get("pourcentage_renouvelable", 0) or 0)
 
         dashboard_data = {
             "company_name": comp_dict.get("nom", "Entreprise"),
             "metrics": {
-                "coutTotal": round(cout_total, 2),
+                "coutTotal": cout_total,
                 "consommationTotale": round(conso_elec + conso_gaz, 2),
                 "impactCarbone": round(co2_emissions / 1000, 2),
                 "energieRenouvelable": energie_renouvelable_pct
@@ -312,7 +325,6 @@ async def get_dashboard_data(company_id: int, db: Session = Depends(get_db)):
                 {"label": "Année construction", "value": str(comp_dict.get("annee_construction", "—"))},
                 {"label": "Secteur", "value": comp_dict.get("secteur_activite", "—")}
             ],
-            # On passe les dictionnaires aux helpers existants
             "simulationPV": _build_simulation_pv(sim_dict, comp_dict) if sim_dict else None,
             "simulationThermique": _build_simulation_thermique(thermal_dict, comp_dict) if thermal_dict else None,
             "benchmark": {
@@ -403,3 +415,8 @@ def _palier_thermique(surface: float) -> str:
     if surface < 100:  return "20–100 m² → 1 100 €/m²"
     if surface < 500:  return "100–500 m² → 950 €/m²"
     return "> 500 m² → 850 €/m²"
+
+
+@router.get("/")
+async def root():
+    return {"message": "API OK"}

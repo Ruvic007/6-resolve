@@ -1,6 +1,7 @@
 /* === DASHBOARD PAGE === */
 .dashboard-page {
   background-color: var(--bg-color);
+  min-height: calc(100vh - 60px); /* Couvre entièrement .app-main-dock */
   padding: 2rem;
   margin: 0 auto;
 }

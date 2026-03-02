@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth } from "@clerk/clerk-react";
 import { Bar, Doughnut } from "react-chartjs-2";
 import "../Dashboard.css";
 import "../SubventionsPanel.css";
@@ -38,10 +38,12 @@ export function Dashboard() {
   const navigate = useNavigate();
   const { companyId } = useParams();
   const { state } = useLocation();
-  const { user } = useUser();
+  // getToken() retourne le JWT Clerk de l'utilisateur connecté.
+  // On le passe au hook pour qu'il authentifie toutes les requêtes API.
+  const { getToken } = useAuth();
 
   const paramId = companyId || state?.companyId;
-  const { data, loading, error, currentCompanyId } = useDashboardData(paramId, user?.id);
+  const { data, loading, error, currentCompanyId } = useDashboardData(paramId, getToken);
 
   const fetchSubventions = async () => {
     setShowModal(true);

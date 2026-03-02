@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth } from "@clerk/clerk-react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useApp } from "../AppContext";
@@ -53,7 +53,9 @@ const FIELD_LABELS = {
 
 export default function StepSummary({ data, onBack }) {
   const navigate = useNavigate();
-  const { user } = useUser();
+  // useAuth() de Clerk donne accès à getToken() qui retourne le JWT signé de l'utilisateur.
+  // Ce token prouve l'identité côté backend — plus besoin d'envoyer user_id dans le body.
+  const { getToken } = useAuth();
   const { completeForm } = useApp();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -76,19 +78,21 @@ export default function StepSummary({ data, onBack }) {
     setIsSubmitting(true);
     try {
       const apiUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
-      const dataWithUser = {
-        ...data,
-        user_id: user?.id || null
-      };
-      console.log("=== Données envoyées au backend ===");
-      Object.entries(dataWithUser).forEach(([key, value]) => {
-        console.log(`${key}:`, value, `(type: ${typeof value})`);
-      });
-      console.log("===================================");
+
+      // On demande le token JWT à Clerk. Il est signé par Clerk et expire automatiquement.
+      // Le backend va le décoder et en extraire l'user_id — on n'a plus besoin de l'envoyer manuellement.
+      const token = await getToken();
+
+
       const response = await fetch(`${apiUrl}/api/questionnaire`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dataWithUser),
+        headers: {
+          "Content-Type": "application/json",
+          // L'en-tête Authorization est le standard HTTP pour transmettre un token Bearer.
+          // Format : "Bearer <token>" — le mot "Bearer" indique que c'est un jeton d'accès.
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
       });
 
       const result = await response.json();

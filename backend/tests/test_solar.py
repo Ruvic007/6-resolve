@@ -2,7 +2,7 @@ from src.services.solar_simulation import SolarSimulation
 
 def test_determiner_region():
     sim = SolarSimulation()
-    assert sim._determiner_region("75000") == "sud"
+    assert sim._determiner_region("75000") == "nord"
     assert sim._determiner_region("59000") == "nord"
     assert sim._determiner_region("13000") == "mediterranee"
 

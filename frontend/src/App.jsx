@@ -10,6 +10,7 @@ import { About } from "./pages/About";
 import { Dashboard } from "./pages/Dashboard";
 import { Historique } from "./pages/Historique";
 import Recommendations from "./pages/Recommendations";
+import NotFound from "./pages/NotFound";
 
 export default function App() {
   return (
@@ -68,8 +69,8 @@ export default function App() {
           }
         />
       </Route>
-      {/* Route 404 - Optionnel mais recommandé */}
-      <Route path="*" element={<div>404 - Page non trouvée</div>} />
+      {/* Route 404 */}
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

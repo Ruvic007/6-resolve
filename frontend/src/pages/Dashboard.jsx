@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 import { Bar, Doughnut } from "react-chartjs-2";
 import "../Dashboard.css";
-import "../SubventionsModal.css";
+import "../SubventionsPanel.css";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend } from "chart.js";
 import { DollarSign, Zap, Cloud, Leaf, ClipboardList, AlertTriangle, RefreshCw, BarChart2, ScrollText, Plus } from "lucide-react";
 
@@ -40,10 +40,6 @@ export function Dashboard() {
   const { state } = useLocation();
   const { user } = useUser();
 
-  const [showModal, setShowModal] = useState(false);
-  const [subventions, setSubventions] = useState([]);
-  const [loadingSubventions, setLoadingSubventions] = useState(false);
-
   const paramId = companyId || state?.companyId;
   const { data, loading, error, currentCompanyId } = useDashboardData(paramId, user?.id);
 
@@ -51,13 +47,13 @@ export function Dashboard() {
     setShowModal(true);
     setLoadingSubventions(true);
     try {
-      // 1. L'URL complète combine les deux préfixes
+      // L'URL complète combine les deux préfixes
       const response = await fetch("http://localhost:8000/api/subventions/");
       
       if (response.ok) {
         const jsonData = await response.json();
-        // 2. IMPORTANT : On stocke jsonData.data car votre API renvoie { status: "...", data: [...] }
-        setSubventions(jsonData.data); 
+        // On stocke jsonData.data car l'API renvoie { status: "...", data: [...] }
+        fetchSubventions(jsonData.data); 
       } else {
         console.error("Erreur API subventions");
       }
@@ -168,6 +164,21 @@ export function Dashboard() {
         <h2 className="section-title">Simulations d'optimisation</h2>
         <SimulationPanel simulationPV={finalData.simulationPV} simulationThermique={finalData.simulationThermique} />
       </section>
+      
+   {/* Onglet vers les recommandations */}
+      <section className="dashboard-section recommendations-tab">
+        <div className="recommendations-card">
+          <h2 className="section-title">Recommandations personnalisées</h2>
+          <p>Consultez nos recommandations d'optimisation énergétique</p>
+          <button 
+            className="primary-btn"
+            onClick={() => navigate("/recommendations")} // Adaptez le chemin selon votre route
+          >
+            Voir mes recommandations
+          </button>
+        </div>
+      </section>
+
 
       {/* Aides financières */}
       <section className="dashboard-section">
@@ -245,59 +256,6 @@ export function Dashboard() {
           )}
         </div>
       </section>
-      
-      <div className="subventions-banner-card" onClick={fetchSubventions}>
-        <div className="banner-content">
-          <h3>Boostez votre transition énergétique</h3>
-          <p>Découvrez toutes les aides financières disponibles.</p>
-        </div>
-        <button className="banner-btn">Voir la liste</button>
-      </div>
-
-      {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Catalogue des Aides ({subventions.length})</h2>
-              <button className="close-btn" onClick={() => setShowModal(false)}>×</button>
-            </div>
-            
-            <div className="modal-body">
-              {loadingSubventions ? (
-                <div className="loading-spinner" style={{margin: '20px auto'}}></div>
-              ) : subventions.length > 0 ? (
-                <div className="subventions-list">
-                  {subventions.map((sub, index) => (
-                    <div key={sub.id || index} className="subvention-card">
-                      <div className="sub-card-header">
-                        <div className="sub-badges">
-                          <span className="badge-org">{sub.organisme}</span>
-                          <span className="badge-cat">{sub.categorie}</span>
-                        </div>
-                        <h4 className="sub-title">{sub.nom}</h4>
-                      </div>
-                      
-                      <p className="sub-description">{sub.description}</p>
-                      
-                      <div className="sub-footer">
-                        <div className="sub-amount">
-                          <span className="amount-label">Aide max : </span>
-                          <span className="amount-value">{sub.aide_max}</span>
-                        </div>
-                        <a href={sub.url} target="_blank" rel="noopener noreferrer" className="sub-btn">
-                          Voir l'offre ↗
-                        </a>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p>Aucune aide disponible pour le moment.</p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

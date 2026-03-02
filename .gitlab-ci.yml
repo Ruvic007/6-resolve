@@ -1,3 +1,9 @@
+stages:
+  - lint
+  - test
+  - coverage
+
+# linter
 pylint:
   stage: test
   image: python:latest
@@ -19,3 +25,53 @@ pylint:
       - public
       - pylint.svg
     when: always
+
+    # Tests unitaires frontend (Vitest)
+frontend_tests:
+  stage: test
+  image: node:20-alpine
+  before_script:
+    - cd frontend
+    - npm ci
+  script:
+    - npm run test -- --run --reporter=verbose
+  artifacts:
+    when: always
+    paths:
+      - frontend/coverage/
+
+frontend_coverage:
+  stage: coverage
+  image: node:20-alpine
+  before_script:
+    - cd frontend
+    - npm ci
+  script:
+    - npm run test:coverage -- --run
+  coverage: '/^All files\s+\|\s+[\d.]+/'
+  artifacts:
+    when: always
+    paths:
+      - frontend/coverage/
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: frontend/coverage/cobertura-coverage.xml
+
+    #exécution des tests
+unit_tests:
+  stage: test
+  image: python:latest
+  variables:
+    PYTHONPATH: "backend"
+    SUPABASE_URL: $SUPABASE_URL
+    SUPABASE_KEY: $SUPABASE_KEY
+  before_script:
+    - pip3 install -r backend/requirements.txt
+    - pip3 install pytest httpx # S'assure que pytest est là
+  script:
+    - cd backend && pytest tests/ -v
+  artifacts:
+    when: always
+    paths:
+      - backend/tests/

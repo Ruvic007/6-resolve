@@ -87,6 +87,7 @@ const categoriesData = [
   }
 ];
 
+
 export default function StepCompany({ onNext, defaultValues, isFirstStep }) {
   const { register, handleSubmit, reset, control, watch, formState: { errors } } = useForm({
     defaultValues: defaultValues,
@@ -101,51 +102,63 @@ export default function StepCompany({ onNext, defaultValues, isFirstStep }) {
     .find(cat => cat.categorie === selectedCategorie)?.sous_categories || [];
 
   const onSubmit = (data) => {
-    // Call parent's onNext with data and the stepper's next function
-    if (onNext) {
-      onNext(data);
-    }
+    if (onNext) onNext(data);
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <h2><Building2 size={24} /> Informations sur l'entreprise</h2>
-      <p className="step-description">Renseignez les informations générales de votre entreprise et bâtiment.</p>
+    <form onSubmit={handleSubmit(onSubmit)} className="step-company-form">
+      <h2><Building2 size={24} /> Informations entreprise</h2>
+      <p className="step-description">Renseignez les informations générales.</p>
 
-      <div className="form-row">
+      {/* LIGNE 1 : Nom + Code postal */}
+      <div className="form-grid">
         <div className="field-group">
-          <label>Nom de l'entreprise *</label>
-          <input {...register("nom", { required: true })} placeholder="Ex: Ma Société SAS" />
+          <label>Nom de l'entreprise <span className="required">*</span></label>
+          <input 
+            {...register("nom", { 
+              required: "Nom obligatoire",
+              minLength: { value: 2, message: "Min 2 caractères" },
+              maxLength: { value: 100, message: "Max 100 caractères" }
+            })} 
+            placeholder="Ex: Ma Société SAS" 
+          />
+          {errors.nom && <p className="error">{errors.nom.message}</p>}
         </div>
         <div className="field-group">
-          <label>Code postal *</label>
-          <input {...register("code_postal", { required: true })} placeholder="Ex: 75001" />
+          <label>Code postal <span className="required">*</span></label>
+          <input 
+            {...register("code_postal", {
+              required: "Code postal obligatoire",
+              pattern: { value: /^[0-9]{5}$/, message: "5 chiffres requis" }
+            })}
+            placeholder="75001" 
+          />
+          {errors.code_postal && <p className="error">{errors.code_postal.message}</p>}
         </div>
       </div>
 
-      <div className="field-group">
-        <label>Catégorie d'activité *</label>
-        <Controller
-          name="categorie_activite"
-          control={control}
-          rules={{ required: "Choisissez une catégorie" }}
-          render={({ field }) => (
-            <select {...field}>
-              <option value="">-- Sélectionnez une catégorie --</option>
-              {categoriesData.map((cat) => (
-                <option key={cat.categorie} value={cat.categorie}>
-                  {cat.categorie}
-                </option>
-              ))}
-            </select>
-          )}
-        />
-        {errors.categorie_activite && (
-          <span className="error-message">{errors.categorie_activite.message}</span>
-        )}
-      </div>
-
-      <div className="field-group">
+      {/* LIGNE 2 : Catégorie + Surface locaux */}
+      <div className="form-grid">
+        <div className="field-group">
+          <label>Catégorie d'activité <span className="required">*</span></label>
+          <Controller
+            name="categorie_activite"
+            control={control}
+            rules={{ required: "Choisissez une catégorie" }}
+            render={({ field }) => (
+              <select {...field}>
+                <option value="">-- Sélectionnez --</option>
+                {categoriesData.map((cat) => (
+                  <option key={cat.categorie} value={cat.categorie}>
+                    {cat.categorie}
+                  </option>
+                ))}
+              </select>
+            )}
+          />
+          {errors.categorie_activite && <p className="error">{errors.categorie_activite.message}</p>}
+        </div>
+        <div className="field-group">
         <label>Sous-catégorie</label>
         <Controller
           name="sous_categorie"
@@ -153,24 +166,49 @@ export default function StepCompany({ onNext, defaultValues, isFirstStep }) {
           render={({ field }) => (
             <select {...field} disabled={!selectedCategorie}>
               <option value="">
-                {selectedCategorie
-                  ? "-- Sélectionnez une sous-catégorie --"
-                  : "-- Choisissez d'abord la catégorie --"}
+                {selectedCategorie ? "-- Sélectionnez --" : "-- Choisissez catégorie --"}
               </option>
               {sousCategoriesOptions.map((sous) => (
-                <option key={sous} value={sous}>
-                  {sous.replace(/-/g, " ").replace(/ {2}/g, " ")}
-                </option>
+                <option key={sous} value={sous}>{sous.replace(/-/g, " ")}</option>
               ))}
             </select>
           )}
         />
-      </div>
-
-      <div className="form-row">
         <div className="field-group">
-          <label>Type de bâtiment *</label>
-          <select {...register("type_batiment", { required: true })}>
+          <label>Surface locaux (m²) <span className="required">*</span></label>
+          <input 
+            {...register("surface_locaux", {
+              required: "Surface obligatoire",
+              valueAsNumber: true,
+              min: { value: 50, message: "Min 50m²" },
+              max: { value: 5000, message: "Max 5000m²" }
+            })} 
+            type="number" step="0.1"
+            placeholder="500"
+          />
+          {errors.surface_locaux && <p className="error">{errors.surface_locaux.message}</p>}
+        </div>
+        <div className="form-grid">
+          <div className="field-group">
+            <label>Surface toit (m²)</label>
+            <input 
+              {...register("surface_toit", {
+                valueAsNumber: true,
+                min: { value: 0, message: "Min 0m²" }
+              })} 
+              type="number" step="10"
+              placeholder="300"
+            />
+          </div>
+        </div>
+      </div>      
+    </div>
+
+      {/* LIGNE 3 : Type bâtiment + Année construction */}
+      <div className="form-grid">
+        <div className="field-group">
+          <label>Type de bâtiment <span className="required">*</span></label>
+          <select {...register("type_batiment", { required: "Type obligatoire" })}>
             <option value="">-- Sélectionnez --</option>
             <option value="bureau">Bureau</option>
             <option value="commerce">Commerce</option>
@@ -179,77 +217,57 @@ export default function StepCompany({ onNext, defaultValues, isFirstStep }) {
           </select>
         </div>
         <div className="field-group">
-          <label>Année de construction</label>
-          <input {...register("annee_construction")} type="number" placeholder="Ex: 1995" min="1800" max="2025" />
+          <label>Année construction</label>
+          <input 
+            {...register("annee_construction", {
+              valueAsNumber: true,
+              min: { value: 1900, message: "Min 1900" },
+              max: { value: 2026, message: "Max 2026" }
+            })} 
+            type="number" step="1"
+            placeholder="1995"
+          />
+          {errors.annee_construction && <p className="error">{errors.annee_construction.message}</p>}
         </div>
       </div>
 
-      <div className="form-row">
+      {/* LIGNE 4 : NOUVEAU - Jours + Heures (OBLIGATOIRES + SIMPLES) */}
+      <div className="form-grid">
         <div className="field-group">
-          <label>Surface des locaux (m²)</label>
-          <input {...register("surface_locaux")} type="number" placeholder="Ex: 500" step="0.1" min="0" />
+          <label>Jours/semaine <span className="required">*</span></label>
+          <input 
+            {...register("jours_semaine", {
+              required: "Nombre de jours obligatoire",
+              valueAsNumber: true,
+              min: { value: 1, message: "Min 1 jour" },
+              max: { value: 7, message: "Max 7 jours" }
+            })}
+            type="number" 
+            min="1" max="7" step="1"
+            placeholder="5"
+          />
+          <small>Ex: 5 (lun-ven)</small>
+          {errors.jours_semaine && <p className="error">{errors.jours_semaine.message}</p>}
         </div>
         <div className="field-group">
-          <label>Surface du toit (m²)</label>
-          <input {...register("surface_toit")} type="number" placeholder="Ex: 200" step="0.1" min="0" />
-        </div>
-      </div>
-
-      <div className="form-row">
-        <div className="field-group">
-          <label>Jours d'ouverture par semaine *</label>
-          <select {...register("jours_ouverture_semaine", { required: true })}>
-            <option value="">-- Sélectionnez --</option>
-            <option value="lun-ven">Lundi à vendredi</option>
-            <option value="lun-sam">Lundi à samedi</option>
-            <option value="lun-dim">Lundi à dimanche</option>
-          </select>
-        </div>
-        <div className="field-group">
-          <label>Plage horaire d'ouverture *</label>
-          <select {...register("plage_horaire", { required: true })}>
-            <option value="">-- Sélectionnez --</option>
-            <option value="8h-12h_14h-18h">8h-12h / 14h-18h</option>
-            <option value="9h-17h">9h-17h (continu)</option>
-            <option value="8h30-19h">8h30-19h</option>
-            <option value="10h-22h">10h-22h</option>
-            <option value="24h/24">24h/24</option>
-          </select>
-        </div>
-      </div>
-
-      <div className="form-row">
-        <div className="field-group">
-          <label>Type de facture énergétique</label>
-          <select {...register("type_facture")}>
-            <option value="">-- Sélectionnez --</option>
-            <option value="electricite">Électricité</option>
-            <option value="gaz">Gaz</option>
-            <option value="mixte">Mixte</option>
-          </select>
-        </div>
-        <div className="field-group">
-          <label>Énergie renouvelable ?</label>
-          <select {...register("utilisation_energie_renouvelable")}>
-            <option value="false">Non</option>
-            <option value="true">Oui</option>
-          </select>
+          <label>Heures/jour <span className="required">*</span></label>
+          <input 
+            {...register("heures_par_jour", {
+              required: "Nombre d'heures obligatoire",
+              valueAsNumber: true,
+              min: { value: 1, message: "Min 1h" },
+              max: { value: 14, message: "Max 14h/jour" }
+            })}
+            type="number" 
+            min="1" max="14" step="0.5"
+            placeholder="8"
+          />
+          <small>Ex: 8 (08h-17h)</small>
+          {errors.heures_par_jour && <p className="error">{errors.heures_par_jour.message}</p>}
         </div>
       </div>
 
-      <div className="form-row">
-        <div className="field-group">
-          <label>Type d'énergie renouvelable</label>
-          <input {...register("type_energie_renouvelable")} placeholder="Ex: Panneaux solaires" />
-        </div>
-        <div className="field-group">
-          <label>Monitoring de consommation ?</label>
-          <select {...register("monitoring_consommation")}>
-            <option value="false">Non</option>
-            <option value="true">Oui</option>
-          </select>
-        </div>
-      </div>
+      
 
       <div className={`step-actions ${isFirstStep ? 'end' : ''}`}>
         <button type="submit" className="btn-next">

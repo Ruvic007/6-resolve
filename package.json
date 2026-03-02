@@ -13,7 +13,11 @@
     "test:back": "cd backend && pytest",
     "test:front": "cd frontend && npm test",
     "test:api": "start http://localhost:8000/docs",
-    "test:mock": "powershell -c \"Invoke-RestMethod -Uri 'http://localhost:8000/api/questionnaire/test' -Method POST | ConvertTo-Json\""
+    "test:mock1": "powershell -c \"Invoke-RestMethod -Uri 'http://localhost:8000/api/questionnaire/test' -Method POST -Body (@{\"exemple_id\"=1} | ConvertTo-Json) -ContentType 'application/json' | ConvertTo-Json\"",
+    "test:mock2": "powershell -c \"Invoke-RestMethod -Uri 'http://localhost:8000/api/questionnaire/test' -Method POST -Body (@{\"exemple_id\"=2} | ConvertTo-Json) -ContentType 'application/json' | ConvertTo-Json\"",
+    "test:mock3": "powershell -c \"Invoke-RestMethod -Uri 'http://localhost:8000/api/questionnaire/test' -Method POST -Body (@{\"exemple_id\"=3} | ConvertTo-Json) -ContentType 'application/json' | ConvertTo-Json\"",
+    "test:mock4": "powershell -c \"Invoke-RestMethod -Uri 'http://localhost:8000/api/questionnaire/test' -Method POST -Body (@{\"exemple_id\"=4} | ConvertTo-Json) -ContentType 'application/json' | ConvertTo-Json\"",
+    "test:mock5": "powershell -c \"Invoke-RestMethod -Uri 'http://localhost:8000/api/questionnaire/test' -Method POST -Body (@{\"exemple_id\"=5} | ConvertTo-Json) -ContentType 'application/json' | ConvertTo-Json\""
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

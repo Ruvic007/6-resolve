@@ -2,7 +2,6 @@ import { useState } from "react";
 import Stepper, { Step } from "../components/Stepper";
 import StepCompanyContent from "../components/steps/StepCompany";
 import StepEnergyContent from "../components/steps/StepEnergy";
-import StepEquipmentContent from "../components/steps/StepEquipment";
 import StepSummaryContent from "../components/steps/StepSummary";
 import "../App.css";
 
@@ -35,18 +34,6 @@ export default function Audit() {
         <Step>
           {({ onNext, onBack }) => (
             <StepEnergyContent
-              defaultValues={formData}
-              onBack={onBack}
-              onNext={(data) => {
-                handleStepData(data);
-                onNext();
-              }}
-            />
-          )}
-        </Step>
-        <Step>
-          {({ onNext, onBack }) => (
-            <StepEquipmentContent
               defaultValues={formData}
               onBack={onBack}
               onNext={(data) => {

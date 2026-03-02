@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Building2, Zap, BarChart3, ClipboardCheck, Check } from 'lucide-react';
 import './Stepper.css';
 
-const STEP_ICONS = [Building2, Zap, BarChart3, ClipboardCheck];
-const STEP_LABELS = ['Entreprise', 'Énergie', 'Consommation', 'Résumé'];
+const STEP_ICONS = [Building2, Zap, ClipboardCheck];
+const STEP_LABELS = ['Entreprise', 'Énergie', 'Résumé'];
 
 export default function Stepper({
   children,
@@ -147,26 +147,21 @@ export default function Stepper({
 }
 
 function StepContentWrapper({ isCompleted, currentStep, direction, children }) {
-  const [parentHeight, setParentHeight] = useState('auto');
-
+  const [height, setHeight] = useState('auto');
   return (
-    <motion.div
-      className="stepper-content"
-      animate={{ height: isCompleted ? 0 : parentHeight }}
-      transition={{ type: 'spring', duration: 0.4 }}
-    >
-      <AnimatePresence initial={false} mode="sync" custom={direction}>
+    <div className="stepper-content" style={{ height: isCompleted ? 0 : height, transition: 'height 0.35s ease' }}>
+      <AnimatePresence initial={false} mode="wait" custom={direction}>
         {!isCompleted && (
           <SlideTransition
             key={currentStep}
             direction={direction}
-            onHeightReady={(h) => setParentHeight(h)}
+            onHeightReady={(h) => setHeight(h)}
           >
             {children}
           </SlideTransition>
         )}
       </AnimatePresence>
-    </motion.div>
+    </div>
   );
 }
 
@@ -174,24 +169,27 @@ function SlideTransition({ children, direction, onHeightReady }) {
   const containerRef = useRef(null);
 
   useLayoutEffect(() => {
-    if (containerRef.current) {
-      onHeightReady(containerRef.current.offsetHeight);
-    }
+    if (!containerRef.current) return;
+
+    // Mesure initiale
+    onHeightReady(containerRef.current.offsetHeight);
+
+    // Observer les changements de hauteur
+    const observer = new ResizeObserver(() => {
+      if (containerRef.current) {
+        onHeightReady(containerRef.current.offsetHeight);
+      }
+    });
+
+    observer.observe(containerRef.current);
+
+    return () => observer.disconnect();
   }, [children, onHeightReady]);
 
   const variants = {
-    enter: (dir) => ({
-      x: dir >= 0 ? '100%' : '-100%',
-      opacity: 0,
-    }),
-    center: {
-      x: '0%',
-      opacity: 1,
-    },
-    exit: (dir) => ({
-      x: dir >= 0 ? '-50%' : '50%',
-      opacity: 0,
-    }),
+    enter: (dir) => ({ x: dir >= 0 ? '100%' : '-100%', opacity: 0 }),
+    center: { x: '0%', opacity: 1 },
+    exit: (dir) => ({ x: dir >= 0 ? '-50%' : '50%', opacity: 0 }),
   };
 
   return (

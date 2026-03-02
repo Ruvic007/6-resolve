@@ -6,8 +6,6 @@ from src.services.benchmark import moyenne_conso_m2_secteur
 from typing import Dict, Any
 from pathlib import Path
 import json
-from typing import Optional
-from pydantic import BaseModel
 
 BASE_DIR = Path(__file__).parent.parent.parent
 MOCK_FILE = BASE_DIR / "mock_data.json"
@@ -19,6 +17,7 @@ async def recevoir_questionnaire(request: Request):
     """Reçoit les données du questionnaire, les stocke et génère une simulation PV."""
     try:
         data = await request.json()
+        print(data)
 
         # --- 1. Préparation des données pour les tables de base ---
         company_data = {
@@ -29,23 +28,20 @@ async def recevoir_questionnaire(request: Request):
             "annee_construction": data.get("annee_construction"),
             "surface_locaux": data.get("surface_locaux"),
             "surface_toit": data.get("surface_toit"),
-            "jours_semaine":data.get("jours_semaine"),
-            "heures_par_jour": data.get("heures_par_jour"),
+            "horaire_ouverture": data.get("horaire_ouverture"),
+            "type_facture": data.get("type_facture"),
+            "utilisation_energie_renouvelable": data.get("utilisation_energie_renouvelable"),
+            "type_energie_renouvelable": data.get("type_energie_renouvelable"),
+            "monitoring_consommation": data.get("monitoring_consommation"),
             "user_id": data.get("user_id")  # ID utilisateur Clerk
         }
 
-        energy_data = {
+        energy_usage_data = {
             "annee": data.get("annee"),
-            "conso_elec": data.get("conso_elec"),
-            "prix_elec": data.get("prix_elec"),
-            "conso_gaz": data.get("conso_gaz"),
-            "prix_gaz": data.get("prix_gaz"),
-            "pourcentage_renouvelable": data.get("pourcentage_renouvelable"),
-            "type_facture":data.get("type_facture"),
-            "type_chauffage": data.get("type_chauffage"),
-            "type_eclairage": data.get("type_eclairage"),
-            "niveau_isolation": data.get("niveau_isolation"),
-            "emission_co2_kg": 0
+            "conso_electricite_kwh": data.get("conso_electricite_kwh"),
+            "conso_gaz_kwh": data.get("conso_gaz_kwh"),
+            "cout_energie_euros": data.get("cout_energie_euros"),
+            "emission_co2_kg": data.get("emission_co2_kg")
         }
 
         # --- 2. Insertions initiales dans Supabase ---
@@ -55,23 +51,34 @@ async def recevoir_questionnaire(request: Request):
             company_id = company_res.data[0]["id"]
             
             # Insertion Consommation
-            energy_data["company_id"] = company_id
-            supabase.table("energy").insert(energy_data).execute()
+            energy_usage_data["company_id"] = company_id
+            supabase.table("energyusage").insert(energy_usage_data).execute()
             
+            # Insertion Types d'énergie (si présents)
+            energy_types = {
+                "company_id": company_id,
+                "type_chauffage": data.get("type_chauffage"),
+                "type_eclairage": data.get("type_eclairage"),
+                "niveau_isolation": data.get("niveau_isolation")
+            }
+            supabase.table("energytypes").insert(energy_types).execute()
 
         except Exception as e:
             return {"status": "error", "message": f"Erreur base de données: {str(e)}"}
         secteur = company_data.get("sous_categorie")
         surface_m2 = float(company_data.get("surface_locaux"))
 
-        conso_reelle_m2 = float(data.get("conso_elec")) / surface_m2
+# Conso RÉELLE normalisée en kWh/m²
+        conso_reelle_m2 = float(data.get("conso_electricite_kwh")) / surface_m2
 
+# Benchmark secteur en kWh/m² (moyenne du CSV)
         benchmark_secteur = moyenne_conso_m2_secteur.get(secteur, 150.0)
 
+# Pourcentage = (réelle / benchmark) * 100
         benchmark_pourcentage = round((conso_reelle_m2 / benchmark_secteur) * 100)
 
         audit_reports_data = {
-            "id": company_id, 
+            "id": company_id,  # Pas "id" !
             "benchmark": benchmark_pourcentage  # 85.3% par ex.
         }
 
@@ -95,8 +102,8 @@ async def recevoir_questionnaire(request: Request):
             
             # Calcul du prix du kWh réel (ou défaut)
             prix_kwh_reel = simulation.prix_kwh_entreprise
-            conso = energy_data.get("conso_elec")
-            cout = energy_data.get("prix_elec")
+            conso = energy_usage_data.get("conso_electricite_kwh")
+            cout = energy_usage_data.get("cout_energie_euros")
             
             if conso and cout and float(conso) > 0:
                 prix_kwh_reel = float(cout) / float(conso)
@@ -137,7 +144,7 @@ async def recevoir_questionnaire(request: Request):
                 
                 
             # simulation Thermique
-            
+            thermal_simulation_status = "success"
             try:
                 # Récupération du type de chauffage pour adapter le calcul
                 type_chauffage_client = data.get("type_chauffage", "Gaz")
@@ -171,12 +178,12 @@ async def recevoir_questionnaire(request: Request):
                 
             except Exception as e:
                 # On utilise print() pour loguer l'erreur sans interrompre le retour de l'API
-                print(f"DEBUG: Échec enregistrement thermique : {str(e)}")
-
+                thermal_simulation_status = f"error: {str(e)}"
         return {
             "status": "success",
             "company_id": company_id,
-            "simulation_preview": simulation_results
+            "simulation_preview": simulation_results,
+            "thermal_simulation": thermal_simulation_status
         }
 
     except Exception as e:
@@ -203,28 +210,21 @@ async def get_dashboard_data(company_id: int):
         company = company_response.data[0]
 
         # Récupérer les données énergétiques
-        
+        energy_response = supabase.table("energytypes").select("*").eq("company_id", company_id).execute()
+        energy_data = energy_response.data[0] if energy_response.data else {}
 
         # Récupérer la consommation
-        usage_response = supabase.table("energy").select("*").eq("company_id", company_id).execute()
+        usage_response = supabase.table("energyusage").select("*").eq("company_id", company_id).execute()
         usage_data = usage_response.data[0] if usage_response.data else {}
 
         # Récupérer les simulations PV
         sim_response = supabase.table("simulations_pv").select("*").eq("company_id", company_id).execute()
         simulation_data = sim_response.data[0] if sim_response.data else {}
 
-        # Récupérer les simulations thermiques
-        thermal_response = supabase.table("thermal_simulations").select("*").eq("company_id", company_id).execute()
-        thermal_data = thermal_response.data[0] if thermal_response.data else {}
-
-        # Récupérer le benchmark depuis AuditReports
-        audit_response = supabase.table("AuditReports").select("*").eq("id", company_id).execute()
-        audit_data = audit_response.data[0] if audit_response.data else {}
-
         # Calculer les métriques
-        conso_elec = float(usage_data.get("conso_elec", 0) or 0)
-        conso_gaz = float(usage_data.get("conso_gaz", 0) or 0)
-        cout_total = float(usage_data.get("prix_gaz", 0) or 0)
+        conso_elec = float(usage_data.get("conso_electricite_kwh", 0) or 0)
+        conso_gaz = float(usage_data.get("conso_gaz_kwh", 0) or 0)
+        cout_total = float(usage_data.get("cout_energie_euros", 0) or 0)
         co2_emissions = float(usage_data.get("emission_co2_kg", 0) or 0)
 
         # Calcul énergie renouvelable (%)
@@ -267,22 +267,8 @@ async def get_dashboard_data(company_id: int):
                 "production_kwh": simulation_data.get("production_annuelle_estimee_kwh", 0),
                 "economies_annuelles": simulation_data.get("economies_annuelles_estimees", 0),
                 "reduction_co2_kg": simulation_data.get("reduction_co2_annuelle_kg", 0),
-                "roi_annees": simulation_data.get("roi_annees", 0),
-                "prix_installation": simulation_data.get("prix_installation_ht", 0)
-            } if simulation_data else None,
-            "simulationThermique": {
-                "surface_m2": thermal_data.get("surface_m2", 0),
-                "production_kwh": thermal_data.get("production_kwh", 0),
-                "economies_annuelles": thermal_data.get("economies_annuelles_estimees", 0),
-                "reduction_co2_kg": thermal_data.get("reduction_co2_kg", 0),
-                "roi_annees": thermal_data.get("roi_annees", 0),
-                "prix_installation": thermal_data.get("cout_installation_estime", 0)
-            } if thermal_data else None,
-            "benchmark": {
-                "pourcentage": audit_data.get("benchmark", 100),
-                "secteur": company.get("secteur_activite", "Non spécifié"),
-                "moyenne_secteur": moyenne_conso_m2_secteur.get(company.get("secteur_activite"), 150)
-            }
+                "roi_annees": simulation_data.get("roi_annees", 0)
+            } if simulation_data else None
         }
 
         return {
@@ -305,23 +291,20 @@ async def traiter_questionnaire_data(data: Dict[str, Any]) -> Dict[str, Any]:
         "annee_construction": data.get("annee_construction"),
         "surface_locaux": data.get("surface_locaux"),
         "surface_toit": data.get("surface_toit"),
-        "jours_semaine":data.get("jours_semaine"),
-        "heures_par_jour": data.get("heures_par_jour"),
-        "user_id": data.get("user_id")  # ID utilisateur Clerk
+        "horaire_ouverture": data.get("horaire_ouverture"),
+        "type_facture": data.get("type_facture"),
+        "utilisation_energie_renouvelable": data.get("utilisation_energie_renouvelable"),
+        "type_energie_renouvelable": data.get("type_energie_renouvelable"),
+        "monitoring_consommation": data.get("monitoring_consommation"),
+        "user_id": data.get("user_id")
     }
 
-    energy_data = {
+    energy_usage_data = {
         "annee": data.get("annee"),
-        "conso_elec": data.get("conso_elec"),
-        "prix_elec": data.get("prix_elec"),
-        "conso_gaz": data.get("conso_gaz"),
-        "prix_gaz": data.get("prix_gaz"),
-        "pourcentage_renouvelable": data.get("pourcentage_renouvelable"),
-        "type_facture":data.get("type_facture"),
-        "type_chauffage": data.get("type_chauffage"),
-        "type_eclairage": data.get("type_eclairage"),
-        "niveau_isolation": data.get("niveau_isolation"),
-        "emission_co2_kg": 0
+        "conso_electricite_kwh": data.get("conso_electricite_kwh"),
+        "conso_gaz_kwh": data.get("conso_gaz_kwh"),
+        "cout_energie_euros": data.get("cout_energie_euros"),
+        "emission_co2_kg": data.get("emission_co2_kg")
     }
 
     # --- 2. Insertions DB ---
@@ -329,18 +312,26 @@ async def traiter_questionnaire_data(data: Dict[str, Any]) -> Dict[str, Any]:
         company_res = supabase.table("companies").insert(company_data).execute()
         company_id = company_res.data[0]["id"]
         
-        energy_data["company_id"] = company_id
-        supabase.table("energy").insert(energy_data).execute()
+        energy_usage_data["company_id"] = company_id
+        supabase.table("energyusage").insert(energy_usage_data).execute()
         
-        
+        energy_types = {
+            "company_id": company_id,
+            "type_chauffage": data.get("type_chauffage"),
+            "type_eclairage": data.get("type_eclairage"),
+            "niveau_isolation": data.get("niveau_isolation")
+        }
+        supabase.table("energytypes").insert(energy_types).execute()
     except Exception as e:
         raise Exception(f"Erreur base de données: {str(e)}")
 
     # --- 3. Benchmark ---
     secteur = company_data.get("sous_categorie")
     surface_m2 = float(company_data.get("surface_locaux"))
-    conso_reelle_m2 = float(data.get("conso_elec")) / surface_m2
+    conso_reelle_m2 = float(data.get("conso_electricite_kwh")) / surface_m2
     benchmark_secteur = moyenne_conso_m2_secteur.get(secteur, 150.0)
+    if benchmark_secteur == 0:
+        benchmark_secteur = 150.0
     benchmark_pourcentage = round((conso_reelle_m2 / benchmark_secteur) * 100)
 
     audit_reports_data = {"id": company_id, "benchmark": benchmark_pourcentage}
@@ -361,8 +352,8 @@ async def traiter_questionnaire_data(data: Dict[str, Any]) -> Dict[str, Any]:
         prod_annuelle = simulation.estimer_production_annuelle(cp_str, p_installee)
         
         prix_kwh_reel = simulation.prix_kwh_entreprise
-        conso = energy_data.get("conso_elec")
-        cout = energy_data.get("prix_elec")
+        conso = energy_usage_data.get("conso_electricite_kwh")
+        cout = energy_usage_data.get("cout_energie_euros")
         
         if conso and cout and float(conso) > 0:
             prix_kwh_reel = max(float(cout) / float(conso), 0.10)
@@ -413,35 +404,21 @@ async def recevoir_questionnaire(request: Request):
         return {"status": "error", "message": f"Erreur générale: {str(e)}"}
 
 # Route TEST (NOUVELLE)
-
-
-class TestRequest(BaseModel):
-    exemple_id: Optional[int] = 1  # Par défaut l'exemple 1 (index 0)
-
 @router.post("/questionnaire/test")
-async def recevoir_questionnaire_test(request: TestRequest):
+async def recevoir_questionnaire_test():
+    """Charge mock_data.json et exécute la même logique."""
     try:
-        print(f"MOCK_FILE existe: {MOCK_FILE.exists()}")
+        if not MOCK_FILE.exists():
+            return {"status": "error", "message": f"Fichier mock introuvable: {MOCK_FILE}"}
         
         with MOCK_FILE.open(encoding="utf-8") as f:
             data = json.load(f)
         
-        print(f"Données chargées: {len(data)} éléments")
-        print(f"Premier élément: {data[0] if data else 'VIDE'}")
+        return await traiter_questionnaire_data(data)
         
-        if not data:
-            return {"status": "error", "message": "Fichier mock vide !"}
-            
-        if not (1 <= request.exemple_id <= len(data)):
-            return {"status": "error", "message": f"exemple_id doit être 1-{len(data)}"}
-        
-        exemple = data[request.exemple_id - 1]
-        return await traiter_questionnaire_data(exemple)
-        
-    except json.JSONDecodeError as e:
-        return {"status": "error", "message": f"JSON invalide: {str(e)}"}
     except Exception as e:
-        return {"status": "error", "message": f"Erreur: {type(e).__name__}: {str(e)}"}
+        return {"status": "error", "message": f"Erreur test: {str(e)}"}
+
 
 
 @router.get("/companies")
@@ -453,6 +430,8 @@ async def get_all_companies(user_id: str = None):
 
         # Filtrer par user_id si fourni
         if user_id:
+            if not user_id.strip():
+                return {"status": "error", "message": "Invalid user_id"}
             query = query.eq("user_id", user_id)
 
         # Trier par date de création (plus récent en premier)
@@ -473,7 +452,6 @@ async def get_all_companies(user_id: str = None):
 
     except Exception as e:
         return {"status": "error", "message": f"Erreur lors de la récupération des entreprises: {str(e)}"}
-    
 @router.get("/")
 async def root():
     return {"message": "API OK"}

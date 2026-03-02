@@ -22,7 +22,7 @@ const SECTIONS = {
   },
   consommation: {
     title: "Consommation",
-    fields: ["annee", "conso_electricite_kwh", "conso_gaz_kwh", "cout_energie_euros", "emission_co2_kg"]
+    fields: ["annee", "conso_elec", "conso_gaz", "cout_energie_euros", "emission_co2_kg"]
   }
 };
 
@@ -80,7 +80,11 @@ export default function StepSummary({ data, onBack }) {
         ...data,
         user_id: user?.id || null
       };
-
+      console.log("=== Données envoyées au backend ===");
+      Object.entries(dataWithUser).forEach(([key, value]) => {
+        console.log(`${key}:`, value, `(type: ${typeof value})`);
+      });
+      console.log("===================================");
       const response = await fetch(`${apiUrl}/api/questionnaire`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

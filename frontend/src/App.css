@@ -365,38 +365,93 @@ input:focus, select:focus, textarea:focus {
 }
 
 
-/* === CONTENEUR GLOBAL DU QUESTIONNAIRE === */
+/* === CONTENEUR GLOBAL RESPONSIVE === */
 .form-step {
   background: #ffffff;
-  padding: 2rem;
+  padding: clamp(1.5rem, 5vw, 3rem); /* Padding adaptatif */
   border-radius: 12px;
-  max-width: 600px;
-  margin: 2rem auto;
+  width: 100%;                    /* ✅ S'étire */
+  max-width: clamp(500px, 90vw, 800px); /* ✅ Largeur adaptative */
+  margin: clamp(1rem, 3vw, 2rem) auto;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease-in-out;
+  min-height: 100dvh;             /* ✅ Hauteur dynamique */
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-sizing: border-box;
 }
 
-/* === TITRES === */
+/* === TITRES RESPONSIFS === */
 .form-step h2 {
-  color: #059669; /* vert émeraude */
-  font-size: 1.4rem;
+  color: #059669;
+  font-size: clamp(1.4rem, 5vw, 2rem); /* ✅ Taille adaptative */
   font-weight: 600;
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: clamp(1rem, 4vw, 1.5rem);
 }
 
-/* === INPUTS & SELECTS === */
+/* === GRILLE FORM RESPONSIVE === */
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* ✅ Auto 1-2 colonnes */
+  gap: clamp(1rem, 3vw, 1.5rem);
+  width: 100%;
+}
+
+/* === CHAMPS FLEXIBLES === */
+.field-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: clamp(0.75rem, 2vw, 1rem);
+  flex: 1;
+  min-width: 0;
+}
+
+.field-group label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+  color: #374151;
+}
+.error-message {
+  color: #dc2626;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: #fef2f2;
+  border-radius: 4px;
+  border-left: 3px solid #dc2626;
+  min-height: 1.2em;
+  display: block;
+}
+
+.required {
+  color: #dc2626;
+  font-size: 0.8em;
+  font-weight: 500;
+}
+/* === INPUTS RESPONSIFS === */
 .form-step input,
 .form-step select,
 .form-step textarea {
   width: 100%;
-  border: 1px solid #d1d5db;
-  padding: 10px 12px;
+  padding: clamp(0.75rem, 2.5vw, 1rem) clamp(1rem, 3vw, 1.25rem);
+  border: 2px solid #d1d5db;
   border-radius: 8px;
-  outline: none;
-  transition: border 0.2s;
-  font-size: 0.95rem;
+  font-size: clamp(0.9rem, 3vw, 1rem);
   background-color: #f9fafb;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+/* SUPPRIME SPINNERS NUMBERS */
+.form-step input[type="number"] {
+  -moz-appearance: textfield;
+}
+.form-step input[type="number"]::-webkit-outer-spin-button,
+.form-step input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .form-step input:focus,
@@ -404,36 +459,48 @@ input:focus, select:focus, textarea:focus {
 .form-step textarea:focus {
   border-color: #059669;
   background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
 }
 
-/* === ESPACEMENT ENTRE LES CHAMPS === */
-.form-step .field-group {
-  margin-bottom: 1rem;
+/* === ERREURS === */
+.error-message {
+  color: #dc2626 !important;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  min-height: 1.2em;
 }
 
-/* === BOUTONS === */
+/* === BOUTONS RESPONSIFS === */
 .form-step .btn-primary,
 .form-step .btn-secondary {
-  padding: 10px 18px;
+  padding: clamp(0.875rem, 2.5vw, 1rem) clamp(1.25rem, 4vw, 1.75rem);
   border-radius: 8px;
-  font-size: 0.95rem;
-  transition: all 0.2s ease-in-out;
+  font-size: clamp(0.9rem, 2.5vw, 0.95rem);
+  font-weight: 600;
+  transition: all 0.2s ease;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .form-step .btn-primary {
-  background-color: #059669;
+  background: linear-gradient(135deg, #059669, #047857);
   color: #fff;
   border: none;
+  flex: 1;
+  max-width: 220px;
 }
 
 .form-step .btn-primary:hover {
-  background-color: #047857;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(5, 150, 105, 0.3);
 }
 
 .form-step .btn-secondary {
   background-color: transparent;
-  border: 1px solid #059669;
+  border: 2px solid #059669;
   color: #059669;
 }
 
@@ -441,12 +508,31 @@ input:focus, select:focus, textarea:focus {
   background-color: #ecfdf5;
 }
 
-/* === BOUTONS EN LIGNE === */
-.form-step .actions {
+/* === ACTIONS EN BAS === */
+.step-actions {
   display: flex;
-  justify-content: space-between;
-  margin-top: 1.5rem;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: auto;        /* ✅ Toujours en bas */
+  padding-top: 2rem;
+  border-top: 1px solid #f3f4f6;
+  width: 100%;
+  flex-shrink: 0;
 }
+
+
+/* ========================================
+   HAUTEUR ADAPTATIVE
+======================================= */
+.form-step {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-step > *:not(.step-actions) {
+  flex: 1 0 auto; /* ✅ S'étire selon contenu */
+}
+
 
 /* === RÉSUMÉ FINAL === */
 .summary-box {

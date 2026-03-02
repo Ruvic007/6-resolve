@@ -376,3 +376,31 @@
     grid-template-columns: 1fr;
   }
 }
+.energy-slider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.energy-slider .slider {
+  width: calc(100% - 60px); /* laisse de la place pour le % */
+  max-width: 400px;
+  padding: 0;        /* ← supprime le padding hérité */
+  margin: 0;
+}
+
+.energy-slider .value {
+  min-width: 45px;
+  font-weight: 600;
+  color: #10b981;
+}
+.error-message {
+  color: #dc3545 !important;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0;
+  font-weight: 500;
+  display: block;  /* Force position EN DESSOUS */
+}
+

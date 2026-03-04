@@ -107,32 +107,38 @@ export default function StepCompany({ onNext, defaultValues, isFirstStep }) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="step-company-form">
-      <h2><Building2 size={24} /> Informations entreprise</h2>
-      <p className="step-description">Renseignez les informations générales.</p>
+      <div className="step-header">
+        <span className="step-badge">Étape 1 / 3</span>
+        <h2><Building2 size={22} /> Votre entreprise &amp; bâtiment</h2>
+        <p className="step-description">
+          Ces informations permettent de profiler votre site et d'adapter les simulations d'économies à votre secteur d'activité et à votre localisation.
+        </p>
+      </div>
 
       {/* LIGNE 1 : Nom + Code postal */}
       <div className="form-grid">
         <div className="field-group">
           <label>Nom de l'entreprise <span className="required">*</span></label>
-          <input 
-            {...register("nom", { 
+          <input
+            {...register("nom", {
               required: "Nom obligatoire",
               minLength: { value: 2, message: "Min 2 caractères" },
               maxLength: { value: 100, message: "Max 100 caractères" }
-            })} 
-            placeholder="Ex: Ma Société SAS" 
+            })}
+            placeholder="Ex: Ma Société SAS"
           />
           {errors.nom && <p className="error">{errors.nom.message}</p>}
         </div>
         <div className="field-group">
           <label>Code postal <span className="required">*</span></label>
-          <input 
+          <input
             {...register("code_postal", {
               required: "Code postal obligatoire",
               pattern: { value: /^[0-9]{5}$/, message: "5 chiffres requis" }
             })}
-            placeholder="75001" 
+            placeholder="75001"
           />
+          <small>Détermine votre zone climatique pour les simulations solaires</small>
           {errors.code_postal && <p className="error">{errors.code_postal.message}</p>}
         </div>
       </div>
@@ -140,7 +146,7 @@ export default function StepCompany({ onNext, defaultValues, isFirstStep }) {
       {/* LIGNE 2 : Catégorie + Surface locaux */}
       <div className="form-grid">
         <div className="field-group">
-          <label>Catégorie d'activité <span className="required">*</span></label>
+          <label>Secteur d'activité <span className="required">*</span></label>
           <Controller
             name="categorie_activite"
             control={control}
@@ -159,7 +165,7 @@ export default function StepCompany({ onNext, defaultValues, isFirstStep }) {
           {errors.categorie_activite && <p className="error">{errors.categorie_activite.message}</p>}
         </div>
         <div className="field-group">
-        <label>Sous-catégorie</label>
+        <label>Sous-catégorie d'activité</label>
         <Controller
           name="sous_categorie"
           control={control}
@@ -175,30 +181,32 @@ export default function StepCompany({ onNext, defaultValues, isFirstStep }) {
           )}
         />
         <div className="field-group">
-          <label>Surface locaux (m²) <span className="required">*</span></label>
-          <input 
+          <label>Surface des locaux (m²) <span className="required">*</span></label>
+          <input
             {...register("surface_locaux", {
               required: "Surface obligatoire",
               valueAsNumber: true,
               min: { value: 50, message: "Min 50m²" },
               max: { value: 5000, message: "Max 5000m²" }
-            })} 
+            })}
             type="number" step="0.1"
             placeholder="500"
           />
+          <small>Surface totale intérieure de vos locaux</small>
           {errors.surface_locaux && <p className="error">{errors.surface_locaux.message}</p>}
         </div>
         <div className="form-grid">
           <div className="field-group">
-            <label>Surface toit (m²)</label>
-            <input 
+            <label>Surface du toit (m²)</label>
+            <input
               {...register("surface_toit", {
                 valueAsNumber: true,
                 min: { value: 0, message: "Min 0m²" }
-              })} 
-              type="number" step="10"
+              })}
+              type="number" step="1"
               placeholder="300"
             />
+            <small>Utilisée pour calculer votre potentiel solaire PV et thermique</small>
           </div>
         </div>
       </div>      
@@ -208,6 +216,7 @@ export default function StepCompany({ onNext, defaultValues, isFirstStep }) {
       <div className="form-grid">
         <div className="field-group">
           <label>Type de bâtiment <span className="required">*</span></label>
+
           <select {...register("type_batiment", { required: "Type obligatoire" })}>
             <option value="">-- Sélectionnez --</option>
             <option value="bureau">Bureau</option>
@@ -217,16 +226,17 @@ export default function StepCompany({ onNext, defaultValues, isFirstStep }) {
           </select>
         </div>
         <div className="field-group">
-          <label>Année construction</label>
-          <input 
+          <label>Année de construction</label>
+          <input
             {...register("annee_construction", {
               valueAsNumber: true,
               min: { value: 1900, message: "Min 1900" },
               max: { value: 2026, message: "Max 2026" }
-            })} 
+            })}
             type="number" step="1"
             placeholder="1995"
           />
+          <small>Influence l'évaluation du niveau d'isolation</small>
           {errors.annee_construction && <p className="error">{errors.annee_construction.message}</p>}
         </div>
       </div>
@@ -234,35 +244,35 @@ export default function StepCompany({ onNext, defaultValues, isFirstStep }) {
       {/* LIGNE 4 : NOUVEAU - Jours + Heures (OBLIGATOIRES + SIMPLES) */}
       <div className="form-grid">
         <div className="field-group">
-          <label>Jours/semaine <span className="required">*</span></label>
-          <input 
+          <label>Jours d'ouverture / semaine <span className="required">*</span></label>
+          <input
             {...register("jours_semaine", {
               required: "Nombre de jours obligatoire",
               valueAsNumber: true,
               min: { value: 1, message: "Min 1 jour" },
               max: { value: 7, message: "Max 7 jours" }
             })}
-            type="number" 
+            type="number"
             min="1" max="7" step="1"
             placeholder="5"
           />
-          <small>Ex: 5 (lun-ven)</small>
+          <small>Ex : 5 pour lundi–vendredi, 7 pour 7j/7</small>
           {errors.jours_semaine && <p className="error">{errors.jours_semaine.message}</p>}
         </div>
         <div className="field-group">
-          <label>Heures/jour <span className="required">*</span></label>
-          <input 
+          <label>Heures d'activité / jour <span className="required">*</span></label>
+          <input
             {...register("heures_par_jour", {
               required: "Nombre d'heures obligatoire",
               valueAsNumber: true,
               min: { value: 1, message: "Min 1h" },
               max: { value: 14, message: "Max 14h/jour" }
             })}
-            type="number" 
+            type="number"
             min="1" max="14" step="0.5"
             placeholder="8"
           />
-          <small>Ex: 8 (08h-17h)</small>
+          <small>Ex : 8 pour une journée 9h–17h</small>
           {errors.heures_par_jour && <p className="error">{errors.heures_par_jour.message}</p>}
         </div>
       </div>

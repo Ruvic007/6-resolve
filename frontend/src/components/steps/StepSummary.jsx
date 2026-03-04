@@ -122,10 +122,13 @@ export default function StepSummary({ data, onBack }) {
 
   return (
     <div>
-      <h2><ClipboardCheck size={24} /> Résumé de votre audit</h2>
-      <p className="step-description">
-        Vérifiez les informations avant de soumettre votre audit énergétique.
-      </p>
+      <div className="step-header">
+        <span className="step-badge step-badge--final">Dernière étape</span>
+        <h2><ClipboardCheck size={22} /> Vérification avant envoi</h2>
+        <p className="step-description">
+          Relisez vos informations. Une fois soumis, votre dashboard personnalisé sera généré avec les simulations d'économies et votre bilan énergétique.
+        </p>
+      </div>
 
       <div className="summary-grid">
         {Object.entries(SECTIONS).map(([sectionKey, section]) => (

@@ -14,17 +14,25 @@ export default function StepEnergy({ onNext, onBack, defaultValues }) {
   }, [defaultValues, reset]);
 
   const onSubmit = (data) => {
-    console.log("DATA:", data);
     if (onNext) onNext(data);
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <h2><Zap size={24} /> Caractéristiques énergétiques</h2>
-      <p className="step-description">Décrivez les équipements énergétiques de votre bâtiment.</p>
+      <div className="step-header">
+        <span className="step-badge">Étape 2 / 3</span>
+        <h2><Zap size={22} /> Vos consommations énergétiques</h2>
+        <p className="step-description">
+          Saisissez les données de vos dernières factures. Ces chiffres servent à calculer vos économies potentielles, votre ROI et votre empreinte carbone.
+        </p>
+        <div className="step-tip">
+          <span>💡</span>
+          <span>Vous trouverez ces données sur vos factures EDF / Engie, ou dans votre espace client en ligne. En cas de doute, une estimation suffit.</span>
+        </div>
+      </div>
 
       <div className="field-group">
-        <label>Année de référence</label>
+        <label>Année de référence <span className="required">*</span></label>
         <input
           {...register("annee",{
             required: "année de référence obligatoire",
@@ -44,13 +52,13 @@ export default function StepEnergy({ onNext, onBack, defaultValues }) {
           max="2026"
           step="1"
         />
+        <small>Correspond à l'année de vos dernières factures annuelles</small>
         {errors.annee && <p className="error">{errors.annee.message}</p>}
-
       </div>
 
       <div className="form-row">
         <div className="field-group">
-          <label>Type de facture énergétique</label>
+          <label>Type de facture énergétique <span className="required">*</span></label>
           <select {...register("type_facture")}>
             <option value="">-- Sélectionnez --</option>
             <option value="electricite">Électricité</option>
@@ -60,40 +68,42 @@ export default function StepEnergy({ onNext, onBack, defaultValues }) {
       </div>
       {typeFacture === "electricite" && (
         <div className="form-section">
-          <h4> Électricité</h4>
+          <h4>⚡ Électricité</h4>
           <div className="form-row">
             <div className="field-group">
-              <label>Consommation (kWh) <span className="required">*</span></label>
-              <input 
-                type="number" 
+              <label>Consommation annuelle (kWh) <span className="required">*</span></label>
+              <input
+                type="number"
                 {...register("conso_elec", {
                   required: "Consommation obligatoire",
                   valueAsNumber: true,
-                  min: { value: 100, message: "Min 100 kWh/ans " },
-                  max: { value: 30000000, message: "Max 30 000 000 kWh/ans" },
-                })} 
+                  min: { value: 100, message: "Min 100 kWh/an" },
+                  max: { value: 30000000, message: "Max 30 000 000 kWh/an" },
+                })}
                 placeholder="2000"
                 step="1"
                 min="100"
                 max="30000000"
               />
+              <small>Total kWh consommés sur l'année de référence</small>
               {errors.conso_elec && <p className="error">{errors.conso_elec.message}</p>}
             </div>
             <div className="field-group">
-              <label>Prix (€/kWh HT) <span className="required">*</span></label>
-              <input 
-                type="number" 
+              <label>Tarif moyen (€/kWh HT) <span className="required">*</span></label>
+              <input
+                type="number"
                 step="0.001"
                 {...register("prix_elec", {
                   required: "Prix obligatoire",
                   valueAsNumber: true,
-                  min: { value: 0.01, message: "Min 0,01€ " },
-                  max: { value: 0.5, message: "Max 0,5" }
-                })} 
+                  min: { value: 0.01, message: "Min 0,01€" },
+                  max: { value: 0.5, message: "Max 0,5€" }
+                })}
                 placeholder="0.18"
                 min="0.01"
                 max="0.5"
               />
+              <small>Indiqué sur votre facture, généralement entre 0,15 et 0,25 €</small>
               {errors?.prix_elec && <p className="error">{errors.prix_elec.message}</p>}
             </div>
           </div>
@@ -102,56 +112,57 @@ export default function StepEnergy({ onNext, onBack, defaultValues }) {
 
       {typeFacture === "mixte" && (
         <div className="form-section">
-          <h4> Électricité + Gaz</h4>
+          <h4>⚡ Électricité + 🔥 Gaz</h4>
           {/* ÉLECTRICITÉ */}
           <div className="form-row">
             <div className="field-group">
-              <label>Conso Élec (kWh) <span className="required">*</span></label>
-              <input 
-                type="number" 
+              <label>Consommation électricité (kWh/an) <span className="required">*</span></label>
+              <input
+                type="number"
                 {...register("conso_elec", {
                   required: "Consommation Élec obligatoire",
                   valueAsNumber: true,
                   min: { value: 100, message: "Min 100 kWh/an" },
-                  max: { value: 30000000, message: "Max 3 000 000 kWh/an" }
-                })} 
+                  max: { value: 30000000, message: "Max 30 000 000 kWh/an" }
+                })}
                 placeholder="2000"
-                step="50"
+                step="1"
                 min="100"
                 max="30000000"
               />
               {errors?.conso_elec && <p className="error">{errors.conso_elec.message}</p>}
             </div>
             <div className="field-group">
-              <label>Prix Élec (€/kWh) <span className="required">*</span></label>
-              <input 
-                type="number" 
+              <label>Tarif électricité (€/kWh HT) <span className="required">*</span></label>
+              <input
+                type="number"
                 step="0.001"
                 {...register("prix_elec", {
                   required: "Prix Élec obligatoire",
                   valueAsNumber: true,
                   min: { value: 0.05, message: "Min 0,05€" },
                   max: { value: 1, message: "Max 1€" }
-                })} 
+                })}
                 placeholder="0.18"
                 min="0.05"
-                max="1€"
+                max="1"
               />
+              <small>Indiqué sur votre facture, généralement entre 0,15 et 0,25 €</small>
               {errors?.prix_elec && <p className="error">{errors.prix_elec.message}</p>}
             </div>
           </div>
           {/* GAZ */}
           <div className="form-row">
             <div className="field-group">
-              <label>Conso Gaz (kWh) <span className="required">*</span></label>
-              <input 
-                type="number" 
+              <label>Consommation gaz (kWh/an) <span className="required">*</span></label>
+              <input
+                type="number"
                 {...register("conso_gaz", {
                   required: "Consommation Gaz obligatoire",
                   valueAsNumber: true,
                   min: { value: 100, message: "Min 100 kWh" },
                   max: { value: 5000000, message: "Max 5 000 000 kWh" }
-                })} 
+                })}
                 placeholder="5000"
                 step="1"
                 min="100"
@@ -160,20 +171,21 @@ export default function StepEnergy({ onNext, onBack, defaultValues }) {
               {errors?.conso_gaz && <p className="error">{errors.conso_gaz.message}</p>}
             </div>
             <div className="field-group">
-              <label>Prix Gaz (€/kWh) <span className="required">*</span></label>
-              <input 
-                type="number" 
+              <label>Tarif gaz (€/kWh HT) <span className="required">*</span></label>
+              <input
+                type="number"
                 step="0.001"
                 {...register("prix_gaz", {
                   required: "Prix Gaz obligatoire",
                   valueAsNumber: true,
                   min: { value: 0.01, message: "Min 0,01€" },
                   max: { value: 0.5, message: "Max 0,5€" }
-                })} 
+                })}
                 placeholder="0.09"
                 min="0.01"
                 max="0.5"
               />
+              <small>Tarif hors taxes, généralement entre 0,07 et 0,12 €</small>
               {errors?.prix_gaz && <p className="error">{errors.prix_gaz.message}</p>}
             </div>
           </div>
@@ -181,18 +193,18 @@ export default function StepEnergy({ onNext, onBack, defaultValues }) {
       )}
 
 
-      {/* ✅ SLIDER CORRIGÉ */}
       <div className="field-group">
-        <label>Énergies renouvelables (%)</label>
+        <label>Part actuelle d'énergies renouvelables (%)</label>
         <div className="energy-slider">
-          <input 
-            type="range" 
-            min="0" max="100" step="0.1"  // ✅ step=5 (plus pratique)
+          <input
+            type="range"
+            min="0" max="100" step="1"
             {...register("pourcentage_renouvelable")}
             className="slider"
           />
-          <span className="value">{pourcentageRenouvelable || 0}%</span> {/* ✅ useWatch */}
+          <span className="value">{pourcentageRenouvelable || 0}%</span>
         </div>
+        <small>Part de renouvelables dans votre mix actuel (panneaux solaires, contrat vert…). Affiché sur votre dashboard.</small>
       </div>
       <div className="form-row">
         <div className="field-group">

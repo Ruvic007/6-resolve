@@ -5,10 +5,10 @@ import { BrowserRouter } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import StepSummary from '../StepSummary';
 
-// Mock Clerk useUser hook
+// Mock Clerk useAuth hook
 vi.mock('@clerk/clerk-react', () => ({
-  useUser: () => ({
-    user: { id: 'test-user-123' }
+  useAuth: () => ({
+    getToken: vi.fn(() => Promise.resolve('mock-jwt-token'))
   })
 }));
 
@@ -94,7 +94,7 @@ describe('StepSummary', () => {
       </BrowserRouter>
     );
 
-    expect(screen.getByText(/résumé de votre audit/i)).toBeInTheDocument();
+    expect(screen.getByText(/vérification avant envoi/i)).toBeInTheDocument();
   });
 
   it('affiche les boutons Retour et Envoyer', () => {
@@ -155,7 +155,10 @@ describe('StepSummary', () => {
         'http://localhost:8000/api/questionnaire',
         expect.objectContaining({
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer mock-jwt-token'
+          },
           body: expect.any(String)
         })
       );

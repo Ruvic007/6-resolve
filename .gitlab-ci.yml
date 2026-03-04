@@ -75,13 +75,13 @@ unit_tests:
     POSTGRES_USER: user_test
     POSTGRES_PASSWORD: password_test
     POSTGRES_HOST_AUTH_METHOD: trust
-    DATABASE_URL: "postgresql://user_test:password_test@db-test-local:5432/test_db"
 
   before_script:
     - pip3 install -r backend/requirements.txt
     - pip3 install pytest httpx
   
   script:
+    - export DATABASE_URL="postgresql://user_test:password_test@db-test-local:5432/test_db"
     - cd backend && pytest tests/ -v
   
   artifacts:

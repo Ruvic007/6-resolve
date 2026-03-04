@@ -8,7 +8,7 @@ services:
     volumes:
       - ./backend:/src
     env_file:
-      - ./backend/.env         # Ton .env backend
+      - ./backend/.env         # .env backend
 
   frontend:
     build:
@@ -20,4 +20,4 @@ services:
       - ./frontend:/app
       - /app/node_modules
     env_file:
-      - ./frontend/.env        # Ton .env frontend
+      - ./frontend/.env        # .env frontend

@@ -1,177 +1,187 @@
-from fastapi import APIRouter, Request
-from src.database.db import supabase
+from fastapi import APIRouter, Request, Depends
+from sqlalchemy.orm import Session
+from src.database.db import get_db
+from src.database.models import (Company, Energy, AuditReport, SimulationPV, ThermalSimulation as ModelThermal)
 from src.services.solar_simulation import SolarSimulation
-from src.services.thermal_simulation import ThermalSimulation
+from src.services.thermal_simulation import ThermalSimulation as ServiceThermal
 from src.services.benchmark import moyenne_conso_m2_secteur
 from typing import Dict, Any
 from pathlib import Path
 import json
-from typing import Optional
-from pydantic import BaseModel
+
+# Fonction utilitaire pour convertir proprement "Oui"/"Non" ou True/False en booléen Python
+def parse_bool(value):
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        return value.lower() in ["oui", "true", "1", "yes"]
+    return False
+
+def parse_int(value):
+    try:
+        return int(value)
+    except (ValueError, TypeError):
+        return 0
+
+def parse_float(value):
+    try:
+        return float(value)
+    except (ValueError, TypeError):
+        return 0.0
 
 BASE_DIR = Path(__file__).parent.parent.parent
 MOCK_FILE = BASE_DIR / "mock_data.json"
 
 router = APIRouter()
 
-@router.post("/questionnaire")
-async def recevoir_questionnaire(request: Request):
-    """Reçoit les données du questionnaire, les stocke et génère une simulation PV."""
+# --- UTILS ---
+def model_to_dict(model):
+    """Convertit un modèle SQLAlchemy en dictionnaire."""
+    if not model:
+        return {}
+    return {c.name: getattr(model, c.name) for c in model.__table__.columns}
+
+# --- CONSTANTES ---
+NOMS_REGIONS = {
+    "nord": "Nord / Nord-Est",
+    "est": "Est / Alsace-Lorraine",
+    "ouest": "Ouest / Bretagne",
+    "sud": "Sud / Centre",
+    "mediterranee": "Méditerranée / PACA",
+}
+PRIX_KW_PV = 1500
+
+# --- LOGIQUE MÉTIER ---
+
+async def traiter_questionnaire_data(data: Dict[str, Any], db: Session) -> Dict[str, Any]:
+    """Logique métier utilisant SQLAlchemy Session."""
+    
     try:
-        data = await request.json()
+        # --- 1. Création Entreprise ---
+        new_company = Company(
+            nom=data.get("nom"),
+            code_postal=parse_int(data.get("code_postal")),
+            secteur_activite=data.get("sous_categorie"),
+            type_batiment=data.get("type_batiment"),
+            annee_construction=parse_int(data.get("annee_construction")),
+            surface_locaux=parse_float(data.get("surface_locaux")),
+            surface_toit=parse_float(data.get("surface_toit")),
+            jours_semaine=parse_int(data.get("jours_semaine")),
+            heures_par_jour=parse_float(data.get("heures_par_jour")),
+            user_id=data.get("user_id")
+        )
+        db.add(new_company)
+        db.flush() # Important: génère l'ID sans commiter la transaction
+        company_id = new_company.id
 
-        # --- 1. Préparation des données pour les tables de base ---
-        company_data = {
-            "nom": data.get("nom"),
-            "code_postal": data.get("code_postal"),
-            "secteur_activite": data.get("sous_categorie"),
-            "type_batiment": data.get("type_batiment"),
-            "annee_construction": data.get("annee_construction"),
-            "surface_locaux": data.get("surface_locaux"),
-            "surface_toit": data.get("surface_toit"),
-            "jours_semaine":data.get("jours_semaine"),
-            "heures_par_jour": data.get("heures_par_jour"),
-            "user_id": data.get("user_id")  # ID utilisateur Clerk
-        }
+        # --- 2. Création Données Énergétiques ---
+        energy_data = Energy(
+            company_id=company_id,
+            annee=parse_int(data.get("annee")),
+            conso_elec=parse_float(data.get("conso_elec")),
+            prix_elec=parse_float(data.get("prix_elec")),
+            conso_gaz=parse_float(data.get("conso_gaz")),
+            prix_gaz=parse_float(data.get("prix_gaz")),
+            pourcentage_renouvelable=parse_float(data.get("pourcentage_renouvelable")),
+            type_facture=data.get("type_facture"),
+            type_chauffage=data.get("type_chauffage"),
+            type_eclairage=data.get("type_eclairage"),
+            niveau_isolation=data.get("niveau_isolation"),
+            emission_co2_kg=parse_float(data.get("emission_co2_kg"))
+        )
+        db.add(energy_data)
 
-        energy_data = {
-            "annee": data.get("annee"),
-            "conso_elec": data.get("conso_elec"),
-            "prix_elec": data.get("prix_elec"),
-            "conso_gaz": data.get("conso_gaz"),
-            "prix_gaz": data.get("prix_gaz"),
-            "pourcentage_renouvelable": data.get("pourcentage_renouvelable"),
-            "type_facture":data.get("type_facture"),
-            "type_chauffage": data.get("type_chauffage"),
-            "type_eclairage": data.get("type_eclairage"),
-            "niveau_isolation": data.get("niveau_isolation"),
-            "emission_co2_kg": 0
-        }
-
-        # --- 2. Insertions initiales dans Supabase ---
-        try:
-            # Insertion Entreprise
-            company_res = supabase.table("companies").insert(company_data).execute()
-            company_id = company_res.data[0]["id"]
-            
-            # Insertion Consommation
-            energy_data["company_id"] = company_id
-            supabase.table("energy").insert(energy_data).execute()
-            
-
-        except Exception as e:
-            return {"status": "error", "message": f"Erreur base de données: {str(e)}"}
-        secteur = company_data.get("sous_categorie")
-        surface_m2 = float(company_data.get("surface_locaux"))
-
-        conso_reelle_m2 = float(data.get("conso_elec")) / surface_m2
-
+        # --- 3. Benchmark ---
+        secteur = new_company.secteur_activite
+        surface_m2 = new_company.surface_locaux
+        # Évite division par zéro
+        conso_reelle_m2 = (energy_data.conso_elec / surface_m2) if surface_m2 > 0 else 0
         benchmark_secteur = moyenne_conso_m2_secteur.get(secteur, 150.0)
+        benchmark_pourcentage = round((conso_reelle_m2 / benchmark_secteur) * 100) if benchmark_secteur > 0 else 0
 
-        benchmark_pourcentage = round((conso_reelle_m2 / benchmark_secteur) * 100)
+        audit_report = AuditReport(
+            id=company_id,
+            benchmark=benchmark_pourcentage,
+            energy_score=0, 
+            part_electricite_sur_total=0
+        )
+        db.add(audit_report)
 
-        audit_reports_data = {
-            "id": company_id, 
-            "benchmark": benchmark_pourcentage  # 85.3% par ex.
-        }
-
-        supabase.table("AuditReports").insert(audit_reports_data).execute()
-        # --- 3. Simulation PV via le Service SolarSimulation ---
+        # --- 4. Simulation PV ---
         simulation_results = {}
-        surface_toit = company_data.get("surface_toit")
-        code_postal = company_data.get("code_postal")
+        surface_toit = new_company.surface_toit
+        code_postal = new_company.code_postal
 
         if surface_toit and code_postal:
             simulation = SolarSimulation()
             
-            # Conversion pour les calculs
-            s_toit_float = float(surface_toit)
-            cp_str = str(code_postal)
-            
-            # Calculs de base
-            p_installee = simulation.estimer_puissance_installation(s_toit_float)
+            p_installee = simulation.estimer_puissance_installation(surface_toit)
             prix_inst = simulation.estimer_cout_installation(p_installee)
-            prod_annuelle = simulation.estimer_production_annuelle(cp_str, p_installee)
+            prod_annuelle = simulation.estimer_production_annuelle(code_postal, p_installee)
             
-            # Calcul du prix du kWh réel (ou défaut)
+            # Calcul prix kWh réel
             prix_kwh_reel = simulation.prix_kwh_entreprise
-            conso = energy_data.get("conso_elec")
-            cout = energy_data.get("prix_elec")
+            conso = energy_data.conso_elec
+            cout = energy_data.prix_elec
             
-            if conso and cout and float(conso) > 0:
-                prix_kwh_reel = float(cout) / float(conso)
-                prix_kwh_reel = max(prix_kwh_reel, 0.10) # Sécurité minimum
+            if conso > 0 and cout > 0:
+                prix_kwh_reel = max((cout / conso), 0.10)
 
-            # Calculs avancés
             economies = simulation.calculer_economies_annuelles(prod_annuelle, 0.7, 0.10, prix_kwh_reel)
             co2_kg = simulation.calculer_reduction_co2(prod_annuelle)
             analyse_roi = simulation.calculer_roi(prix_inst, economies["economies_totales"])
 
-            # --- 4. Correction de l'erreur NOT NULL ---
-            # On prépare TOUTES les colonnes attendues par la table simulations_pv
-            sim_db_data = {
-                "company_id": company_id,
-                "puissance_installee_kw": p_installee,
-                "surface_panneaux_m2": s_toit_float * 0.6,  # Valeur manquante précédemment
-                "taux_autoconsommation": 0.7,
-                "tarif_rachat_kwh": 0.10,
-                "prix_installation_ht": prix_inst,
-                "production_annuelle_estimee_kwh": prod_annuelle,
-                "economies_annuelles_estimees": economies["economies_totales"],
-                "reduction_co2_annuelle_kg": co2_kg,
-                "roi_annees": analyse_roi["roi_annees"]
+            sim_pv = SimulationPV(
+                company_id=company_id,
+                puissance_installee_kw=p_installee,
+                surface_panneaux_m2=surface_toit * 0.6,
+                taux_autoconsommation=0.7,
+                tarif_rachat_kwh=0.10,
+                prix_installation_ht=prix_inst,
+                production_annuelle_estimee_kwh=prod_annuelle,
+                economies_annuelles_estimees=economies["economies_totales"],
+                reduction_co2_annuelle_kg=co2_kg,
+                roi_annees=analyse_roi["roi_annees"]
+            )
+            db.add(sim_pv)
+
+            simulation_results = {
+                "puissance_kw": p_installee,
+                "production_kwh": prod_annuelle,
+                "economies_annuelles": economies["economies_totales"],
+                "roi_annees": analyse_roi["roi_annees"],
+                "rentable": analyse_roi["rentable"]
             }
 
-            # Insertion de la simulation
+            # --- 5. Simulation Thermique ---
             try:
-                supabase.table("simulations_pv").insert(sim_db_data).execute()
-                simulation_results = {
-                    "puissance_kw": p_installee,
-                    "production_kwh": prod_annuelle,
-                    "economies_annuelles": economies["economies_totales"],
-                    "roi_annees": analyse_roi["roi_annees"],
-                    "rentable": analyse_roi["rentable"]
-                }
-            except Exception as e:
-                simulation_results["erreur_sauvegarde"] = str(e)
-                
-                
-            # simulation Thermique
-            
-            try:
-                # Récupération du type de chauffage pour adapter le calcul
                 type_chauffage_client = data.get("type_chauffage", "Gaz")
-                
-                thermal_service = ThermalSimulation()
-                
-                # Prix de l'énergie remplacée par le solaire thermique
+                thermal_service = ServiceThermal()
                 prix_th = 0.18 if type_chauffage_client == "Électrique" else 0.12 
                 
-                # Calcul complet via le service thermal_simulation
                 res_th = thermal_service.calculer_simulation_complete(
-                    surface_toit=s_toit_float,
-                    cp=cp_str,
+                    surface_toit=surface_toit,
+                    cp=code_postal,
                     type_chauffage=type_chauffage_client,
                     prix_kwh=prix_th
                 )
 
-                # Préparation du dictionnaire pour la table 'thermal_simulations'
-                thermal_db_data = {
-                    "company_id": company_id,
-                    "surface_m2": res_th["surface_m2"],
-                    "production_kwh": res_th["production_kwh"],
-                    "cout_installation_estime": res_th["cout_installation"],
-                    "economies_annuelles_estimees": res_th["economies_annuelles"],
-                    "roi_annees": res_th["roi_annees"],
-                    "reduction_co2_kg": res_th["reduction_co2_kg"]
-                }
-                
-                # Insertion effective en base de données
-                supabase.table("thermal_simulations").insert(thermal_db_data).execute() 
-                
+                sim_th = ModelThermal(
+                    company_id=company_id,
+                    surface_m2=res_th["surface_m2"],
+                    production_kwh=res_th["production_kwh"],
+                    cout_installation_estime=res_th["cout_installation"],
+                    economies_annuelles_estimees=res_th["economies_annuelles"],
+                    roi_annees=res_th["roi_annees"],
+                    reduction_co2_kg=res_th["reduction_co2_kg"]
+                )
+                db.add(sim_th)
+
             except Exception as e:
-                # On utilise print() pour loguer l'erreur sans interrompre le retour de l'API
                 print(f"DEBUG: Échec enregistrement thermique : {str(e)}")
+
+        # Validation finale de la transaction
+        db.commit()
 
         return {
             "status": "success",
@@ -180,26 +190,145 @@ async def recevoir_questionnaire(request: Request):
         }
 
     except Exception as e:
+        db.rollback() # Annule tout en cas d'erreur
+        raise e 
+
+
+# --- ROUTES ---
+
+@router.post("/questionnaire")
+async def recevoir_questionnaire(request: Request, db: Session = Depends(get_db)):
+    """Reçoit les données du questionnaire depuis le frontend."""
+    try:
+        data = await request.json()
+        return await traiter_questionnaire_data(data, db)
+    except Exception as e:
         return {"status": "error", "message": f"Erreur générale: {str(e)}"}
 
+@router.post("/questionnaire/test")
+async def recevoir_questionnaire_test(db: Session = Depends(get_db)):
+    """Charge mock_data.json et exécute la logique."""
+    try:
+        if not MOCK_FILE.exists():
+            return {"status": "error", "message": f"Fichier mock introuvable: {MOCK_FILE}"}
+        
+        with MOCK_FILE.open(encoding="utf-8") as f:
+            data = json.load(f)
+        
+        return await traiter_questionnaire_data(data, db)
+        
+    except Exception as e:
+        return {"status": "error", "message": f"Erreur test: {str(e)}"}
+
 @router.get("/simulations/{company_id}")
-async def get_simulations_entreprise(company_id: int):
+async def get_simulations_entreprise(company_id: int, db: Session = Depends(get_db)):
     """Récupère l'historique des simulations d'une entreprise."""
     try:
-        res = supabase.table("simulations_pv").select("*").eq("company_id", company_id).execute()
-        return {"status": "success", "simulations": res.data}
+        sims = db.query(SimulationPV).filter(SimulationPV.company_id == company_id).all()
+        return {"status": "success", "simulations": [model_to_dict(s) for s in sims]}
     except Exception as e:
         return {"status": "error", "message": f"Erreur lors de la récupération: {str(e)}"}
-    
-NOMS_REGIONS = {
-    "nord": "Nord / Nord-Est",
-    "est": "Est / Alsace-Lorraine",
-    "ouest": "Ouest / Bretagne",
-    "sud": "Sud / Centre",
-    "mediterranee": "Méditerranée / PACA",
-}
 
-PRIX_KW_PV = 1500  # €/kWc
+@router.get("/companies")
+async def get_all_companies(user_id: str = None, db: Session = Depends(get_db)):
+    """Récupère la liste des entreprises."""
+    try:
+        query = db.query(Company)
+        if user_id:
+            query = query.filter(Company.user_id == user_id)
+        
+        companies = query.order_by(Company.created_at.desc()).all()
+        
+        return {
+            "status": "success",
+            "data": [model_to_dict(c) for c in companies],
+            "count": len(companies)
+        }
+    except Exception as e:
+        return {"status": "error", "message": f"Erreur lors de la récupération des entreprises: {str(e)}"}
+
+@router.get("/dashboard/{company_id}")
+async def get_dashboard_data(company_id: int, db: Session = Depends(get_db)):
+    """Récupère toutes les données nécessaires pour le dashboard"""
+    try:
+        # Récupération via ORM
+        company = db.query(Company).filter(Company.id == company_id).first()
+        if not company:
+            return {"status": "error", "message": "Entreprise non trouvée"}
+
+        energy_model = db.query(Energy).filter(Energy.company_id == company_id).first()
+        simulation_data = db.query(SimulationPV).filter(SimulationPV.company_id == company_id).first()
+        thermal_data = db.query(ModelThermal).filter(ModelThermal.company_id == company_id).first()
+        
+        # Pour AuditReport, attention à la clé primaire
+        audit_data = db.query(AuditReport).filter(AuditReport.id == company_id).first()
+
+        # Conversion en Dictionnaires pour faciliter la manipulation
+        # (Les fonctions _build_simulation attendent des dicts, pas des objets ORM)
+        comp_dict = model_to_dict(company)
+        energy_dict = model_to_dict(energy_model)
+        sim_dict = model_to_dict(simulation_data)
+        thermal_dict = model_to_dict(thermal_data)
+        audit_dict = model_to_dict(audit_data)
+
+        # Calculs des métriques
+        conso_elec = float(energy_dict.get("conso_elec", 0) or 0)
+        conso_gaz = float(energy_dict.get("conso_gaz", 0) or 0)
+        cout_elec = float(energy_dict.get("prix_elec", 0) or 0)
+        cout_gaz = float(energy_dict.get("prix_gaz", 0) or 0)
+        cout_total = cout_elec + cout_gaz
+        co2_emissions = float(energy_dict.get("emission_co2_kg", 0) or 0)
+
+        energie_renouvelable_pct = 0
+        if sim_dict and conso_elec > 0:
+            production_pv = float(sim_dict.get("production_annuelle_estimee_kwh", 0) or 0)
+            energie_renouvelable_pct = round((production_pv / conso_elec) * 100, 1)
+
+        dashboard_data = {
+            "company_name": comp_dict.get("nom", "Entreprise"),
+            "metrics": {
+                "coutTotal": round(cout_total, 2),
+                "consommationTotale": round(conso_elec + conso_gaz, 2),
+                "impactCarbone": round(co2_emissions / 1000, 2),
+                "energieRenouvelable": energie_renouvelable_pct
+            },
+            "consommationParUsages": {
+                "labels": ["Électricité", "Gaz", "Autres"],
+                "data": {
+                    "electricite": conso_elec,
+                    "gaz": conso_gaz,
+                    "autres": 0
+                }
+            },
+            "repartitionCouts": {
+                "electricite": round((conso_elec / (conso_elec + conso_gaz) * 100) if (conso_elec + conso_gaz) > 0 else 50, 1),
+                "gaz": round((conso_gaz / (conso_elec + conso_gaz) * 100) if (conso_elec + conso_gaz) > 0 else 50, 1)
+            },
+            "detailsBatiment": [
+                {"label": "Nom", "value": comp_dict.get("nom", "—")},
+                {"label": "Surface locaux", "value": f"{comp_dict.get('surface_locaux', '—')} m²"},
+                {"label": "Surface toit", "value": f"{comp_dict.get('surface_toit', '—')} m²"},
+                {"label": "Type bâtiment", "value": comp_dict.get("type_batiment", "—")},
+                {"label": "Année construction", "value": str(comp_dict.get("annee_construction", "—"))},
+                {"label": "Secteur", "value": comp_dict.get("secteur_activite", "—")}
+            ],
+            # On passe les dictionnaires aux helpers existants
+            "simulationPV": _build_simulation_pv(sim_dict, comp_dict) if sim_dict else None,
+            "simulationThermique": _build_simulation_thermique(thermal_dict, comp_dict) if thermal_dict else None,
+            "benchmark": {
+                "pourcentage": audit_dict.get("benchmark", 100),
+                "secteur": comp_dict.get("secteur_activite", "Non spécifié"),
+                "moyenne_secteur": moyenne_conso_m2_secteur.get(comp_dict.get("secteur_activite"), 150)
+            }
+        }
+
+        return {
+            "status": "success",
+            "data": dashboard_data
+        }
+
+    except Exception as e:
+        return {"status": "error", "message": f"Erreur lors de la récupération des données: {str(e)}"}
 
 
 def _build_simulation_pv(simulation_data: dict, company: dict) -> dict:
@@ -243,7 +372,7 @@ def _build_simulation_thermique(thermal_data: dict, company: dict) -> dict:
     surface_toit = float(company.get("surface_toit") or 0)
     code_postal = str(company.get("code_postal") or "")
 
-    thermal = ThermalSimulation()
+    thermal = ServiceThermal()
     region_key = thermal._determiner_region(code_postal)
     rendement = thermal.rendement_regions.get(region_key, 550)
     prix_m2 = thermal._calculer_prix_m2_degressif(surface_m2)
@@ -274,279 +403,3 @@ def _palier_thermique(surface: float) -> str:
     if surface < 100:  return "20–100 m² → 1 100 €/m²"
     if surface < 500:  return "100–500 m² → 950 €/m²"
     return "> 500 m² → 850 €/m²"
-
-
-@router.get("/dashboard/{company_id}")
-async def get_dashboard_data(company_id: int):
-    """Récupère toutes les données nécessaires pour le dashboard"""
-    try:
-        # Récupérer les informations de l'entreprise
-        company_response = supabase.table("companies").select("*").eq("id", company_id).execute()
-        if not company_response.data:
-            return {"status": "error", "message": "Entreprise non trouvée"}
-
-        company = company_response.data[0]
-
-        # Récupérer les données énergétiques
-        
-
-        # Récupérer la consommation
-        usage_response = supabase.table("energy").select("*").eq("company_id", company_id).execute()
-        usage_data = usage_response.data[0] if usage_response.data else {}
-
-        # Récupérer les simulations PV
-        sim_response = supabase.table("simulations_pv").select("*").eq("company_id", company_id).execute()
-        simulation_data = sim_response.data[0] if sim_response.data else {}
-
-        # Récupérer les simulations thermiques
-        thermal_response = supabase.table("thermal_simulations").select("*").eq("company_id", company_id).execute()
-        thermal_data = thermal_response.data[0] if thermal_response.data else {}
-
-        # Récupérer le benchmark depuis AuditReports
-        audit_response = supabase.table("AuditReports").select("*").eq("id", company_id).execute()
-        audit_data = audit_response.data[0] if audit_response.data else {}
-
-        # Calculer les métriques
-        conso_elec = float(usage_data.get("conso_elec", 0) or 0)
-        conso_gaz = float(usage_data.get("conso_gaz", 0) or 0)
-        cout_total = float(usage_data.get("prix_gaz", 0) or 0)
-        co2_emissions = float(usage_data.get("emission_co2_kg", 0) or 0)
-
-        # Calcul énergie renouvelable (%)
-        energie_renouvelable_pct = 0
-        if simulation_data and conso_elec > 0:
-            production_pv = float(simulation_data.get("production_annuelle_estimee_kwh", 0) or 0)
-            energie_renouvelable_pct = round((production_pv / conso_elec) * 100, 1)
-
-        # Préparer les données pour le dashboard
-        dashboard_data = {
-            "company_name": company.get("nom", "Entreprise"),
-            "metrics": {
-                "coutTotal": round(cout_total, 2),
-                "consommationTotale": round(conso_elec + conso_gaz, 2),
-                "impactCarbone": round(co2_emissions / 1000, 2),  # Conversion kg -> tonnes
-                "energieRenouvelable": energie_renouvelable_pct
-            },
-            "consommationParUsages": {
-                "labels": ["Électricité", "Gaz", "Autres"],
-                "data": {
-                    "electricite": conso_elec,
-                    "gaz": conso_gaz,
-                    "autres": 0
-                }
-            },
-            "repartitionCouts": {
-                "electricite": round((conso_elec / (conso_elec + conso_gaz) * 100) if (conso_elec + conso_gaz) > 0 else 50, 1),
-                "gaz": round((conso_gaz / (conso_elec + conso_gaz) * 100) if (conso_elec + conso_gaz) > 0 else 50, 1)
-            },
-            "detailsBatiment": [
-                {"label": "Nom", "value": company.get("nom", "—")},
-                {"label": "Surface locaux", "value": f"{company.get('surface_locaux', '—')} m²"},
-                {"label": "Surface toit", "value": f"{company.get('surface_toit', '—')} m²"},
-                {"label": "Type bâtiment", "value": company.get("type_batiment", "—")},
-                {"label": "Année construction", "value": str(company.get("annee_construction", "—"))},
-                {"label": "Secteur", "value": company.get("secteur_activite", "—")}
-            ],
-            "simulationPV": _build_simulation_pv(simulation_data, company) if simulation_data else None,
-            "simulationThermique": _build_simulation_thermique(thermal_data, company) if thermal_data else None,
-            "benchmark": {
-                "pourcentage": audit_data.get("benchmark", 100),
-                "secteur": company.get("secteur_activite", "Non spécifié"),
-                "moyenne_secteur": moyenne_conso_m2_secteur.get(company.get("secteur_activite"), 150)
-            }
-        }
-
-        return {
-            "status": "success",
-            "data": dashboard_data
-        }
-
-    except Exception as e:
-        return {"status": "error", "message": f"Erreur lors de la récupération des données: {str(e)}"}
-
-async def traiter_questionnaire_data(data: Dict[str, Any]) -> Dict[str, Any]:
-    """Logique métier extraite - réutilisable par les 2 routes."""
-    
-    # --- 1. Préparation des données ---
-    company_data = {
-        "nom": data.get("nom"),
-        "code_postal": data.get("code_postal"),
-        "secteur_activite": data.get("sous_categorie"),
-        "type_batiment": data.get("type_batiment"),
-        "annee_construction": data.get("annee_construction"),
-        "surface_locaux": data.get("surface_locaux"),
-        "surface_toit": data.get("surface_toit"),
-        "jours_semaine":data.get("jours_semaine"),
-        "heures_par_jour": data.get("heures_par_jour"),
-        "user_id": data.get("user_id")  # ID utilisateur Clerk
-    }
-
-    energy_data = {
-        "annee": data.get("annee"),
-        "conso_elec": data.get("conso_elec"),
-        "prix_elec": data.get("prix_elec"),
-        "conso_gaz": data.get("conso_gaz"),
-        "prix_gaz": data.get("prix_gaz"),
-        "pourcentage_renouvelable": data.get("pourcentage_renouvelable"),
-        "type_facture":data.get("type_facture"),
-        "type_chauffage": data.get("type_chauffage"),
-        "type_eclairage": data.get("type_eclairage"),
-        "niveau_isolation": data.get("niveau_isolation"),
-        "emission_co2_kg": 0
-    }
-
-    # --- 2. Insertions DB ---
-    try:
-        company_res = supabase.table("companies").insert(company_data).execute()
-        company_id = company_res.data[0]["id"]
-        
-        energy_data["company_id"] = company_id
-        supabase.table("energy").insert(energy_data).execute()
-        
-        
-    except Exception as e:
-        raise Exception(f"Erreur base de données: {str(e)}")
-
-    # --- 3. Benchmark ---
-    secteur = company_data.get("sous_categorie")
-    surface_m2 = float(company_data.get("surface_locaux"))
-    conso_reelle_m2 = float(data.get("conso_elec")) / surface_m2
-    benchmark_secteur = moyenne_conso_m2_secteur.get(secteur, 150.0)
-    benchmark_pourcentage = round((conso_reelle_m2 / benchmark_secteur) * 100)
-
-    audit_reports_data = {"id": company_id, "benchmark": benchmark_pourcentage}
-    supabase.table("AuditReports").insert(audit_reports_data).execute()
-
-    # --- 4. Simulation PV ---
-    simulation_results = {}
-    surface_toit = company_data.get("surface_toit")
-    code_postal = company_data.get("code_postal")
-
-    if surface_toit and code_postal:
-        simulation = SolarSimulation()
-        s_toit_float = float(surface_toit)
-        cp_str = str(code_postal)
-        
-        p_installee = simulation.estimer_puissance_installation(s_toit_float)
-        prix_inst = simulation.estimer_cout_installation(p_installee)
-        prod_annuelle = simulation.estimer_production_annuelle(cp_str, p_installee)
-        
-        prix_kwh_reel = simulation.prix_kwh_entreprise
-        conso = energy_data.get("conso_elec")
-        cout = energy_data.get("prix_elec")
-        
-        if conso and cout and float(conso) > 0:
-            prix_kwh_reel = max(float(cout) / float(conso), 0.10)
-
-        economies = simulation.calculer_economies_annuelles(prod_annuelle, 0.7, 0.10, prix_kwh_reel)
-        co2_kg = simulation.calculer_reduction_co2(prod_annuelle)
-        analyse_roi = simulation.calculer_roi(prix_inst, economies["economies_totales"])
-
-        sim_db_data = {
-            "company_id": company_id,
-            "puissance_installee_kw": p_installee,
-            "surface_panneaux_m2": s_toit_float * 0.6,
-            "taux_autoconsommation": 0.7,
-            "tarif_rachat_kwh": 0.10,
-            "prix_installation_ht": prix_inst,
-            "production_annuelle_estimee_kwh": prod_annuelle,
-            "economies_annuelles_estimees": economies["economies_totales"],
-            "reduction_co2_annuelle_kg": co2_kg,
-            "roi_annees": analyse_roi["roi_annees"]
-        }
-
-        try:
-            supabase.table("simulations_pv").insert(sim_db_data).execute()
-            simulation_results = {
-                "puissance_kw": p_installee,
-                "production_kwh": prod_annuelle,
-                "economies_annuelles": economies["economies_totales"],
-                "roi_annees": analyse_roi["roi_annees"],
-                "rentable": analyse_roi["rentable"]
-            }
-        except Exception as e:
-            simulation_results["erreur_sauvegarde"] = str(e)
-
-    return {
-        "status": "success",
-        "company_id": company_id,
-        "simulation_preview": simulation_results
-    }
-
-# Route normale (remplace ton ancienne)
-@router.post("/questionnaire")
-async def recevoir_questionnaire(request: Request):
-    """Reçoit les données du questionnaire depuis le frontend."""
-    try:
-        data = await request.json()
-        return await traiter_questionnaire_data(data)
-    except Exception as e:
-        return {"status": "error", "message": f"Erreur générale: {str(e)}"}
-
-# Route TEST (NOUVELLE)
-
-
-class TestRequest(BaseModel):
-    exemple_id: Optional[int] = 1  # Par défaut l'exemple 1 (index 0)
-
-@router.post("/questionnaire/test")
-async def recevoir_questionnaire_test(request: TestRequest):
-    try:
-        print(f"MOCK_FILE existe: {MOCK_FILE.exists()}")
-        
-        with MOCK_FILE.open(encoding="utf-8") as f:
-            data = json.load(f)
-        
-        print(f"Données chargées: {len(data)} éléments")
-        print(f"Premier élément: {data[0] if data else 'VIDE'}")
-        
-        if not data:
-            return {"status": "error", "message": "Fichier mock vide !"}
-            
-        if not (1 <= request.exemple_id <= len(data)):
-            return {"status": "error", "message": f"exemple_id doit être 1-{len(data)}"}
-        
-        exemple = data[request.exemple_id - 1]
-        return await traiter_questionnaire_data(exemple)
-        
-    except json.JSONDecodeError as e:
-        return {"status": "error", "message": f"JSON invalide: {str(e)}"}
-    except Exception as e:
-        return {"status": "error", "message": f"Erreur: {type(e).__name__}: {str(e)}"}
-
-
-@router.get("/companies")
-async def get_all_companies(user_id: str = None):
-    """Récupère la liste des entreprises/audits, filtré par user_id si fourni"""
-    try:
-        # Construire la requête de base
-        query = supabase.table("companies").select("*")
-
-        # Filtrer par user_id si fourni
-        if user_id:
-            query = query.eq("user_id", user_id)
-
-        # Trier par date de création (plus récent en premier)
-        response = query.order("created_at", desc=True).execute()
-
-        if not response.data:
-            return {
-                "status": "success",
-                "data": [],
-                "message": "Aucun audit trouvé" if user_id else "Aucune entreprise trouvée"
-            }
-
-        return {
-            "status": "success",
-            "data": response.data,
-            "count": len(response.data)
-        }
-
-    except Exception as e:
-        return {"status": "error", "message": f"Erreur lors de la récupération des entreprises: {str(e)}"}
-    
-@router.get("/")
-async def root():
-    return {"message": "API OK"}
-
-        

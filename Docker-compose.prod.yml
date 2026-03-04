@@ -1,0 +1,37 @@
+services:
+
+  db:
+    image: postgres:16-alpine
+    restart: always
+    env_file:
+      - ./backend/.env.prod
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/src/database/schema.sql:/docker-entrypoint-initdb.d/init.sql
+
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    restart: always
+    depends_on:
+      - db
+    env_file:
+      - ./backend/.env.prod
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    restart: always
+    depends_on:
+      - backend
+    env_file:
+      - ./frontend/.env.prod
+    ports:
+      - "80:80"
+
+volumes:
+  postgres_data:

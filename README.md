@@ -214,6 +214,19 @@ Accédez ensuite à : [http://localhost:5173](http://localhost:5173)
 
 - Dans la racine du projet : npm run dev
 
+## Avec Docker
+
+### pour le dev
+
+- Ne pas utiliser le réseau ESIEA
+- faire make dev dans le terminal à la racine du projet
+
+### pour la prod
+
+- faire make prod dans le terminal à la racine du projet
+- pour l'arrêter : make stop
+- pour supprimer le volume de la base de données : make clean-db
+
 <br/>
 
 # Documentation MkDOcs

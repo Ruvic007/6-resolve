@@ -4,7 +4,7 @@ from src.routes.app import router as questionnaire_router
 from src.routes.subventions import router as subventions_router
 
 from src.database.db import engine, Base
-from src.database.models import Company, EnergyUsage, EnergyType, AuditReport, SimulationPV, ThermalSimulation
+from src.database.models import Company, Energy, AuditReport, SimulationPV, ThermalSimulation
 
 Base.metadata.create_all(bind=engine)
 

@@ -28,8 +28,11 @@ __pycache__
 
 # Variables d'environnement (contiennent des secrets)
 .env
+.env.prod
 backend/.env
+backend/.env.prod
 frontend/.env
+frontend/.env.prod
 
 # Fichiers temporaires Claude Code
 tmpclaude-*-cwd

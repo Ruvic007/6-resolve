@@ -61,15 +61,29 @@ frontend_coverage:
     #exécution des tests
 unit_tests:
   stage: test
-  image: python:latest
+  image: python:3.13-slim
+  
+  # On lance un service Postgres local
+  services:
+    - name: postgres:16-alpine
+      alias: db-test-local
+
   variables:
     PYTHONPATH: "backend"
+    # Config de la base temporaire
+    POSTGRES_DB: test_db
+    POSTGRES_USER: user_test
+    POSTGRES_PASSWORD: password_test
+    POSTGRES_HOST_AUTH_METHOD: trust
+    DATABASE_URL: "postgresql://user_test:password_test@db-test-local:5432/test_db"
+
   before_script:
     - pip3 install -r backend/requirements.txt
-    - pip3 install pytest httpx # S'assure que pytest est là
+    - pip3 install pytest httpx
+  
   script:
-    - export DATABASE_URL="${DATABASE_URL}?sslmode=require"
     - cd backend && pytest tests/ -v
+  
   artifacts:
     when: always
     paths:

@@ -64,8 +64,7 @@ unit_tests:
   image: python:latest
   variables:
     PYTHONPATH: "backend"
-    SUPABASE_URL: $SUPABASE_URL
-    SUPABASE_KEY: $SUPABASE_KEY
+    DATABASE_URL: '$DATABASE_URL'
   before_script:
     - pip3 install -r backend/requirements.txt
     - pip3 install pytest httpx # S'assure que pytest est là

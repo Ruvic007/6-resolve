@@ -69,6 +69,7 @@ unit_tests:
     - pip3 install -r backend/requirements.txt
     - pip3 install pytest httpx # S'assure que pytest est là
   script:
+    - export DATABASE_URL="${DATABASE_URL}?sslmode=require"
     - cd backend && pytest tests/ -v
   artifacts:
     when: always

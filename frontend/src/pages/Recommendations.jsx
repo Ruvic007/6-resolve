@@ -271,7 +271,7 @@ export default function Recommendations() {
         <Target size={24} />
         <div>
           <h3>{stats.total}</h3>
-          <p>Recommandations</p>
+          <p>Recommandations générales</p>
         </div>
       </div>
       <div className="stat-card">
@@ -292,7 +292,7 @@ export default function Recommendations() {
         <DollarSign size={24} />
         <div>
           <h3>{stats.estimatedSavings}</h3>
-          <p>Économies estimées</p>
+          <p>Recommandations personnalisées</p>
         </div>
       </div>
     </div>
@@ -334,12 +334,6 @@ export default function Recommendations() {
           />
         ))}
       </div>
-      <button 
-        className="view-all-btn"
-        onClick={() => setActivePhase("all")}
-      >
-        Voir toutes les phases
-      </button>
     </div>
   );
 

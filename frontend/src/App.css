@@ -1620,9 +1620,6 @@ body::before {
   }
 }
 
-
-
-
 /* ===== RECOMMENDATION CSS ===== */
 .recommendations-container {
   max-width: 1600px;
@@ -1634,7 +1631,6 @@ body::before {
   font-size: 14px;
 }
 
-/* Header - Réduit */
 .recommendations-header {
   display: flex;
   align-items: center;
@@ -1718,7 +1714,6 @@ body::before {
   box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
 }
 
-/* Introduction - Réduite */
 .intro-section {
   display: flex;
   align-items: flex-start;
@@ -1748,7 +1743,6 @@ body::before {
   max-width: 100%;
 }
 
-/* Statistiques - Réduites */
 .stats-section {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -1795,7 +1789,6 @@ body::before {
   font-weight: 500;
 }
 
-/* Phases - Réduites */
 .phases-section {
   margin-bottom: 40px;
 }
@@ -1821,16 +1814,17 @@ body::before {
 }
 
 .phases-container {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); 
+  gap: 16px;
+  width: 100%;
 }
 
 .phase-step {
   display: flex;
   align-items: center;
   gap: 20px;
-  padding: 20px;
+  padding: 5px 10px;
   background: white;
   border-radius: 12px;
   cursor: pointer;
@@ -1876,7 +1870,7 @@ body::before {
   color: #64748b;
   margin: 0 0 10px 0;
   line-height: 1.4;
-  max-width: 90%;
+  max-width: 100%;
 }
 
 .step-duration {
@@ -1909,7 +1903,6 @@ body::before {
   color: #475569;
 }
 
-/* Filtres - Réduits */
 .filters-section {
   display: flex;
   align-items: center;
@@ -1978,7 +1971,7 @@ body::before {
   text-align: center;
 }
 
-/* Grille de recommandations - Réduite */
+
 .recommendations-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -2216,7 +2209,7 @@ body::before {
   line-height: 1.4;
 }
 
-/* Aides financières - Réduites */
+/* Aides financières  */
 .aides-section {
   margin-bottom: 40px;
 }
@@ -2326,7 +2319,7 @@ body::before {
   color: #475569;
 }
 
-/* CTA - Réduit */
+/* CTA  */
 .cta-section {
   display: flex;
   align-items: center;
@@ -2377,7 +2370,7 @@ body::before {
   background: #f8fafc;
 }
 
-/* Responsive - Adapté pour taille réduite */
+/* Responsive */
 @media (max-width: 1200px) {
   .recommendations-grid {
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -2545,6 +2538,17 @@ body::before {
   border-radius: 3px;
 }
 
+@media (max-width: 1200px) {
+  .phases-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .phases-container {
+    grid-template-columns: 1fr;
+  }
+}
 /* Mode d'impression */
 @media print {
   .recommendations-container {

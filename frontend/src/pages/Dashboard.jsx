@@ -165,20 +165,58 @@ export function Dashboard() {
         <SimulationPanel simulationPV={finalData.simulationPV} simulationThermique={finalData.simulationThermique} />
       </section>
       
-   {/* Onglet vers les recommandations */}
-      <section className="dashboard-section recommendations-tab">
-        <div className="recommendations-card">
-          <h2 className="section-title">Recommandations personnalisées</h2>
-          <p>Consultez nos recommandations d'optimisation énergétique</p>
-          <button 
-            className="primary-btn"
-            onClick={() => navigate("/recommendations")} // Adaptez le chemin selon votre route
-          >
-            Voir mes recommandations
-          </button>
-        </div>
-      </section>
+<div className="recommendations-wrapper">
 
+  {/* Onglet vers les générales */}
+  <section className="dashboard-section recommendations-tab">
+    <div className="recommendations-card">
+      <h2 className="section-title">Recommandations générales</h2>
+      <p>Consultez nos recommandations générales d'optimisation énergétique</p>
+      <button 
+        className="primary-btn"
+        onClick={() => navigate("/recommendations")} 
+      >
+        Voir les recommandations générales
+      </button>
+    </div>
+  </section>
+
+  {/* Onglet vers les recommandations personnalisées */}
+<section className="dashboard-section recommendations-tab">
+  <div className="recommendations-card">
+    <div className="solutions-buttons"></div>
+    <h2 className="section-title">Recommandations personnalisées</h2>
+
+    <p>
+      Accédez à des solutions adaptées à votre profil énergétique et à votre
+      type d'installation. Sélectionnez la technologie correspondant à votre projet :
+    </p>
+    <div className="solutions-buttons">
+    <button 
+      className="primary-btn"
+      onClick={() => navigate("/Solar_PV")} 
+    >
+      Solutions Solaire Photovoltaïque
+    </button>    
+
+    <button 
+      className="primary-btn"
+      onClick={() => navigate("/Solar_Ther")} 
+    >
+      Solutions Solaire Thermique
+    </button>  
+
+    <button 
+      className="primary-btn"
+      onClick={() => navigate("/Geothermique")} 
+    >
+      Solutions Géothermiques
+    </button>  
+    </div>
+    </div>
+</section>
+
+</div>
 
       {/* Aides financières */}
       <section className="dashboard-section">

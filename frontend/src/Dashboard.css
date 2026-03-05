@@ -468,48 +468,52 @@
 }
 
 /* === RECOMMENDATIONS === */
-.recommendations-card {
+
+.recommendations-wrapper {
+  display: grid;
+  grid-template-columns: 35% 65%; /* gauche plus petite */
+  gap: 32px;
+  align-items: stretch;
+  margin-top: 40px;
+}
+.solutions-buttons {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 2.5rem;
+  gap: 16px;
+  margin-top: 20px;
+  flex-wrap: wrap; /* passe à la ligne sur petit écran */
 }
 
-.recommendations-icon {
-  color: #10b981;
-  margin-bottom: 0.75rem;
+.solutions-buttons .primary-btn {
+  flex: 1;
+  min-width: 180px;
 }
 
-.recommendations-card h3 {
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: #111827;
-  margin: 0 0 0.5rem 0;
-}
-
-.recommendations-card p {
-  color: #6b7280;
-  font-size: 0.875rem;
-  margin: 0 0 1.25rem 0;
-  max-width: 460px;
-}
-
-.tag-list {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.tag {
-  background: #f3f4f6;
+/* Style général des blocs */
+.dashboard-section {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
   border: 1px solid #e5e7eb;
-  color: #6b7280;
-  padding: 0.4rem 0.85rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 500;
+  transition: 0.2s ease;
+}
+
+.dashboard-section:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+
+/* Boutons personnalisés plus espacés */
+.recommendations-card .primary-btn {
+  width: 100%;
+  margin-top: 12px;
+}
+
+/* pour la navigation sur mobile ou tablette */
+@media (max-width: 900px) {
+  .recommendations-wrapper {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* === BENCHMARK === */

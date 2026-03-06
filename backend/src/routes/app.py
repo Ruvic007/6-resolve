@@ -228,11 +228,22 @@ async def recevoir_questionnaire_test(request: TestRequest, db: Session = Depend
 
 
 @router.get("/simulations/{company_id}")
-async def get_simulations_entreprise(company_id: int, db: Session = Depends(get_db)):
+async def get_simulations_entreprise(
+    company_id: int,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(verify_clerk_token)
+):
     """Récupère l'historique des simulations d'une entreprise."""
     try:
+        company = db.query(Company).filter(Company.id == company_id).first()
+        if not company:
+            return {"status": "error", "message": "Entreprise non trouvée"}
+        if company.user_id != user_id:
+            raise HTTPException(status_code=403, detail="Accès refusé : cette entreprise ne vous appartient pas.")
         sims = db.query(SimulationPV).filter(SimulationPV.company_id == company_id).all()
         return {"status": "success", "simulations": [model_to_dict(s) for s in sims]}
+    except HTTPException:
+        raise
     except Exception as e:
         return {"status": "error", "message": f"Erreur lors de la récupération: {str(e)}"}
 

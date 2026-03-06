@@ -74,11 +74,12 @@ unit_tests:
 
   variables:
     PYTHONPATH: "backend"
-    # Config de la base temporaire
     POSTGRES_DB: test_db
     POSTGRES_USER: user_test
     POSTGRES_PASSWORD: password_test
     POSTGRES_HOST_AUTH_METHOD: trust
+    # Credentials Docker Hub pour le pull des images de service
+    DOCKER_AUTH_CONFIG: '{"auths":{"https://index.docker.io/v1/":{"username":"$DOCKER_HUB_USER","password":"$DOCKER_HUB_TOKEN"}}}'
 
   before_script:
     - pip3 install -r backend/requirements.txt

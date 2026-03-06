@@ -10,9 +10,6 @@ import { About } from "./pages/About";
 import { Dashboard } from "./pages/Dashboard";
 import { Historique } from "./pages/Historique";
 import Recommendations from "./pages/Recommendations";
-import SolarPV from "./pages/Solaire_PV.jsx";
-/* SolarTher n'existe pas encore*/
-import SolarTher from "./pages/Solaire_Ther.jsx";
 import NotFound from "./pages/NotFound";
 
 export default function App() {
@@ -71,26 +68,6 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/Solar_PV"
-          element={
-            <ProtectedRoute>
-              <SolarPV />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Route thermique désactivée temporairement car SolarTher n'existe pas */}
-        {
-        <Route
-          path="/Solar_Ther"
-          element={
-            <ProtectedRoute>
-              <SolarTher />
-            </ProtectedRoute>
-          }
-        />
-        }
       </Route>
 
       {/* Route 404 */}

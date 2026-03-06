@@ -6,7 +6,7 @@ stages:
 # linter
 pylint:
   stage: test
-  image: python:latest
+  image: $CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX/python:latest
   before_script:
     - mkdir -p public/badges public/lint
     - echo undefined > public/badges/$CI_JOB_NAME.score
@@ -29,7 +29,7 @@ pylint:
     # Tests unitaires frontend (Vitest)
 frontend_tests:
   stage: test
-  image: node:20-alpine
+  image: $CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX/node:20-alpine
   before_script:
     - cd frontend
     - npm ci
@@ -42,7 +42,7 @@ frontend_tests:
 
 frontend_coverage:
   stage: coverage
-  image: node:20-alpine
+  image: $CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX/node:20-alpine
   before_script:
     - cd frontend
     - npm ci
@@ -61,11 +61,11 @@ frontend_coverage:
     #exécution des tests
 unit_tests:
   stage: test
-  image: python:3.13-slim
-  
+  image: $CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX/python:3.13-slim
+
   # On lance un service Postgres local
   services:
-    - name: postgres:16-alpine
+    - name: $CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX/postgres:16-alpine
       alias: db-test-local
 
   variables:

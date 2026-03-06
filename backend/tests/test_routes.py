@@ -7,9 +7,8 @@ def test_recevoir_questionnaire_fail_no_data(client):
     assert "status" in response.json()
     
 def test_get_simulations_non_existent(client):
-    """Vérifie que l'API renvoie une liste vide si l'entreprise n'a pas de simulation."""
+    """Vérifie que l'API renvoie une erreur si l'entreprise n'existe pas."""
     response = client.get("/api/simulations/999999")
-    # On s'assure que le serveur a bien répondu
-    assert response.status_code == 200 
-    # On valide que l'API renvoie bien 'success' (ton code actuel)
-    assert response.json()["status"] == "success"
+    assert response.status_code == 200
+    # L'entreprise 999999 n'existe pas → erreur attendue
+    assert response.json()["status"] == "error"

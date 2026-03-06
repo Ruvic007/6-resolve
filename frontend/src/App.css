@@ -371,7 +371,7 @@ input:focus, select:focus, textarea:focus {
   padding: clamp(1.5rem, 5vw, 3rem); /* Padding adaptatif */
   border-radius: 12px;
   width: 100%;                    /* ✅ S'étire */
-  max-width: clamp(500px, 90vw, 800px); /* ✅ Largeur adaptative */
+  max-width: clamp(600px, 90vw, 1080px); /* ✅ Largeur adaptative */
   margin: clamp(1rem, 3vw, 2rem) auto;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
   min-height: 100dvh;             /* ✅ Hauteur dynamique */

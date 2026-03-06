@@ -74,7 +74,6 @@ unit_tests:
 
   variables:
     PYTHONPATH: "backend"
-    # Config de la base temporaire
     POSTGRES_DB: test_db
     POSTGRES_USER: user_test
     POSTGRES_PASSWORD: password_test

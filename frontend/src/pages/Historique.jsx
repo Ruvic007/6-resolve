@@ -1,26 +1,33 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth } from "@clerk/clerk-react";
 import { AlertTriangle, ClipboardList, LayoutDashboard, ScrollText } from "lucide-react";
 import "../App.css";
 
 export function Historique() {
   const navigate = useNavigate();
-  const { user } = useUser();
+  // useAuth() donne accès à getToken() et isLoaded (Clerk chargé ?) / isSignedIn.
+  // On n'utilise plus useUser() car on n'a plus besoin de user.id en clair.
+  const { getToken, isLoaded, isSignedIn } = useAuth();
   const [audits, setAudits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchAudits = async () => {
-      // Attendre que l'utilisateur soit chargé
-      if (!user) return;
+      // Attendre que Clerk ait fini de charger la session
+      if (!isLoaded || !isSignedIn) return;
 
       try {
         setLoading(true);
         const apiUrl = import.meta.env?.VITE_API_BASE_URL || "http://localhost:8000";
-        // Filtrer par user_id pour n'afficher que les audits de l'utilisateur connecté
-        const response = await fetch(`${apiUrl}/api/companies?user_id=${user.id}`);
+
+        // On récupère le JWT et on l'envoie en header.
+        // Le backend extrait l'user_id du token — plus besoin du query param ?user_id=
+        const token = await getToken();
+        const response = await fetch(`${apiUrl}/api/companies`, {
+          headers: { "Authorization": `Bearer ${token}` },
+        });
 
         if (!response.ok) {
           throw new Error(`Erreur ${response.status}: ${response.statusText}`);
@@ -41,7 +48,7 @@ export function Historique() {
     };
 
     fetchAudits();
-  }, [user]);
+  }, [isLoaded, isSignedIn, getToken]);
 
   const handleViewDashboard = (companyId) => {
     navigate(`/dashboard/${companyId}`);
@@ -97,7 +104,7 @@ export function Historique() {
           <div className="empty-icon"><ClipboardList size={48} /></div>
           <h3>Aucun audit trouvé</h3>
           <p>Vous n'avez pas encore réalisé d'audit énergétique.</p>
-          <button className="btn btn-primary" onClick={() => navigate("/audit")}>
+          <button className="btn btn-primary" style={{ marginTop: "1rem" }} onClick={() => navigate("/audit")}>
             Faire mon premier audit
           </button>
         </div>
@@ -146,11 +153,7 @@ export function Historique() {
         </div>
       )}
 
-      <div className="historique-actions">
-        <button className="btn btn-secondary" onClick={() => navigate("/audit")}>
-          + Nouvel audit
-        </button>
-      </div>
+      
     </div>
   );
 }

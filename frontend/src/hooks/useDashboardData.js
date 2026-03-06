@@ -79,9 +79,8 @@ export function useDashboardData(companyId, getToken) {
           throw new Error(result.message || "Données invalides");
         }
       } catch (err) {
-        console.error("API Fallback:", err);
+        console.error("Erreur dashboard:", err);
         setError(err.message);
-        setData(DEMO_DATA);
       } finally {
         setLoading(false);
       }

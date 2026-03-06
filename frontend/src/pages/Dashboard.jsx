@@ -77,6 +77,12 @@ export function Dashboard() {
     );
   }
 
+  // Si l'URL contient un ID invalide ou inaccessible, on redirige vers le dernier audit
+  if (error && paramId && error !== "no_audit") {
+    navigate("/dashboard", { replace: true });
+    return null;
+  }
+
   if (error === "no_audit") {
     return (
       <div className="dashboard-page">

@@ -216,7 +216,7 @@ export function Dashboard() {
 
     <button 
       className="primary-btn"
-      onClick={() => navigate("/Geothermique")} 
+      onClick={() => navigate("/GeoThermiq")} 
     >
       Solutions Géothermiques
     </button>  

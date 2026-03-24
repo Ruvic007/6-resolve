@@ -31,8 +31,10 @@ from src.routes.subventions import router as subventions_router
 from src.database.db import engine, Base
 from src.database.models import Company, Energy, AuditReport, SimulationPV, ThermalSimulation
 
-Base.metadata.create_all(bind=engine)
-
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception as e:
+    print(f"Avertissement : impossible de créer les tables : {e}")
 app = FastAPI()
 
 # Origines autorisées — à adapter selon l'environnement

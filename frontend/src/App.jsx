@@ -10,6 +10,9 @@ import { About } from "./pages/About";
 import { Dashboard } from "./pages/Dashboard";
 import { Historique } from "./pages/Historique";
 import Recommendations from "./pages/Recommendations";
+import SolarPV from "./pages/Solaire_PV";
+import SolarTher from "./pages/Solaire_Ther";
+import GeoThermiq from "./pages/GeoThermiq";     
 import NotFound from "./pages/NotFound";
 
 export default function App() {
@@ -65,6 +68,30 @@ export default function App() {
           element={
             <ProtectedRoute>
               <Recommendations />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/Solar_PV"
+          element={
+            <ProtectedRoute>
+              <SolarPV />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/Solar_Ther"
+          element={
+            <ProtectedRoute>
+              <SolarTher />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/GeoThermiq"
+          element={
+            <ProtectedRoute>
+              <GeoThermiq />
             </ProtectedRoute>
           }
         />

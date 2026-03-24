@@ -81,7 +81,6 @@ export default function StepEnergy({ onNext, onBack, defaultValues }) {
                   max: { value: 30000000, message: "Max 30 000 000 kWh/an" },
                 })}
                 placeholder="2000"
-                step="1"
                 min="100"
                 max="30000000"
               />
@@ -89,22 +88,21 @@ export default function StepEnergy({ onNext, onBack, defaultValues }) {
               {errors.conso_elec && <p className="error">{errors.conso_elec.message}</p>}
             </div>
             <div className="field-group">
-              <label>Tarif moyen (€/kWh HT) <span className="required">*</span></label>
+              <label>Coût total facture électricité (€ TTC/an) <span className="required">*</span></label>
               <input
                 type="number"
-                step="0.001"
-                {...register("prix_elec", {
-                  required: "Prix obligatoire",
+                {...register("cout_elec", {
+                  required: "Montant facture obligatoire",
                   valueAsNumber: true,
-                  min: { value: 0.01, message: "Min 0,01€" },
-                  max: { value: 0.5, message: "Max 0,5€" }
+                  min: { value: 1000, message: "Min 1 000€/an (PME)" },
+                  max: { value: 1000000, message: "Max 1M€/an" }
                 })}
-                placeholder="0.18"
-                min="0.01"
-                max="0.5"
+                placeholder="150000"
+                min="1000"
+                max="1000000"
               />
-              <small>Indiqué sur votre facture, généralement entre 0,15 et 0,25 €</small>
-              {errors?.prix_elec && <p className="error">{errors.prix_elec.message}</p>}
+              <small>💡 Prenez le montant TOTAL TTC de votre dernière facture annuelle</small>
+              {errors?.cout_facture_elec_ttc && <p className="error">{errors.cout_facture_elec_ttc.message}</p>}
             </div>
           </div>
         </div>
@@ -133,22 +131,21 @@ export default function StepEnergy({ onNext, onBack, defaultValues }) {
               {errors?.conso_elec && <p className="error">{errors.conso_elec.message}</p>}
             </div>
             <div className="field-group">
-              <label>Tarif électricité (€/kWh HT) <span className="required">*</span></label>
+              <label>Coût total facture électricité (€ TTC/an) <span className="required">*</span></label>
               <input
                 type="number"
-                step="0.001"
-                {...register("prix_elec", {
-                  required: "Prix Élec obligatoire",
+                {...register("cout_elec", {
+                  required: "Montant facture obligatoire",
                   valueAsNumber: true,
-                  min: { value: 0.05, message: "Min 0,05€" },
-                  max: { value: 1, message: "Max 1€" }
+                  min: { value: 1000, message: "Min 1 000€/an (PME)" },
+                  max: { value: 1000000, message: "Max 1M€/an" }
                 })}
-                placeholder="0.18"
-                min="0.05"
-                max="1"
+                placeholder="150000"
+                min="1000"
+                max="1000000"
               />
-              <small>Indiqué sur votre facture, généralement entre 0,15 et 0,25 €</small>
-              {errors?.prix_elec && <p className="error">{errors.prix_elec.message}</p>}
+              <small>💡 Prenez le montant TOTAL TTC de votre dernière facture annuelle</small>
+              {errors?.cout_facture_elec_ttc && <p className="error">{errors.cout_facture_elec_ttc.message}</p>}
             </div>
           </div>
           {/* GAZ */}
@@ -171,22 +168,21 @@ export default function StepEnergy({ onNext, onBack, defaultValues }) {
               {errors?.conso_gaz && <p className="error">{errors.conso_gaz.message}</p>}
             </div>
             <div className="field-group">
-              <label>Tarif gaz (€/kWh HT) <span className="required">*</span></label>
+              <label>Coût total facture gaz (€ TTC/an) <span className="required">*</span></label>
               <input
                 type="number"
-                step="0.001"
-                {...register("prix_gaz", {
-                  required: "Prix Gaz obligatoire",
+                {...register("cout_gaz", {
+                  required: "Montant facture obligatoire",
                   valueAsNumber: true,
-                  min: { value: 0.01, message: "Min 0,01€" },
-                  max: { value: 0.5, message: "Max 0,5€" }
+                  min: { value: 500, message: "Min 500€/an (PME)" },
+                  max: { value: 500000, message: "Max 500k€/an" }
                 })}
-                placeholder="0.09"
-                min="0.01"
-                max="0.5"
+                placeholder="45000"
+                min="500"
+                max="500000"
               />
-              <small>Tarif hors taxes, généralement entre 0,07 et 0,12 €</small>
-              {errors?.prix_gaz && <p className="error">{errors.prix_gaz.message}</p>}
+              <small>💡 Prenez le montant TOTAL TTC de votre dernière facture gaz annuelle</small>
+              {errors?.cout_facture_gaz_ttc && <p className="error">{errors.cout_facture_gaz_ttc.message}</p>}
             </div>
           </div>
         </div>

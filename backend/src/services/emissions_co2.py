@@ -1,12 +1,8 @@
-# Paramètres par défaut (à adapter selon ton référentiel ADEME / Base Carbone)
-# Unités :
-# - consommation élec : kWh
-# - consommation gaz  : kWh PCI
-# - facteurs d'émission : kgCO2e / kWh
 
-FACTEUR_ELEC_MIX = 0.057      # 57 gCO2e/kWh -> 0.057 kgCO2e/kWh (mix moyen FR 2018 ordre de grandeur)[web:21]
-FACTEUR_ELEC_RENOUV = 0.020   # 20 gCO2e/kWh -> 0.020 kgCO2e/kWh (ordre de grandeur élec renouvelable)[web:26]
-FACTEUR_GAZ_NATUREL = 0.21    # 0.21 kgCO2e/kWh PCI (mix gaz naturel France, combustion + amont)[web:13][web:24]
+
+FACTEUR_ELEC_MIX = 0.057
+FACTEUR_ELEC_RENOUV = 0.020 
+FACTEUR_GAZ_NATUREL = 0.21
 
 def calcul_emissions(
     conso_elec_kwh: float,

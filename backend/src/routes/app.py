@@ -72,9 +72,9 @@ async def traiter_questionnaire_data(data: Dict[str, Any], db: Session, user_id:
             company_id=company_id,
             annee=parse_int(data.get("annee")),
             conso_elec=parse_float(data.get("conso_elec")),
-            prix_elec=parse_float(data.get("prix_elec")),
+            cout_elec=parse_float(data.get("cout_elec")),
             conso_gaz=parse_float(data.get("conso_gaz")),
-            prix_gaz=parse_float(data.get("prix_gaz")),
+            cout_gaz=parse_float(data.get("cout_gaz")),
             pourcentage_renouvelable=parse_float(data.get("pourcentage_renouvelable")),
             type_facture=data.get("type_facture"),
             type_chauffage=data.get("type_chauffage"),
@@ -111,7 +111,7 @@ async def traiter_questionnaire_data(data: Dict[str, Any], db: Session, user_id:
             prix_inst = simulation.estimer_cout_installation(p_installee)
             prod_annuelle = simulation.estimer_production_annuelle(str(code_postal), p_installee)
 
-            prix_kwh_reel = max(parse_float(data.get("prix_elec")) or simulation.prix_kwh_entreprise, 0.10)
+            prix_kwh_reel = max(parse_float(data.get("cout_elec")) or simulation.prix_kwh_entreprise, 0.10)
 
             economies = simulation.calculer_economies_annuelles(prod_annuelle, 0.7, 0.10, prix_kwh_reel)
             co2_kg = simulation.calculer_reduction_co2(prod_annuelle)
@@ -144,7 +144,7 @@ async def traiter_questionnaire_data(data: Dict[str, Any], db: Session, user_id:
                 type_chauffage_client = data.get("type_chauffage") or "gaz"
                 thermal_service = ServiceThermal()
                 prix_th = max(
-                    parse_float(data.get("prix_gaz")) or parse_float(data.get("prix_elec")) or 0.10,
+                    parse_float(data.get("cout_gaz")) or parse_float(data.get("cout_elec")) or 0.10,
                     0.10
                 )
 
@@ -301,9 +301,9 @@ async def get_dashboard_data(
         # Calculs des métriques
         conso_elec = float(energy_dict.get("conso_elec", 0) or 0)
         conso_gaz = float(energy_dict.get("conso_gaz", 0) or 0)
-        prix_elec = float(energy_dict.get("prix_elec", 0) or 0)
-        prix_gaz = float(energy_dict.get("prix_gaz", 0) or 0)
-        cout_total = round(conso_elec * prix_elec + conso_gaz * prix_gaz, 2)
+        cout_elec = float(energy_dict.get("cout_elec", 0) or 0)
+        cout_gaz = float(energy_dict.get("cout_gaz", 0) or 0)
+        cout_total = cout_elec+cout_gaz
         co2_emissions = float(energy_dict.get("emission_co2_kg", 0) or 0)
 
         # Énergie renouvelable : % déclaré par l'utilisateur dans le questionnaire

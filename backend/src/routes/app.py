@@ -111,7 +111,7 @@ async def traiter_questionnaire_data(data: Dict[str, Any], db: Session, user_id:
             prix_inst = simulation.estimer_cout_installation(p_installee)
             prod_annuelle = simulation.estimer_production_annuelle(str(code_postal), p_installee)
 
-            prix_kwh_reel = max(parse_float(data.get("cout_elec")) or simulation.prix_kwh_entreprise, 0.10)
+            prix_kwh_reel = energy_model.cout_elec /max(parse_float(data.get("conso_elec")) or simulation.prix_kwh_entreprise, 0.10)
 
             economies = simulation.calculer_economies_annuelles(prod_annuelle, 0.7, 0.10, prix_kwh_reel)
             co2_kg = simulation.calculer_reduction_co2(prod_annuelle)

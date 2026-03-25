@@ -128,6 +128,41 @@ export function Dashboard() {
   const barConfig = getBarConfig(finalData);
   const donutConfig = getDonutConfig(finalData);
 
+  // --- CALCULS POUR LE BENCHMARK ---
+  let benchmarkData = null;
+  if (finalData?.benchmark) {
+    const pct = finalData.benchmark.pourcentage;
+    const moyenneSecteur = finalData.benchmark.moyenne_secteur;
+    
+    // Calcul de la consommation déduite de l'entreprise
+    const consoEntreprise = (pct / 100) * moyenneSecteur;
+    
+    // Calcul de la différence
+    const diff = Math.round(Math.abs(pct - 100));
+    const isMoins = pct < 100;
+    const isEgale = pct === 100;
+
+    // Détermination de la couleur
+    const colorClass = pct <= 80 ? 'excellent' :
+                      pct <= 100 ? 'good' :
+                      pct <= 120 ? 'average' : 'poor';
+
+    // Texte de statut
+    const statusText = pct <= 80 ? 'Excellent ! Vous consommez bien moins que la moyenne.' :
+                      pct <= 100 ? 'Bien ! Vous consommez légèrement moins que la moyenne.' :
+                      pct <= 120 ? 'Attention : Vous êtes légèrement au-dessus de la moyenne.' :
+                      'À améliorer : Votre consommation est nettement supérieure à la moyenne.';
+
+    // Base pour la hauteur du graphique (on prend le max + 20% de marge)
+    const maxChartValue = Math.max(consoEntreprise, moyenneSecteur) * 1.2;
+
+    benchmarkData = {
+      pct, diff, isMoins, isEgale, colorClass, statusText,
+      consoEntreprise, moyenneSecteur, maxChartValue,
+      secteur: finalData.benchmark.secteur
+    };
+  }
+
   return (
     <div className="dashboard-page">
       {/* Barre d'info entreprise */}
@@ -235,49 +270,62 @@ export function Dashboard() {
       {/* Benchmark */}
       <section className="dashboard-section">
         <h2 className="section-title">Benchmark sectoriel</h2>
-        {finalData.benchmark ? (
-          <div className="benchmark-content">
-            <div className="benchmark-gauge-card">
-              <div className="benchmark-gauge">
-                <div
-                  className={`gauge-fill ${
-                    finalData.benchmark.pourcentage <= 80 ? 'excellent' :
-                    finalData.benchmark.pourcentage <= 100 ? 'good' :
-                    finalData.benchmark.pourcentage <= 120 ? 'average' : 'poor'
-                  }`}
-                  style={{ width: `${Math.min(finalData.benchmark.pourcentage, 150) / 1.5}%` }}
-                />
-                <div className="gauge-marker" style={{ left: '66.67%' }} />
+        {benchmarkData ? (
+          <div className="benchmark-content-wrapper">
+            
+            {/* Partie Gauche : Les chiffres et le texte */}
+            <div className="benchmark-info">
+              <div className={`benchmark-value-large ${benchmarkData.colorClass}`}>
+                <span>
+                  {benchmarkData.isEgale ? "Dans la moyenne" : (benchmarkData.isMoins ? `-${benchmarkData.diff}%` : `+${benchmarkData.diff}%`)}
+                </span>
               </div>
-              <div className="benchmark-value">
-                <span className="benchmark-percentage">{finalData.benchmark.pourcentage}%</span>
-                <span className="benchmark-label">de la moyenne sectorielle</span>
+              
+              <p className="benchmark-description">
+                {benchmarkData.isEgale 
+                  ? "Votre consommation est exactement dans la moyenne de votre secteur." 
+                  : `de consommation en ${benchmarkData.isMoins ? 'moins' : 'plus'} par rapport à votre secteur.`}
+              </p>
+              
+              <div className={`benchmark-status-box ${benchmarkData.colorClass}`}>
+                {benchmarkData.statusText}
               </div>
-              <div className={`benchmark-status ${
-                finalData.benchmark.pourcentage <= 80 ? 'excellent' :
-                finalData.benchmark.pourcentage <= 100 ? 'good' :
-                finalData.benchmark.pourcentage <= 120 ? 'average' : 'poor'
-              }`}>
-                {finalData.benchmark.pourcentage <= 80 ? 'Excellent ! Vous consommez bien moins que la moyenne' :
-                 finalData.benchmark.pourcentage <= 100 ? 'Bien ! Vous consommez moins que la moyenne' :
-                 finalData.benchmark.pourcentage <= 120 ? 'Attention : Légèrement au-dessus de la moyenne' :
-                 'À améliorer : Consommation supérieure à la moyenne'}
+
+              <div className="benchmark-details-clean">
+                <div className="benchmark-detail-item">
+                  <span className="detail-label">Secteur : </span>
+                  <span className="detail-value font-semibold">{benchmarkData.secteur || "Non spécifié"}</span>
+                </div>
               </div>
             </div>
-            <div className="benchmark-details">
-              <div className="benchmark-detail-item">
-                <span className="detail-label">Secteur</span>
-                <span className="detail-value">{finalData.benchmark.secteur || "Non spécifié"}</span>
+
+            {/* Partie Droite : Le Graphique en barres */}
+            <div className="benchmark-chart-container">
+              
+              {/* Barre Entreprise */}
+              <div className="chart-column">
+                <span className="chart-value">{Math.round(benchmarkData.consoEntreprise)}</span>
+                <div 
+                  className={`chart-bar ${benchmarkData.colorClass}`} 
+                  style={{ height: `${(benchmarkData.consoEntreprise / benchmarkData.maxChartValue) * 100}%` }}
+                ></div>
+                <span className="chart-label">Vous<br/>(kWh/m²)</span>
               </div>
-              <div className="benchmark-detail-item">
-                <span className="detail-label">Moyenne du secteur</span>
-                <span className="detail-value">{formatNumber(finalData.benchmark.moyenne_secteur)} kWh/m²/an</span>
+
+              {/* Barre Secteur */}
+              <div className="chart-column">
+                <span className="chart-value">{Math.round(benchmarkData.moyenneSecteur)}</span>
+                <div 
+                  className="chart-bar average-bar" 
+                  style={{ height: `${(benchmarkData.moyenneSecteur / benchmarkData.maxChartValue) * 100}%` }}
+                ></div>
+                <span className="chart-label">Moyenne<br/>(kWh/m²)</span>
               </div>
+
             </div>
           </div>
         ) : (
           <div className="card benchmark-card">
-            <BarChart2 size={32} strokeWidth={1.5} className="benchmark-icon" />
             <h3>Comparaison avec votre secteur</h3>
             <p>Les données de benchmark seront disponibles après votre premier audit.</p>
           </div>

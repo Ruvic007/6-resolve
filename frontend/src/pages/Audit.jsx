@@ -6,7 +6,7 @@ import StepSummaryContent from "../components/steps/StepSummary";
 import "../App.css";
 
 export default function Audit() {
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({pourcentage_renouvelable: 0,cout_gaz:0,conso_gaz:0});
 
   const handleStepData = (data) => {
     setFormData((prev) => ({ ...prev, ...data }));

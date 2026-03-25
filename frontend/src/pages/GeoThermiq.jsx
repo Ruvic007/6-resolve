@@ -17,7 +17,8 @@ import {
   Leaf,
   Gauge
 } from "lucide-react";
-import "../Solar.css"; 
+import "../Solar.css";
+import "../Dashboard.css";
 
 export default function GeoThermiq() {
   const navigate = useNavigate();
@@ -108,15 +109,14 @@ export default function GeoThermiq() {
   ];
 
   return (
-    <div className="thermal-container">
+    <div className="thermal-container dashboard-page">
       {/* HEADER */}
       <div className="thermal-header">
-        <button onClick={() => navigate("/")} className="back-button">
+        <button onClick={() => navigate("/dashboard")} className="back-button">
           <ArrowLeft size={20} />
-          Retour
+          Retour au dashboard
         </button>
-
-        <div className="thermal-title">
+        <div className="geo-title">
           <Thermometer size={32} />
           <div>
             <h1>Solution Géothermie</h1>
@@ -140,8 +140,8 @@ export default function GeoThermiq() {
       </div>
 
       {/* SECTION APPLICATIONS */}
-      <div className="thermal-applications">
-        <h2>🏢 Applications pour PME et collectivités</h2>
+      <section className="dashboard-section">
+        <h2 className="section-title">Applications pour PME et collectivités</h2>
         <div className="thermal-grid-3">
           {applications.map((app, index) => (
             <div key={index} className="thermal-card">
@@ -151,12 +151,11 @@ export default function GeoThermiq() {
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* SIMULATEUR */}
-      <div className="thermal-simulator">
-        <h2><Calculator size={22} /> Simulation rapide</h2>
-
+      <section className="dashboard-section">
+        <h2 className="section-title"><Calculator size={22} /> Simulation rapide</h2>
         <div className="sim-inputs">
           <div>
             <label>Surface disponible (m²)</label>
@@ -168,12 +167,11 @@ export default function GeoThermiq() {
               step="20"
             />
             <small>
-              {typeGeothermie === "vertical" 
-                ? "≈ 100-150 m² par sonde" 
+              {typeGeothermie === "vertical"
+                ? "≈ 100-150 m² par sonde"
                 : "≈ 1.5-2x la surface chauffée"}
             </small>
           </div>
-
           <div>
             <label>Besoins thermiques annuels (kWh)</label>
             <input
@@ -185,33 +183,28 @@ export default function GeoThermiq() {
             />
           </div>
         </div>
-
         <div className="sim-results">
           <div className="result-card">
             <BarChart3 size={20} />
             <p>Production estimée</p>
             <h3>{productionThermique.toLocaleString('fr-FR')} kWh/an</h3>
           </div>
-
           <div className="result-card">
             <DollarSign size={20} />
             <p>Économies annuelles</p>
             <h3>{economiesAnnuelles.toLocaleString('fr-FR')} €</h3>
           </div>
-
           <div className="result-card">
             <Gauge size={20} />
             <p>Coefficient de performance (COP)</p>
             <h3>{cop}</h3>
           </div>
-
           <div className="result-card highlight">
             <TrendingUp size={20} />
             <p>ROI après subventions</p>
             <h3>{roi} ans</h3>
           </div>
         </div>
-
         <div className="investment-details">
           <div className="detail-item">
             <span>Investissement brut :</span>
@@ -226,11 +219,11 @@ export default function GeoThermiq() {
             <strong>{resteACharge.toLocaleString('fr-FR')} €</strong>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* AIDES */}
-      <div className="thermal-aides">
-        <h2>💰 Aides disponibles 2026</h2>
+      <section className="dashboard-section">
+        <h2 className="section-title">Aides disponibles 2026</h2>
         <div className="thermal-grid-3">
           {aides.map((aide, index) => (
             <div key={index} className="thermal-card">
@@ -240,11 +233,11 @@ export default function GeoThermiq() {
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* AVANTAGES TECHNIQUES */}
-      <div className="thermal-advantages">
-        <h2>✨ Points forts de la géothermie</h2>
+      <section className="dashboard-section">
+        <h2 className="section-title">Points forts de la géothermie</h2>
         <div className="advantages-grid">
           {avantages.map((avantage, index) => (
             <div key={index} className="advantage-item">
@@ -261,10 +254,10 @@ export default function GeoThermiq() {
             <span>Peut assurer climatisation réversible en été</span>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* CTA */}
-      <div className="thermal-cta">
+      <div className="geo-cta">
         <Leaf size={28} />
         <h3>Prêt à exploiter l'énergie du sous-sol ?</h3>
         <button onClick={() => navigate("/dashboard")}>

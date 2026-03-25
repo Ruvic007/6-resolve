@@ -13,6 +13,7 @@ import {
   Zap
 } from "lucide-react";
 import "../Solar.css";
+import "../Dashboard.css";
 
 export default function SolarPV() {
   const navigate = useNavigate();
@@ -58,14 +59,13 @@ export default function SolarPV() {
   ];
 
   return (
-    <div className="pv-container">
+    <div className="pv-container dashboard-page">
       {/* HEADER */}
       <div className="pv-header">
-        <button onClick={() => navigate("/")} className="back-button">
+        <button onClick={() => navigate("/dashboard")} className="back-button">
           <ArrowLeft size={20} />
-          Retour
+          Retour au dashboard
         </button>
-
         <div className="pv-title">
           <Sun size={32} />
           <div>
@@ -76,33 +76,30 @@ export default function SolarPV() {
       </div>
 
       {/* SECTION STRATÉGIQUE */}
-      <div className="pv-strategy">
-        <h2>🎯 Pourquoi investir ?</h2>
+      <section className="dashboard-section">
+        <h2 className="section-title">Pourquoi investir ?</h2>
         <div className="pv-grid-3">
           <div className="pv-card">
             <TrendingUp size={24} />
             <h3>Réduction des coûts</h3>
             <p>Diminuez votre facture jusqu'à 40–60%</p>
           </div>
-
           <div className="pv-card">
             <Shield size={24} />
             <h3>Sécurisation long terme</h3>
             <p>Tarif garanti 20 ans pour le surplus</p>
           </div>
-
           <div className="pv-card">
             <Building size={24} />
             <h3>Valorisation PME</h3>
             <p>Améliorez votre image RSE et vos appels d'offres</p>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* SIMULATEUR */}
-      <div className="pv-simulator">
-        <h2><Calculator size={22}/> Simulation rapide</h2>
-
+      <section className="dashboard-section">
+        <h2 className="section-title"><Calculator size={22}/> Simulation rapide</h2>
         <div className="sim-inputs">
           <div>
             <label>Puissance installée (kWc)</label>
@@ -114,7 +111,6 @@ export default function SolarPV() {
               step="1"
             />
           </div>
-
           <div>
             <label>Consommation annuelle (kWh)</label>
             <input
@@ -126,31 +122,28 @@ export default function SolarPV() {
             />
           </div>
         </div>
-
         <div className="sim-results">
           <div className="result-card">
             <BarChart3 size={20} />
             <p>Production estimée</p>
             <h3>{production.toLocaleString('fr-FR')} kWh/an</h3>
           </div>
-
           <div className="result-card">
             <DollarSign size={20} />
             <p>Gain annuel estimé</p>
             <h3>{annualSavings.toLocaleString('fr-FR')} €</h3>
           </div>
-
           <div className="result-card">
             <TrendingUp size={20} />
             <p>ROI estimé</p>
             <h3>{roi} ans</h3>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* AIDES */}
-      <div className="pv-aides">
-        <h2>💰 Aides disponibles 2026</h2>
+      <section className="dashboard-section">
+        <h2 className="section-title">Aides disponibles 2026</h2>
         <div className="pv-grid-3">
           {aides.map((aide, index) => (
             <div key={index} className="pv-card">
@@ -160,7 +153,7 @@ export default function SolarPV() {
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* CTA */}
       <div className="pv-cta">
@@ -170,7 +163,6 @@ export default function SolarPV() {
           Créer mon plan solaire
         </button>
       </div>
-
     </div>
   );
 }

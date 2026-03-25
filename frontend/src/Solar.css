@@ -1,4 +1,4 @@
-/* ===== VARIABLES GLOBALES ===== */
+/* ===== VARIABLES SOLAR (couleurs technologie uniquement) ===== */
 :root {
   /* Solaire PV - Jaune/Orange */
   --pv-primary: #f59e0b;
@@ -6,7 +6,7 @@
   --pv-primary-dark: #d97706;
   --pv-gradient: linear-gradient(135deg, #f59e0b, #f97316);
   --pv-bg-light: #fffbeb;
-  
+
   /* Solaire Thermique - Orange/Rouge */
   --thermal-primary: #e67e22;
   --thermal-primary-light: #f39c12;
@@ -14,44 +14,22 @@
   --thermal-red: #e74c3c;
   --thermal-gradient: linear-gradient(135deg, #e67e22, #f39c12);
   --thermal-bg-light: #fff9f0;
-  
-  /* Géothermie - Vert/Turquoise */
+
+  /* Géothermie - Vert */
   --geo-primary: #2c7a4d;
   --geo-primary-light: #3b9b62;
   --geo-primary-dark: #1f5a3a;
   --geo-gradient: linear-gradient(135deg, #2c7a4d, #3b9b62);
   --geo-bg-light: #f0f7f3;
   --geo-accent: #10b981;
-  
-  /* Couleurs neutres */
-  --bg-primary: #f8fafc;
-  --bg-secondary: #f1f5f9;
-  --text-primary: #1e293b;
-  --text-secondary: #64748b;
-  --text-tertiary: #94a3b8;
-  --border-light: #e2e8f0;
-  --border-medium: #cbd5e1;
-  --white: #ffffff;
-  --black: #0f172a;
-  
-  /* Ombres */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
-  --shadow-xl: 0 12px 32px rgba(0, 0, 0, 0.15);
-  
-  /* Bordures */
-  --border-radius-sm: 8px;
-  --border-radius-md: 12px;
-  --border-radius-lg: 16px;
-  --border-radius-xl: 24px;
-  --border-radius-full: 9999px;
-  
-  /* Transitions */
-  --transition-fast: 0.2s ease;
-  --transition-base: 0.3s ease;
-  --transition-slow: 0.4s ease;
-  
+
+  /* Neutres — alignés sur App.css */
+  --solar-white: #ffffff;
+  --solar-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+  --solar-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06);
+  --solar-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.1);
+  --solar-shadow-xl: 0 12px 32px rgba(0, 0, 0, 0.15);
+
   /* Espacements */
   --space-xs: 4px;
   --space-sm: 8px;
@@ -60,19 +38,18 @@
   --space-xl: 32px;
   --space-2xl: 40px;
   --space-3xl: 48px;
+
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-base: 0.3s ease;
+  --transition-slow: 0.4s ease;
 }
 
-/* ===== RESET & BASE ===== */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
-  color: var(--text-primary);
+/* Reset & base scoped aux containers Solar uniquement */
+.pv-container,
+.thermal-container,
+.geo-container {
+  font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   line-height: 1.5;
 }
 
@@ -162,23 +139,23 @@ body {
   display: inline-flex;
   align-items: center;
   gap: var(--space-sm);
-  background: var(--white);
-  border: 1px solid var(--border-light);
-  border-radius: var(--border-radius-full);
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 9999px;
   padding: var(--space-sm) var(--space-lg);
   font-size: 0.95rem;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: #6b7280;
   cursor: pointer;
   transition: all var(--transition-fast);
   margin-bottom: var(--space-lg);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--solar-shadow-sm);
 }
 
 .back-button:hover {
-  background: var(--bg-secondary);
+  background: var(--bg-color);
   transform: translateX(-4px);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--solar-shadow-md);
 }
 
 .pv-container .back-button:hover {
@@ -203,9 +180,9 @@ body {
   align-items: center;
   gap: var(--space-xl);
   padding: var(--space-2xl) var(--space-3xl);
-  border-radius: var(--border-radius-lg);
-  color: var(--white);
-  box-shadow: var(--shadow-xl);
+  border-radius: 12px;
+  color: #ffffff;
+  box-shadow: var(--solar-shadow-xl);
   transition: transform var(--transition-base);
 }
 
@@ -258,11 +235,11 @@ body {
   display: flex;
   align-items: center;
   gap: var(--space-lg);
-  background: var(--white);
-  border-radius: var(--border-radius-full);
+  background: #ffffff;
+  border-radius: 9999px;
   padding: var(--space-lg) var(--space-2xl);
   margin-bottom: var(--space-2xl);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--solar-shadow-lg);
   animation: slideInLeft var(--transition-base) forwards;
 }
 
@@ -276,11 +253,11 @@ body {
 
 .type-select {
   padding: var(--space-sm) var(--space-xl);
-  border-radius: var(--border-radius-full);
-  border: 2px solid var(--border-light);
-  background: var(--white);
+  border-radius: 9999px;
+  border: 2px solid var(--border-color);
+  background: #ffffff;
   font-weight: 500;
-  color: var(--text-primary);
+  color: var(--text-color);
   cursor: pointer;
   transition: all var(--transition-fast);
   flex: 1;
@@ -321,28 +298,28 @@ body {
   animation: scaleIn var(--transition-base) forwards;
 }
 
-h2 {
+h2:not(.section-title) {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
   font-size: 1.8rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-color);
   margin-bottom: var(--space-xl);
   padding-bottom: var(--space-sm);
   border-bottom: 3px solid;
   transition: border-color var(--transition-fast);
 }
 
-.pv-container h2 {
+.pv-container h2:not(.section-title) {
   border-color: var(--pv-primary-light);
 }
 
-.thermal-container h2 {
+.thermal-container h2:not(.section-title) {
   border-color: var(--thermal-primary-light);
 }
 
-.geo-container h2 {
+.geo-container h2:not(.section-title) {
   border-color: var(--geo-primary-light);
 }
 
@@ -362,10 +339,10 @@ h2 {
 .thermal-card,
 .geo-card,
 .result-card {
-  background: var(--white);
-  border-radius: var(--border-radius-lg);
+  background: #ffffff;
+  border-radius: 12px;
   padding: var(--space-xl);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--solar-shadow-md);
   transition: all var(--transition-base);
   border: 1px solid transparent;
   position: relative;
@@ -410,8 +387,8 @@ h2 {
 .geo-card:hover,
 .result-card:hover {
   transform: translateY(-6px);
-  box-shadow: var(--shadow-xl);
-  border-color: var(--border-light);
+  box-shadow: var(--solar-shadow-xl);
+  border-color: var(--border-color);
 }
 
 .pv-card svg,
@@ -446,14 +423,14 @@ h2 {
   font-size: 1.3rem;
   font-weight: 600;
   margin: 0 0 var(--space-sm) 0;
-  color: var(--text-primary);
+  color: var(--text-color);
 }
 
 .pv-card p,
 .thermal-card p,
 .geo-card p,
 .result-card p {
-  color: var(--text-secondary);
+  color: #6b7280;
   line-height: 1.6;
   margin: 0;
   font-size: 0.95rem;
@@ -464,8 +441,8 @@ h2 {
 .thermal-simulator,
 .geo-simulator {
   padding: var(--space-2xl);
-  border-radius: var(--border-radius-xl);
-  box-shadow: var(--shadow-lg);
+  border-radius: 16px;
+  box-shadow: var(--solar-shadow-lg);
   position: relative;
   overflow: hidden;
 }
@@ -539,10 +516,10 @@ h2 {
 .sim-inputs input {
   padding: var(--space-md) var(--space-lg);
   border: 2px solid;
-  border-radius: var(--border-radius-md);
+  border-radius: 12px;
   font-size: 1rem;
   transition: all var(--transition-fast);
-  background: var(--white);
+  background: #ffffff;
 }
 
 .pv-simulator .sim-inputs input {
@@ -579,7 +556,7 @@ h2 {
 
 .sim-inputs small {
   font-size: 0.75rem;
-  color: var(--text-tertiary);
+  color: #9ca3af;
   margin-top: -4px;
 }
 
@@ -627,29 +604,29 @@ h2 {
   font-size: 1.8rem;
   font-weight: 700;
   margin: var(--space-xs) 0 0 0;
-  color: var(--text-primary);
+  color: var(--text-color);
 }
 
 .result-card.highlight {
   background: linear-gradient(135deg, var(--geo-primary), var(--geo-primary-light));
-  color: var(--white);
-  border-left-color: var(--white);
+  color: #ffffff;
+  border-left-color: #ffffff;
 }
 
 .result-card.highlight p,
 .result-card.highlight h3,
 .result-card.highlight svg {
-  color: var(--white);
+  color: #ffffff;
 }
 
 /* Détails investissement */
 .investment-details {
-  background: var(--white);
-  border-radius: var(--border-radius-lg);
+  background: #ffffff;
+  border-radius: 12px;
   padding: var(--space-xl);
   margin-top: var(--space-lg);
   border: 2px dashed;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--solar-shadow-md);
 }
 
 .pv-container .investment-details {
@@ -668,7 +645,7 @@ h2 {
   display: flex;
   justify-content: space-between;
   padding: var(--space-sm) 0;
-  border-bottom: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-color);
   font-size: 1rem;
 }
 
@@ -679,10 +656,10 @@ h2 {
 .detail-item.total {
   font-size: 1.2rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--text-color);
   margin-top: var(--space-sm);
   padding-top: var(--space-md);
-  border-top: 2px solid var(--border-medium);
+  border-top: 2px solid var(--border-color);
 }
 
 .positive {
@@ -692,10 +669,10 @@ h2 {
 
 /* ===== AVANTAGES ===== */
 .advantages-grid {
-  background: var(--white);
+  background: #ffffff;
   padding: var(--space-2xl);
-  border-radius: var(--border-radius-xl);
-  box-shadow: var(--shadow-lg);
+  border-radius: 16px;
+  box-shadow: var(--solar-shadow-lg);
 }
 
 .advantage-item {
@@ -711,7 +688,7 @@ h2 {
 }
 
 .advantage-item span {
-  color: var(--text-primary);
+  color: var(--text-color);
   font-weight: 500;
   font-size: 1rem;
 }
@@ -729,9 +706,9 @@ h2 {
   align-items: center;
   gap: var(--space-xl);
   padding: var(--space-2xl) var(--space-3xl);
-  border-radius: var(--border-radius-xl);
-  color: var(--white);
-  box-shadow: var(--shadow-xl);
+  border-radius: 16px;
+  color: #ffffff;
+  box-shadow: var(--solar-shadow-xl);
   transition: transform var(--transition-base);
   position: relative;
   overflow: hidden;
@@ -757,7 +734,7 @@ h2 {
 .thermal-cta:hover,
 .geo-cta:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-xl), 0 12px 40px rgba(0,0,0,0.2);
+  box-shadow: var(--solar-shadow-xl), 0 12px 40px rgba(0,0,0,0.2);
 }
 
 .pv-cta::after,
@@ -811,10 +788,10 @@ h2 {
 .pv-cta button {
   margin-left: auto;
   padding: var(--space-md) var(--space-2xl);
-  border-radius: var(--border-radius-full);
+  border-radius: 9999px;
   border: none;
   background: var(--pv-gradient);
-  color: var(--white);
+  color: #ffffff;
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
@@ -826,10 +803,10 @@ h2 {
 
 .thermal-cta button {
   padding: var(--space-lg) var(--space-3xl);
-  border-radius: var(--border-radius-full);
+  border-radius: 9999px;
   border: none;
   background: var(--thermal-gradient);
-  color: var(--white);
+  color: #ffffff;
   font-weight: 600;
   font-size: 1.2rem;
   cursor: pointer;
@@ -840,10 +817,10 @@ h2 {
 
 .geo-cta button {
   padding: var(--space-lg) var(--space-3xl);
-  border-radius: var(--border-radius-full);
+  border-radius: 9999px;
   border: none;
   background: var(--geo-gradient);
-  color: var(--white);
+  color: #ffffff;
   font-weight: 600;
   font-size: 1.2rem;
   cursor: pointer;
@@ -973,7 +950,7 @@ h2 {
   .geo-type-badge {
     flex-direction: column;
     align-items: flex-start;
-    border-radius: var(--border-radius-lg);
+    border-radius: 12px;
     padding: var(--space-lg);
   }
 

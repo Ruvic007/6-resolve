@@ -43,6 +43,9 @@ ALLOWED_ORIGINS = [
     "http://localhost:5173",   # Vite dev (port par défaut)
     "http://localhost:5174",   # Vite dev (port alternatif si 5173 occupé)
     "http://localhost:3000",   # Create React App (si utilisé)
+    "https://6ix-resolve-frontend-6dtbf3cky-andyessomba-s-projects.vercel.app",
+    "https://6ix-resolve-frontend.vercel.app"
+    
 ]
 
 # Ajout de l'URL de production si définie dans l'environnement

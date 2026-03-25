@@ -17,6 +17,7 @@ import {
   Factory
 } from "lucide-react";
 import "../Solar.css";
+import "../Dashboard.css";
 
 export default function SolarThermal() {
   const navigate = useNavigate();
@@ -88,14 +89,13 @@ export default function SolarThermal() {
   ];
 
   return (
-    <div className="thermal-container">
+    <div className="thermal-container dashboard-page">
       {/* HEADER */}
       <div className="thermal-header">
-        <button onClick={() => navigate("/")} className="back-button">
+        <button onClick={() => navigate("/dashboard")} className="back-button">
           <ArrowLeft size={20} />
-          Retour
+          Retour au dashboard
         </button>
-
         <div className="thermal-title">
           <Sun size={32} />
           <div>
@@ -109,8 +109,8 @@ export default function SolarThermal() {
       <div className="thermal-type-badge">
         <Thermometer size={20} />
         <span>Installation : </span>
-        <select 
-          value={typeInstallation} 
+        <select
+          value={typeInstallation}
           onChange={(e) => setTypeInstallation(e.target.value)}
           className="type-select"
         >
@@ -120,8 +120,8 @@ export default function SolarThermal() {
       </div>
 
       {/* SECTION APPLICATIONS */}
-      <div className="thermal-applications">
-        <h2>🎯 Applications pour PME</h2>
+      <section className="dashboard-section">
+        <h2 className="section-title">Applications pour PME</h2>
         <div className="thermal-grid-3">
           {applications.map((app, index) => (
             <div key={index} className="thermal-card">
@@ -131,12 +131,11 @@ export default function SolarThermal() {
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* SIMULATEUR */}
-      <div className="thermal-simulator">
-        <h2><Calculator size={22}/> Simulation rapide</h2>
-
+      <section className="dashboard-section">
+        <h2 className="section-title"><Calculator size={22}/> Simulation rapide</h2>
         <div className="sim-inputs">
           <div>
             <label>Surface de capteurs (m²)</label>
@@ -148,7 +147,6 @@ export default function SolarThermal() {
               step="5"
             />
           </div>
-
           <div>
             <label>Besoins thermiques annuels (kWh)</label>
             <input
@@ -160,33 +158,28 @@ export default function SolarThermal() {
             />
           </div>
         </div>
-
         <div className="sim-results">
           <div className="result-card">
             <BarChart3 size={20} />
             <p>Production estimée</p>
             <h3>{productionTotale.toLocaleString('fr-FR')} kWh/an</h3>
           </div>
-
           <div className="result-card">
             <DollarSign size={20} />
             <p>Économies annuelles</p>
             <h3>{economiesAnnuelles.toLocaleString('fr-FR')} €</h3>
           </div>
-
           <div className="result-card">
             <Thermometer size={20} />
             <p>Taux de couverture</p>
             <h3>{(tauxCouverture * 100).toFixed(0)}%</h3>
           </div>
-
           <div className="result-card highlight">
             <TrendingUp size={20} />
             <p>ROI après subventions</p>
             <h3>{roi} ans</h3>
           </div>
         </div>
-
         <div className="investment-details">
           <div className="detail-item">
             <span>Investissement brut :</span>
@@ -201,11 +194,11 @@ export default function SolarThermal() {
             <strong>{resteACharge.toLocaleString('fr-FR')} €</strong>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* AIDES */}
-      <div className="thermal-aides">
-        <h2>💰 Aides disponibles 2026</h2>
+      <section className="dashboard-section">
+        <h2 className="section-title">Aides disponibles 2026</h2>
         <div className="thermal-grid-3">
           {aides.map((aide, index) => (
             <div key={index} className="thermal-card">
@@ -215,11 +208,11 @@ export default function SolarThermal() {
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* AVANTAGES TECHNIQUES */}
-      <div className="thermal-advantages">
-        <h2>✨ Points forts du solaire thermique</h2>
+      <section className="dashboard-section">
+        <h2 className="section-title">Points forts du solaire thermique</h2>
         <div className="advantages-grid">
           <div className="advantage-item">
             <CheckCircle size={18} color="#e67e22" />
@@ -238,7 +231,7 @@ export default function SolarThermal() {
             <span>Idéal pour sites avec consommation constante</span>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* CTA */}
       <div className="thermal-cta">
@@ -248,7 +241,6 @@ export default function SolarThermal() {
           Étudier mon projet thermique
         </button>
       </div>
-
     </div>
   );
 }

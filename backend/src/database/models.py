@@ -38,7 +38,7 @@ class Energy(Base):
     company_id = Column(BigInteger, ForeignKey("companies.id"))
 
 class AuditReport(Base):
-    __tablename__ = "AuditReports"
+    __tablename__ = "auditreports"
 
     id = Column(BigInteger, ForeignKey("companies.id"), primary_key=True)
     created_at = Column(DateTime, server_default=func.now())

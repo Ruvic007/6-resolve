@@ -189,7 +189,7 @@ export default function StepCompany({ onNext, defaultValues, isFirstStep }) {
               min: { value: 50, message: "Min 50m²" },
               max: { value: 5000, message: "Max 5000m²" }
             })}
-            type="number" step="0.1"
+            type="number"
             placeholder="500"
           />
           <small>Surface totale intérieure de vos locaux</small>
@@ -203,7 +203,7 @@ export default function StepCompany({ onNext, defaultValues, isFirstStep }) {
                 valueAsNumber: true,
                 min: { value: 0, message: "Min 0m²" }
               })}
-              type="number" step="1"
+              type="number"
               placeholder="300"
             />
             <small>Utilisée pour calculer votre potentiel solaire PV et thermique</small>

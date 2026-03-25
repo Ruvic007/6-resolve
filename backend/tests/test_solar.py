@@ -9,8 +9,10 @@ def test_determiner_region():
 def test_estimer_production():
     sim = SolarSimulation()
     # Puissance 10kW dans le sud (facteur 1150)
-    production = sim.estimer_production_annuelle("31000", 10.0)
-    assert production == 11500.0
+    production_ouest = sim.estimer_production_annuelle("31000", 10.0)
+    assert production_ouest == 10000.0
+    production_sud = sim.estimer_production_annuelle("26000", 10.0)
+    assert production_sud == 11500.0
 
 def test_calculer_roi_non_rentable():
     sim = SolarSimulation()

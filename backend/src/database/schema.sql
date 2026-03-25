@@ -17,7 +17,7 @@ CREATE TABLE public.companies (
   CONSTRAINT companies_pkey PRIMARY KEY (id)
 );
 CREATE TABLE public.AuditReports (
-  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  id bigint NOT NULL,
   created_at timestamp without time zone DEFAULT now(),
   energy_score real,
   recommendations text,
@@ -46,17 +46,17 @@ CREATE TABLE public.energy (
   CONSTRAINT energyusage_company_id_fkey FOREIGN KEY (company_id) REFERENCES public.companies(id)
 );
 CREATE TABLE public.simulations_pv (
-  id integer NOT NULL DEFAULT nextval('simulations_pv_id_seq'::regclass),
+  id integer GENERATED ALWAYS AS IDENTITY NOT NULL,
   company_id integer,
-  puissance_installee_kw numeric NOT NULL,
-  surface_panneaux_m2 numeric NOT NULL,
-  taux_autoconsommation numeric DEFAULT 0.70,
-  tarif_rachat_kwh numeric DEFAULT 0.10,
-  prix_installation_ht numeric NOT NULL,
-  production_annuelle_estimee_kwh numeric,
-  economies_annuelles_estimees numeric,
-  reduction_co2_annuelle_kg numeric,
-  roi_annees numeric,
+  puissance_installee_kw real NOT NULL,
+  surface_panneaux_m2 real NOT NULL,
+  taux_autoconsommation real,
+  tarif_rachat_kwh real,
+  prix_installation_ht real NOT NULL,
+  production_annuelle_estimee_kwh real,
+  economies_annuelles_estimees real,
+  reduction_co2_annuelle_kg real,
+  roi_annees real,
   created_at timestamp without time zone DEFAULT now(),
   CONSTRAINT simulations_pv_pkey PRIMARY KEY (id),
   CONSTRAINT simulations_pv_company_id_fkey FOREIGN KEY (company_id) REFERENCES public.companies(id)

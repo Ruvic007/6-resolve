@@ -11,16 +11,13 @@ CREATE TABLE public.companies (
   annee_construction smallint,
   surface_locaux real,
   surface_toit real,
-  horaire_ouverture text,
-  type_facture character varying,
-  utilisation_energie_renouvelable boolean,
-  type_energie_renouvelable character varying,
-  monitoring_consommation boolean,
+  heures_par_jour real,
   user_id text,
+  jours_semaine smallint,
   CONSTRAINT companies_pkey PRIMARY KEY (id)
 );
 CREATE TABLE public.AuditReports (
-  id bigint NOT NULL,
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
   created_at timestamp without time zone DEFAULT now(),
   energy_score real,
   recommendations text,
@@ -30,27 +27,22 @@ CREATE TABLE public.AuditReports (
   CONSTRAINT AuditReports_pkey PRIMARY KEY (id),
   CONSTRAINT AuditReports_id_fkey FOREIGN KEY (id) REFERENCES public.companies(id)
 );
-CREATE TABLE public.energytypes (
-  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
-  type_chauffage character varying NOT NULL,
-  type_eclairage character varying,
-  niveau_isolation character varying,
-  ventilation character varying,
-  autres text,
-  company_id bigint,
-  CONSTRAINT energytypes_pkey PRIMARY KEY (id),
-  CONSTRAINT energytypes_company_id_fkey FOREIGN KEY (company_id) REFERENCES public.companies(id)
-);
-CREATE TABLE public.energyusage (
+CREATE TABLE public.energy (
   id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   annee smallint,
-  conso_electricite_kwh real,
-  conso_gaz_kwh real,
-  cout_energie_euros real,
-  emission_co2_kg real,
+  conso_elec real,
+  conso_gaz real,
+  cout_gaz real,
+  cout_elec real,
   company_id bigint,
-  CONSTRAINT energyusage_pkey PRIMARY KEY (id),
+  pourcentage_renouvelable real,
+  type_facture character varying,
+  type_chauffage character varying,
+  type_eclairage character varying,
+  niveau_isolation character varying,
+  emission_co2_kg real,
+  CONSTRAINT energy_pkey PRIMARY KEY (id),
   CONSTRAINT energyusage_company_id_fkey FOREIGN KEY (company_id) REFERENCES public.companies(id)
 );
 CREATE TABLE public.simulations_pv (

@@ -1,11 +1,11 @@
 /* ===== VARIABLES GLOBALES ===== */
 :root {
-  /* Géothermie - Vert */
-  --geo-primary: #2c7a4d;
-  --geo-primary-light: #3b9b62;
-  --geo-primary-dark: #1f5a3a;
-  --geo-gradient: linear-gradient(135deg, #2c7a4d, #3b9b62);
-  --geo-bg-light: #f0f7f3;
+  /* Solaire PV - Jaune/Orange */
+  --pv-primary: #f59e0b;
+  --pv-primary-light: #fbbf24;
+  --pv-primary-dark: #d97706;
+  --pv-gradient: linear-gradient(135deg, #f59e0b, #f97316);
+  --pv-bg-light: #fffbeb;
   
   /* Couleurs neutres */
   --bg-primary: #ffffff;
@@ -95,7 +95,7 @@ body {
 }
 
 /* ===== CONTAINER PRINCIPAL ===== */
-.geo-container {
+.pv-container {
   max-width: 1600px;
   margin: 0 auto;
   padding: var(--space-lg) var(--space-xl);
@@ -105,7 +105,7 @@ body {
 }
 
 /* ===== HEADER ===== */
-.geo-header {
+.pv-header {
   margin-bottom: var(--space-2xl);
   animation: slideInLeft var(--transition-base) forwards;
 }
@@ -131,11 +131,11 @@ body {
   background: var(--bg-secondary);
   transform: translateX(-4px);
   box-shadow: var(--shadow-md);
-  border-color: var(--geo-primary);
-  color: var(--geo-primary);
+  border-color: var(--pv-primary);
+  color: var(--pv-primary);
 }
 
-.geo-title {
+.pv-title {
   display: flex;
   align-items: center;
   gap: var(--space-xl);
@@ -144,19 +144,19 @@ body {
   color: var(--white);
   box-shadow: var(--shadow-xl);
   transition: transform var(--transition-base);
-  background: linear-gradient(135deg, var(--geo-primary), var(--geo-primary-dark));
+  background: linear-gradient(135deg, var(--pv-primary), var(--pv-primary-dark));
 }
 
-.geo-title:hover {
+.pv-title:hover {
   transform: translateY(-2px);
 }
 
-.geo-title svg {
+.pv-title svg {
   filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
   animation: pulse 3s infinite;
 }
 
-.geo-title h1 {
+.pv-title h1 {
   font-size: 2.2rem;
   font-weight: 700;
   margin: 0 0 var(--space-xs) 0;
@@ -164,53 +164,18 @@ body {
   line-height: 1.2;
 }
 
-.geo-title p {
+.pv-title p {
   font-size: 1.1rem;
   margin: 0;
   opacity: 0.9;
 }
 
-/* ===== BADGE TYPE D'INSTALLATION ===== */
-.geo-type-badge {
-  display: flex;
-  align-items: center;
-  gap: var(--space-lg);
-  background: var(--white);
-  border-radius: var(--border-radius-full);
-  padding: var(--space-lg) var(--space-2xl);
-  margin-bottom: var(--space-2xl);
-  box-shadow: var(--shadow-lg);
-  animation: slideInLeft var(--transition-base) forwards;
-  border-left: 4px solid var(--geo-primary);
-}
-
-.type-select {
-  padding: var(--space-sm) var(--space-xl);
-  border-radius: var(--border-radius-full);
-  border: 2px solid var(--border-light);
-  background: var(--white);
-  font-weight: 500;
-  color: var(--text-primary);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  flex: 1;
-  max-width: 400px;
-}
-
-.type-select:hover,
-.type-select:focus {
-  outline: none;
-  border-color: var(--geo-primary);
-  box-shadow: 0 0 0 4px rgba(44, 122, 77, 0.15);
-}
-
 /* ===== SECTIONS COMMUNES ===== */
-.geo-strategy,
-.geo-simulator,
-.geo-aides,
-.geo-region-section,
-.geo-recommendations,
-.geo-steps {
+.pv-strategy,
+.pv-aides,
+.pv-region-section,
+.pv-recommendations,
+.pv-steps {
   margin-bottom: var(--space-3xl);
   animation: scaleIn var(--transition-base) forwards;
 }
@@ -224,26 +189,24 @@ h2 {
   color: var(--text-primary);
   margin-bottom: var(--space-xl);
   padding-bottom: var(--space-sm);
-  border-bottom: 3px solid var(--geo-primary-light);
+  border-bottom: 3px solid var(--pv-primary-light);
 }
 
 /* ===== GRILLES ===== */
-.geo-grid-3,
+.pv-grid-3,
 .recommendations-grid,
 .aides-grid,
-.steps-grid,
-.advantages-grid {
+.steps-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: var(--space-lg);
 }
 
 /* ===== CARDS GÉNÉRIQUES ===== */
-.geo-card,
+.pv-card,
 .recommendation-card,
 .aide-card,
-.step-card,
-.advantage-card {
+.step-card {
   background: var(--white);
   border-radius: var(--border-radius-lg);
   padding: var(--space-xl);
@@ -255,72 +218,65 @@ h2 {
   animation: scaleIn var(--transition-base) forwards;
 }
 
-.geo-card::before,
+.pv-card::before,
 .recommendation-card::before,
 .aide-card::before,
-.step-card::before,
-.advantage-card::before {
+.step-card::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 4px;
-  background: var(--geo-gradient);
+  background: var(--pv-gradient);
   transform: scaleX(0);
   transition: transform var(--transition-base);
 }
 
-.geo-card:hover::before,
+.pv-card:hover::before,
 .recommendation-card:hover::before,
 .aide-card:hover::before,
-.step-card:hover::before,
-.advantage-card:hover::before {
+.step-card:hover::before {
   transform: scaleX(1);
 }
 
-.geo-card:hover,
+.pv-card:hover,
 .recommendation-card:hover,
 .aide-card:hover,
-.step-card:hover,
-.advantage-card:hover {
+.step-card:hover {
   transform: translateY(-6px);
   box-shadow: var(--shadow-xl);
-  border-color: var(--geo-primary-light);
+  border-color: var(--pv-primary-light);
 }
 
-.geo-card svg,
+.pv-card svg,
 .recommendation-card svg,
-.aide-card svg,
-.advantage-card svg {
+.aide-card svg {
   margin-bottom: var(--space-lg);
   transition: transform var(--transition-base);
-  color: var(--geo-primary);
+  color: var(--pv-primary);
 }
 
-.geo-card:hover svg,
+.pv-card:hover svg,
 .recommendation-card:hover svg,
-.aide-card:hover svg,
-.advantage-card:hover svg {
+.aide-card:hover svg {
   transform: scale(1.1);
 }
 
-.geo-card h3,
+.pv-card h3,
 .recommendation-card h3,
 .aide-card h3,
-.step-card h3,
-.advantage-card h3 {
+.step-card h3 {
   font-size: 1.3rem;
   font-weight: 600;
   margin: 0 0 var(--space-sm) 0;
   color: var(--text-primary);
 }
 
-.geo-card p,
+.pv-card p,
 .recommendation-card p,
 .aide-card p,
-.step-card p,
-.advantage-card p {
+.step-card p {
   color: var(--text-secondary);
   line-height: 1.6;
   margin: 0;
@@ -336,8 +292,8 @@ h2 {
   border-top: 1px solid var(--border-light);
 }
 
-/* ===== SECTION POTENTIEL GÉOTHERMIQUE ===== */
-.geo-region-section .region-selector {
+/* ===== SECTION ENSOLEILLEMENT ===== */
+.pv-region-section .region-selector {
   margin-bottom: var(--space-lg);
 }
 
@@ -363,13 +319,13 @@ h2 {
 .region-select:hover,
 .region-select:focus {
   outline: none;
-  border-color: var(--geo-primary);
-  box-shadow: 0 0 0 3px rgba(44, 122, 77, 0.1);
+  border-color: var(--pv-primary);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
 }
 
-.geo-card {
+.solar-card {
   background: var(--white);
-  border-left: 4px solid var(--geo-primary);
+  border-left: 4px solid var(--pv-primary);
   border-radius: var(--border-radius-lg);
   padding: var(--space-xl);
   margin-top: var(--space-lg);
@@ -378,7 +334,7 @@ h2 {
   border-left-width: 4px;
 }
 
-.geo-info {
+.solar-info {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: var(--space-xl);
@@ -386,48 +342,48 @@ h2 {
   margin-bottom: var(--space-lg);
 }
 
-.geo-value {
+.solar-value {
   text-align: center;
 }
 
-.cop-value {
+.irradiance-value {
   display: block;
   font-size: 2rem;
   font-weight: 700;
-  color: var(--geo-primary);
+  color: var(--pv-primary);
   margin-top: var(--space-sm);
 }
 
-.cop-label {
+.irradiance-label {
   display: block;
   font-size: 0.8rem;
   color: var(--text-tertiary);
 }
 
-.geo-description p {
+.solar-description p {
   margin: 0;
   font-size: 1rem;
 }
 
-.geo-message {
+.solar-message {
   margin-top: var(--space-sm);
   font-weight: 500;
-  color: var(--geo-primary-dark);
+  color: var(--pv-primary-dark);
 }
 
-.geo-impact {
+.solar-impact {
   padding-top: var(--space-lg);
   border-top: 1px solid var(--border-light);
   font-size: 0.95rem;
 }
 
-.geo-impact strong {
+.solar-impact strong {
   color: var(--text-primary);
   display: block;
   margin-bottom: var(--space-sm);
 }
 
-/* Zones géothermiques */
+/* Zones d'ensoleillement */
 .zones-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -448,11 +404,11 @@ h2 {
 .zone-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-md);
-  border-color: var(--geo-primary-light);
+  border-color: var(--pv-primary-light);
 }
 
 .zone-card.active {
-  border-color: var(--geo-primary);
+  border-color: var(--pv-primary);
   box-shadow: var(--shadow-lg);
   transform: translateY(-2px);
 }
@@ -479,7 +435,7 @@ h2 {
 .zone-production {
   font-size: 1.1rem;
   font-weight: 600;
-  color: var(--geo-primary);
+  color: var(--pv-primary);
   margin: var(--space-xs) 0;
 }
 
@@ -505,7 +461,7 @@ h2 {
 }
 
 /* ===== CARTE CONTEXTE DASHBOARD ===== */
-.geo-context-card {
+.pv-context-card {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: var(--border-radius-lg);
   padding: var(--space-xl);
@@ -515,7 +471,7 @@ h2 {
   animation: fadeIn var(--transition-base) forwards;
 }
 
-.geo-context-card h3 {
+.pv-context-card h3 {
   margin: 0 0 var(--space-md) 0;
   font-size: 1.1rem;
   font-weight: 500;
@@ -543,181 +499,6 @@ h2 {
   font-weight: bold;
 }
 
-/* ===== SIMULATEUR ===== */
-.geo-simulator {
-  background: linear-gradient(135deg, var(--geo-bg-light), #e6f0ea);
-  border: 1px solid #c6e0d4;
-  padding: var(--space-2xl);
-  border-radius: var(--border-radius-xl);
-  box-shadow: var(--shadow-lg);
-}
-
-.geo-simulator h2 {
-  border-bottom: none;
-  margin-bottom: var(--space-xl);
-  color: var(--geo-primary-dark);
-}
-
-.sim-info {
-  background: rgba(255, 255, 255, 0.9);
-  padding: var(--space-sm) var(--space-lg);
-  border-radius: var(--border-radius-sm);
-  margin-bottom: var(--space-xl);
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  border-left: 4px solid var(--geo-primary);
-  backdrop-filter: blur(10px);
-}
-
-.sim-inputs {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--space-xl);
-  margin-bottom: var(--space-2xl);
-}
-
-.sim-inputs div {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-}
-
-.sim-inputs label {
-  font-weight: 600;
-  font-size: 0.95rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--geo-primary-dark);
-}
-
-.sim-inputs input {
-  padding: var(--space-md) var(--space-lg);
-  border: 2px solid #c6e0d4;
-  border-radius: var(--border-radius-md);
-  font-size: 1rem;
-  transition: all var(--transition-fast);
-  background: var(--white);
-}
-
-.sim-inputs input:focus {
-  outline: none;
-  transform: translateY(-2px);
-  border-color: var(--geo-primary);
-  box-shadow: 0 0 0 4px rgba(44, 122, 77, 0.15);
-}
-
-.input-hint {
-  display: block;
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-  margin-top: var(--space-xs);
-}
-
-.readonly-input {
-  background-color: var(--bg-secondary);
-  cursor: not-allowed;
-  opacity: 0.8;
-}
-
-/* Résultats simulateur */
-.sim-results {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--space-lg);
-  margin-bottom: var(--space-xl);
-}
-
-.result-card {
-  text-align: center;
-  padding: var(--space-lg);
-  border-left: 4px solid var(--geo-primary);
-  background: var(--white);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-md);
-  transition: all var(--transition-base);
-}
-
-.result-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-}
-
-.result-card svg {
-  margin-bottom: var(--space-sm);
-  transition: transform var(--transition-fast);
-  color: var(--geo-primary);
-}
-
-.result-card:hover svg {
-  transform: scale(1.2);
-}
-
-.result-card h3 {
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin: var(--space-xs) 0 0 0;
-  color: var(--text-primary);
-}
-
-.result-card small {
-  display: block;
-  margin-top: var(--space-sm);
-  font-size: 0.8rem;
-  color: var(--text-tertiary);
-}
-
-.result-card.highlight {
-  background: linear-gradient(135deg, var(--geo-primary), var(--geo-primary-light));
-  color: var(--white);
-  border-left-color: var(--white);
-}
-
-.result-card.highlight p,
-.result-card.highlight h3,
-.result-card.highlight svg {
-  color: var(--white);
-}
-
-.result-card.highlight small {
-  color: rgba(255, 255, 255, 0.8);
-}
-
-/* Détails investissement */
-.investment-details {
-  background: var(--white);
-  border-radius: var(--border-radius-lg);
-  padding: var(--space-xl);
-  margin-top: var(--space-lg);
-  border: 2px dashed var(--geo-primary-light);
-  box-shadow: var(--shadow-md);
-}
-
-.detail-item {
-  display: flex;
-  justify-content: space-between;
-  padding: var(--space-sm) 0;
-  border-bottom: 1px solid var(--border-light);
-  font-size: 1rem;
-}
-
-.detail-item:last-child {
-  border-bottom: none;
-}
-
-.detail-item.total {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-top: var(--space-sm);
-  padding-top: var(--space-md);
-  border-top: 2px solid var(--border-medium);
-}
-
-.positive {
-  color: #059669;
-  font-weight: 600;
-}
-
 /* ===== RECOMMANDATIONS TECHNIQUES ===== */
 .recommendations-grid {
   margin-top: var(--space-lg);
@@ -730,27 +511,6 @@ h2 {
 .recommendation-card svg {
   margin: 0 auto var(--space-lg) auto;
   display: block;
-}
-
-/* ===== AVANTAGES ===== */
-.advantages-grid {
-  margin-top: var(--space-lg);
-}
-
-.advantage-card {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  text-align: left;
-}
-
-.advantage-card svg {
-  margin: 0;
-  flex-shrink: 0;
-}
-
-.advantage-card p {
-  margin: 0;
 }
 
 /* ===== AIDES FINANCIÈRES ===== */
@@ -806,7 +566,7 @@ h2 {
   transform: translateX(-50%);
   width: 40px;
   height: 40px;
-  background: var(--geo-gradient);
+  background: var(--pv-gradient);
   color: white;
   border-radius: 50%;
   display: flex;
@@ -818,14 +578,14 @@ h2 {
 }
 
 /* ===== CTA ===== */
-.geo-cta {
+.pv-cta {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-xl);
   padding: var(--space-2xl) var(--space-3xl);
   border-radius: var(--border-radius-xl);
-  background: linear-gradient(135deg, #1a3a2a, #0f2a1e);
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   color: var(--white);
   box-shadow: var(--shadow-xl);
   transition: transform var(--transition-base);
@@ -834,12 +594,12 @@ h2 {
   animation: fadeIn var(--transition-base) forwards;
 }
 
-.geo-cta:hover {
+.pv-cta:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-xl), 0 12px 40px rgba(0,0,0,0.2);
 }
 
-.geo-cta::after {
+.pv-cta::after {
   content: '';
   position: absolute;
   top: -50%;
@@ -852,47 +612,47 @@ h2 {
   pointer-events: none;
 }
 
-.geo-cta:hover::after {
+.pv-cta:hover::after {
   opacity: 1;
 }
 
-.geo-cta svg {
+.pv-cta svg {
   animation: pulse 3s infinite;
 }
 
-.geo-cta h3 {
+.pv-cta h3 {
   margin: 0;
   font-size: 1.8rem;
   font-weight: 600;
 }
 
-.geo-cta p {
+.pv-cta p {
   margin: var(--space-sm) 0 0;
   font-size: 1rem;
   opacity: 0.9;
 }
 
-.geo-cta button {
+.pv-cta button {
   padding: var(--space-md) var(--space-2xl);
   border-radius: var(--border-radius-full);
   border: none;
-  background: var(--geo-gradient);
+  background: var(--pv-gradient);
   color: var(--white);
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
   transition: all var(--transition-fast);
-  box-shadow: 0 4px 12px rgba(44, 122, 77, 0.3);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
   position: relative;
   overflow: hidden;
 }
 
-.geo-cta button:hover {
+.pv-cta button:hover {
   transform: scale(1.05) translateY(-2px);
-  box-shadow: 0 8px 25px rgba(44, 122, 77, 0.5);
+  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.5);
 }
 
-.geo-cta button::before {
+.pv-cta button::before {
   content: '';
   position: absolute;
   top: 50%;
@@ -905,7 +665,7 @@ h2 {
   transition: width 0.6s, height 0.6s;
 }
 
-.geo-cta button:active::before {
+.pv-cta button:active::before {
   width: 300px;
   height: 300px;
 }
@@ -943,54 +703,42 @@ h2 {
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1024px) {
-  .geo-header {
+  .pv-header {
     text-align: center;
   }
 
-  .geo-title {
+  .pv-title {
     flex-direction: column;
     text-align: center;
     padding: var(--space-xl);
   }
 
-  .geo-cta {
+  .pv-cta {
     flex-direction: column;
     text-align: center;
   }
 
-  .geo-cta button {
+  .pv-cta button {
     width: 100%;
     margin-top: var(--space-lg);
   }
 
-  .geo-info {
+  .solar-info {
     grid-template-columns: 1fr;
     text-align: center;
-  }
-  
-  .geo-type-badge {
-    flex-direction: column;
-    align-items: flex-start;
-    border-radius: var(--border-radius-lg);
-    padding: var(--space-lg);
-  }
-
-  .type-select {
-    max-width: 100%;
-    width: 100%;
   }
 }
 
 @media (max-width: 768px) {
-  .geo-container {
+  .pv-container {
     padding: var(--space-md);
   }
 
-  .geo-title h1 {
+  .pv-title h1 {
     font-size: 1.8rem;
   }
 
-  .geo-title p {
+  .pv-title p {
     font-size: 1rem;
   }
 
@@ -998,19 +746,10 @@ h2 {
     font-size: 1.5rem;
   }
 
-  .sim-inputs {
-    grid-template-columns: 1fr;
-  }
-
-  .sim-results {
-    grid-template-columns: 1fr;
-  }
-
-  .geo-grid-3,
+  .pv-grid-3,
   .recommendations-grid,
   .aides-grid,
-  .steps-grid,
-  .advantages-grid {
+  .steps-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1019,7 +758,7 @@ h2 {
     gap: var(--space-sm);
   }
   
-  .geo-cta h3 {
+  .pv-cta h3 {
     font-size: 1.4rem;
   }
 
@@ -1029,32 +768,15 @@ h2 {
 }
 
 @media (max-width: 480px) {
-  .geo-title h1 {
+  .pv-title h1 {
     font-size: 1.5rem;
   }
 
-  .geo-card,
+  .pv-card,
   .recommendation-card,
   .aide-card,
-  .step-card,
-  .advantage-card,
-  .result-card {
+  .step-card {
     padding: var(--space-lg);
-  }
-
-  .result-card h3 {
-    font-size: 1.5rem;
-  }
-
-  .investment-details {
-    padding: var(--space-md);
-  }
-
-  .detail-item {
-    font-size: 0.9rem;
-    flex-direction: column;
-    gap: var(--space-xs);
-    align-items: flex-start;
   }
   
   .back-button {
@@ -1076,17 +798,17 @@ h2 {
 
 /* ===== IMPRESSION ===== */
 @media print {
-  .geo-container {
+  .pv-container {
     background: white;
     padding: 0;
   }
 
   .back-button,
-  .geo-cta {
+  .pv-cta {
     display: none;
   }
 
-  .geo-card,
+  .pv-card,
   .recommendation-card,
   .aide-card,
   .step-card {

@@ -7,6 +7,7 @@ from src.services.solar_simulation import SolarSimulation
 from src.services.thermal_simulation import ThermalSimulation as ServiceThermal
 from src.services.benchmark import moyenne_conso_m2_secteur
 from src.services.emissions_co2 import calcul_emissions
+from src.services.recommendations import generer_recommandations
 from typing import Dict, Any, Optional
 from pathlib import Path
 import json
@@ -111,7 +112,7 @@ async def traiter_questionnaire_data(data: Dict[str, Any], db: Session, user_id:
             prix_inst = simulation.estimer_cout_installation(p_installee)
             prod_annuelle = simulation.estimer_production_annuelle(str(code_postal), p_installee)
 
-            prix_kwh_reel = max(parse_float(data.get("cout_elec")) or simulation.prix_kwh_entreprise, 0.10)
+            prix_kwh_reel = energy_model.cout_elec /max(parse_float(data.get("conso_elec")) or simulation.prix_kwh_entreprise, 0.10)
 
             economies = simulation.calculer_economies_annuelles(prod_annuelle, 0.7, 0.10, prix_kwh_reel)
             co2_kg = simulation.calculer_reduction_co2(prod_annuelle)
@@ -432,3 +433,46 @@ def _palier_thermique(surface: float) -> str:
 @router.get("/")
 async def root():
     return {"message": "API OK"}
+
+
+@router.get("/recommendations/{company_id}")
+async def get_recommendations(
+    company_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(verify_clerk_token),
+):
+    """
+    Génère des recommandations énergétiques personnalisées pour une entreprise.
+    Les recommandations sont basées sur les données réelles de l'audit.
+    """
+    try:
+        company = db.query(Company).filter(Company.id == company_id).first()
+        if not company:
+            raise HTTPException(status_code=404, detail="Entreprise introuvable")
+        if company.user_id != user_id:
+            raise HTTPException(status_code=403, detail="Accès non autorisé")
+
+        energy = db.query(Energy).filter(Energy.company_id == company_id).first()
+        audit  = db.query(AuditReport).filter(AuditReport.id == company_id).first()
+        sim_pv = db.query(SimulationPV).filter(SimulationPV.company_id == company_id).first()
+        sim_th = db.query(ModelThermal).filter(ModelThermal.company_id == company_id).first()
+
+        recommandations = generer_recommandations(
+            company=model_to_dict(company),
+            energy=model_to_dict(energy),
+            audit=model_to_dict(audit),
+            simulation_pv=model_to_dict(sim_pv) if sim_pv else None,
+            simulation_thermique=model_to_dict(sim_th) if sim_th else None,
+        )
+
+        return {
+            "status": "success",
+            "company_name": company.nom,
+            "data": recommandations,
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        return {"status": "error", "message": str(e)}

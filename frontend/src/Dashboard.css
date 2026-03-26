@@ -88,6 +88,7 @@
   margin: 0 0 1rem 0;
   padding-left: 0.75rem;
   border-left: 3px solid #10b981;
+  border-bottom: none;
 }
 
 /* === CARD === */
@@ -471,11 +472,13 @@
 /* === RECOMMENDATIONS === */
 
 .recommendations-wrapper {
+  width: 100%;
   display: grid;
-  grid-template-columns: 35% 65%; /* gauche plus petite */
-  gap: 32px;
+  grid-template-columns: 35% 62.80%; /* gauche plus petite */
+  gap: 2rem;
   align-items: stretch;
   margin-top: 40px;
+  
 }
 .solutions-buttons {
   display: flex;

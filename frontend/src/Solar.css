@@ -7,25 +7,9 @@
   --pv-gradient: linear-gradient(135deg, #f59e0b, #f97316);
   --pv-bg-light: #fffbeb;
   
-  /* Solaire Thermique - Orange/Rouge */
-  --thermal-primary: #e67e22;
-  --thermal-primary-light: #f39c12;
-  --thermal-primary-dark: #d35400;
-  --thermal-red: #e74c3c;
-  --thermal-gradient: linear-gradient(135deg, #e67e22, #f39c12);
-  --thermal-bg-light: #fff9f0;
-  
-  /* Géothermie - Vert/Turquoise */
-  --geo-primary: #2c7a4d;
-  --geo-primary-light: #3b9b62;
-  --geo-primary-dark: #1f5a3a;
-  --geo-gradient: linear-gradient(135deg, #2c7a4d, #3b9b62);
-  --geo-bg-light: #f0f7f3;
-  --geo-accent: #10b981;
-  
   /* Couleurs neutres */
-  --bg-primary: #f8fafc;
-  --bg-secondary: #f1f5f9;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
   --text-primary: #1e293b;
   --text-secondary: #64748b;
   --text-tertiary: #94a3b8;
@@ -33,6 +17,9 @@
   --border-medium: #cbd5e1;
   --white: #ffffff;
   --black: #0f172a;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
   
   /* Ombres */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -71,109 +58,54 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+  background: var(--white);
   color: var(--text-primary);
   line-height: 1.5;
 }
 
-/* ===== ANIMATIONS GLOBALES ===== */
+/* ===== ANIMATIONS ===== */
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 @keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -1000px 0;
-  }
-  100% {
-    background-position: 1000px 0;
-  }
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
 }
 
 @keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-/* ===== CONTAINERS ===== */
-.pv-container,
-.thermal-container,
-.geo-container {
+/* ===== CONTAINER PRINCIPAL ===== */
+.pv-container {
   max-width: 1600px;
   margin: 0 auto;
   padding: var(--space-lg) var(--space-xl);
   min-height: 100vh;
+  background: var(--white);
   animation: fadeInUp var(--transition-slow) forwards;
 }
 
-/* ===== HEADER COMMUN ===== */
-.pv-header,
-.thermal-header,
-.geo-header {
+/* ===== HEADER ===== */
+.pv-header {
   margin-bottom: var(--space-2xl);
   animation: slideInLeft var(--transition-base) forwards;
 }
@@ -199,26 +131,11 @@ body {
   background: var(--bg-secondary);
   transform: translateX(-4px);
   box-shadow: var(--shadow-md);
-}
-
-.pv-container .back-button:hover {
   border-color: var(--pv-primary);
   color: var(--pv-primary);
 }
 
-.thermal-container .back-button:hover {
-  border-color: var(--thermal-primary);
-  color: var(--thermal-primary);
-}
-
-.geo-container .back-button:hover {
-  border-color: var(--geo-primary);
-  color: var(--geo-primary);
-}
-
-.pv-title,
-.thermal-title,
-.geo-title {
+.pv-title {
   display: flex;
   align-items: center;
   gap: var(--space-xl);
@@ -227,36 +144,19 @@ body {
   color: var(--white);
   box-shadow: var(--shadow-xl);
   transition: transform var(--transition-base);
-}
-
-.pv-title:hover,
-.thermal-title:hover,
-.geo-title:hover {
-  transform: translateY(-2px);
-}
-
-.pv-title {
   background: linear-gradient(135deg, var(--pv-primary), var(--pv-primary-dark));
 }
 
-.thermal-title {
-  background: var(--thermal-gradient);
+.pv-title:hover {
+  transform: translateY(-2px);
 }
 
-.geo-title {
-  background: var(--geo-gradient);
-}
-
-.pv-title svg,
-.thermal-title svg,
-.geo-title svg {
+.pv-title svg {
   filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
   animation: pulse 3s infinite;
 }
 
-.pv-title h1,
-.thermal-title h1,
-.geo-title h1 {
+.pv-title h1 {
   font-size: 2.2rem;
   font-weight: 700;
   margin: 0 0 var(--space-xs) 0;
@@ -264,79 +164,18 @@ body {
   line-height: 1.2;
 }
 
-.pv-title p,
-.thermal-title p,
-.geo-title p {
+.pv-title p {
   font-size: 1.1rem;
   margin: 0;
   opacity: 0.9;
 }
 
-/* ===== BADGES SPÉCIFIQUES ===== */
-.thermal-type-badge,
-.geo-type-badge {
-  display: flex;
-  align-items: center;
-  gap: var(--space-lg);
-  background: var(--white);
-  border-radius: var(--border-radius-full);
-  padding: var(--space-lg) var(--space-2xl);
-  margin-bottom: var(--space-2xl);
-  box-shadow: var(--shadow-lg);
-  animation: slideInLeft var(--transition-base) forwards;
-}
-
-.thermal-type-badge {
-  border-left: 4px solid var(--thermal-primary);
-}
-
-.geo-type-badge {
-  border-left: 4px solid var(--geo-primary);
-}
-
-.type-select {
-  padding: var(--space-sm) var(--space-xl);
-  border-radius: var(--border-radius-full);
-  border: 2px solid var(--border-light);
-  background: var(--white);
-  font-weight: 500;
-  color: var(--text-primary);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  flex: 1;
-  max-width: 400px;
-}
-
-.type-select:hover,
-.type-select:focus {
-  outline: none;
-  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
-}
-
-.thermal-container .type-select:hover,
-.thermal-container .type-select:focus {
-  border-color: var(--thermal-primary);
-  box-shadow: 0 0 0 4px rgba(230, 126, 34, 0.15);
-}
-
-.geo-container .type-select:hover,
-.geo-container .type-select:focus {
-  border-color: var(--geo-primary);
-  box-shadow: 0 0 0 4px rgba(44, 122, 77, 0.15);
-}
-
-/* ===== SECTIONS ===== */
+/* ===== SECTIONS COMMUNES ===== */
 .pv-strategy,
-.pv-simulator,
 .pv-aides,
-.thermal-applications,
-.thermal-simulator,
-.thermal-aides,
-.thermal-advantages,
-.geo-applications,
-.geo-simulator,
-.geo-aides,
-.geo-advantages {
+.pv-region-section,
+.pv-recommendations,
+.pv-steps {
   margin-bottom: var(--space-3xl);
   animation: scaleIn var(--transition-base) forwards;
 }
@@ -350,119 +189,84 @@ h2 {
   color: var(--text-primary);
   margin-bottom: var(--space-xl);
   padding-bottom: var(--space-sm);
-  border-bottom: 3px solid;
-  transition: border-color var(--transition-fast);
-}
-
-.pv-container h2 {
-  border-color: var(--pv-primary-light);
-}
-
-.thermal-container h2 {
-  border-color: var(--thermal-primary-light);
-}
-
-.geo-container h2 {
-  border-color: var(--geo-primary-light);
+  border-bottom: 3px solid var(--pv-primary-light);
 }
 
 /* ===== GRILLES ===== */
 .pv-grid-3,
-.thermal-grid-3,
-.geo-grid-3,
-.sim-results,
-.advantages-grid {
+.recommendations-grid,
+.aides-grid,
+.steps-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: var(--space-lg);
 }
 
-/* ===== CARDS AMÉLIORÉES ===== */
+/* ===== CARDS GÉNÉRIQUES ===== */
 .pv-card,
-.thermal-card,
-.geo-card,
-.result-card {
+.recommendation-card,
+.aide-card,
+.step-card {
   background: var(--white);
   border-radius: var(--border-radius-lg);
   padding: var(--space-xl);
   box-shadow: var(--shadow-md);
   transition: all var(--transition-base);
-  border: 1px solid transparent;
+  border: 1px solid var(--border-light);
   position: relative;
   overflow: hidden;
   animation: scaleIn var(--transition-base) forwards;
-  animation-delay: calc(var(--index, 0) * 0.1s);
 }
 
 .pv-card::before,
-.thermal-card::before,
-.geo-card::before {
+.recommendation-card::before,
+.aide-card::before,
+.step-card::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 4px;
+  background: var(--pv-gradient);
   transform: scaleX(0);
   transition: transform var(--transition-base);
 }
 
-.pv-card::before {
-  background: var(--pv-gradient);
-}
-
-.thermal-card::before {
-  background: var(--thermal-gradient);
-}
-
-.geo-card::before {
-  background: var(--geo-gradient);
-}
-
 .pv-card:hover::before,
-.thermal-card:hover::before,
-.geo-card:hover::before {
+.recommendation-card:hover::before,
+.aide-card:hover::before,
+.step-card:hover::before {
   transform: scaleX(1);
 }
 
 .pv-card:hover,
-.thermal-card:hover,
-.geo-card:hover,
-.result-card:hover {
+.recommendation-card:hover,
+.aide-card:hover,
+.step-card:hover {
   transform: translateY(-6px);
   box-shadow: var(--shadow-xl);
-  border-color: var(--border-light);
+  border-color: var(--pv-primary-light);
 }
 
 .pv-card svg,
-.thermal-card svg,
-.geo-card svg {
+.recommendation-card svg,
+.aide-card svg {
   margin-bottom: var(--space-lg);
   transition: transform var(--transition-base);
-}
-
-.pv-card:hover svg,
-.thermal-card:hover svg,
-.geo-card:hover svg {
-  transform: scale(1.1);
-}
-
-.pv-card svg {
   color: var(--pv-primary);
 }
 
-.thermal-card svg {
-  color: var(--thermal-primary);
-}
-
-.geo-card svg {
-  color: var(--geo-primary);
+.pv-card:hover svg,
+.recommendation-card:hover svg,
+.aide-card:hover svg {
+  transform: scale(1.1);
 }
 
 .pv-card h3,
-.thermal-card h3,
-.geo-card h3,
-.result-card h3 {
+.recommendation-card h3,
+.aide-card h3,
+.step-card h3 {
   font-size: 1.3rem;
   font-weight: 600;
   margin: 0 0 var(--space-sm) 0;
@@ -470,9 +274,9 @@ h2 {
 }
 
 .pv-card p,
-.thermal-card p,
-.geo-card p,
-.result-card p {
+.recommendation-card p,
+.aide-card p,
+.step-card p {
   color: var(--text-secondary);
   line-height: 1.6;
   margin: 0;
@@ -482,329 +286,178 @@ h2 {
 .card-stats {
   margin-top: var(--space-sm);
   font-size: 0.85rem;
-  color: #10b981;
+  color: var(--success);
   font-weight: 500;
   padding-top: var(--space-sm);
   border-top: 1px solid var(--border-light);
 }
 
-/* ===== SIMULATEUR AMÉLIORÉ ===== */
-.pv-simulator,
-.thermal-simulator,
-.geo-simulator {
-  padding: var(--space-2xl);
-  border-radius: var(--border-radius-xl);
-  box-shadow: var(--shadow-lg);
-  position: relative;
-  overflow: hidden;
+/* ===== SECTION ENSOLEILLEMENT ===== */
+.pv-region-section .region-selector {
+  margin-bottom: var(--space-lg);
 }
 
-.pv-simulator {
-  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-  border: 1px solid #fde68a;
-}
-
-.thermal-simulator {
-  background: var(--thermal-bg-light);
-  border: 1px solid #fed7aa;
-}
-
-.geo-simulator {
-  background: var(--geo-bg-light);
-  border: 1px solid #c6e0d4;
-}
-
-.pv-simulator h2,
-.thermal-simulator h2,
-.geo-simulator h2 {
-  border-bottom: none;
-  margin-bottom: var(--space-xl);
-}
-
-.pv-simulator h2 {
-  color: #9a3412;
-}
-
-.thermal-simulator h2 {
-  color: var(--thermal-primary-dark);
-}
-
-.geo-simulator h2 {
-  color: var(--geo-primary-dark);
-}
-
-.sim-info {
-  background: rgba(255, 255, 255, 0.9);
-  padding: var(--space-sm) var(--space-lg);
-  border-radius: var(--border-radius-sm);
-  margin-bottom: var(--space-xl);
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  border-left: 4px solid var(--pv-primary);
-  backdrop-filter: blur(10px);
-}
-
-.sim-inputs {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--space-xl);
-  margin-bottom: var(--space-2xl);
-}
-
-.sim-inputs div {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-}
-
-.sim-inputs label {
+.region-selector label {
+  display: block;
   font-weight: 600;
-  font-size: 0.95rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  margin-bottom: var(--space-sm);
+  color: var(--text-secondary);
 }
 
-.pv-simulator .sim-inputs label {
-  color: #7c2d12;
-}
-
-.thermal-simulator .sim-inputs label {
-  color: var(--thermal-primary-dark);
-}
-
-.geo-simulator .sim-inputs label {
-  color: var(--geo-primary-dark);
-}
-
-.sim-inputs input {
+.region-select {
+  width: 100%;
+  max-width: 400px;
   padding: var(--space-md) var(--space-lg);
-  border: 2px solid;
+  border: 2px solid var(--border-light);
   border-radius: var(--border-radius-md);
   font-size: 1rem;
-  transition: all var(--transition-fast);
   background: var(--white);
+  cursor: pointer;
+  transition: all var(--transition-fast);
 }
 
-.pv-simulator .sim-inputs input {
-  border-color: #fdba74;
-}
-
-.thermal-simulator .sim-inputs input {
-  border-color: #e0e0e0;
-}
-
-.geo-simulator .sim-inputs input {
-  border-color: #c6e0d4;
-}
-
-.sim-inputs input:focus {
+.region-select:hover,
+.region-select:focus {
   outline: none;
-  transform: translateY(-2px);
-}
-
-.pv-simulator .sim-inputs input:focus {
   border-color: var(--pv-primary);
-  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
 }
 
-.thermal-simulator .sim-inputs input:focus {
-  border-color: var(--thermal-primary);
-  box-shadow: 0 0 0 4px rgba(230, 126, 34, 0.15);
-}
-
-.geo-simulator .sim-inputs input:focus {
-  border-color: var(--geo-primary);
-  box-shadow: 0 0 0 4px rgba(44, 122, 77, 0.15);
-}
-
-.input-hint {
-  display: block;
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-  margin-top: var(--space-xs);
-}
-
-.readonly-input {
-  background-color: var(--bg-secondary);
-  cursor: not-allowed;
-  opacity: 0.8;
-}
-
-/* Résultats */
-.sim-results {
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  margin-bottom: var(--space-xl);
-}
-
-.result-card {
-  text-align: center;
-  padding: var(--space-lg);
+.solar-card {
+  background: var(--white);
+  border-left: 4px solid var(--pv-primary);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-xl);
+  margin-top: var(--space-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-light);
   border-left-width: 4px;
-  border-left-style: solid;
-  position: relative;
-  overflow: visible;
 }
 
-.pv-container .result-card {
-  border-left-color: var(--pv-primary);
+.solar-info {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-xl);
+  align-items: center;
+  margin-bottom: var(--space-lg);
 }
 
-.thermal-container .result-card {
-  border-left-color: var(--thermal-primary);
+.solar-value {
+  text-align: center;
 }
 
-.geo-container .result-card {
-  border-left-color: var(--geo-primary);
-}
-
-.result-card::before {
-  display: none;
-}
-
-.result-card svg {
-  margin-bottom: var(--space-sm);
-  transition: transform var(--transition-fast);
-}
-
-.result-card:hover svg {
-  transform: scale(1.2);
-}
-
-.result-card h3 {
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin: var(--space-xs) 0 0 0;
-  color: var(--text-primary);
-}
-
-.result-card small {
+.irradiance-value {
   display: block;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--pv-primary);
   margin-top: var(--space-sm);
+}
+
+.irradiance-label {
+  display: block;
   font-size: 0.8rem;
   color: var(--text-tertiary);
 }
 
-.result-card.highlight {
-  background: linear-gradient(135deg, var(--geo-primary), var(--geo-primary-light));
-  color: var(--white);
-  border-left-color: var(--white);
+.solar-description p {
+  margin: 0;
+  font-size: 1rem;
 }
 
-.result-card.highlight p,
-.result-card.highlight h3,
-.result-card.highlight svg {
-  color: var(--white);
+.solar-message {
+  margin-top: var(--space-sm);
+  font-weight: 500;
+  color: var(--pv-primary-dark);
 }
 
-/* Message personnalisé */
-.personalized-message {
-  margin-top: var(--space-xl);
-  padding: var(--space-lg);
-  background: var(--white);
-  border-radius: var(--border-radius-lg);
-  text-align: center;
-  border: 1px solid var(--border-light);
-  box-shadow: var(--shadow-sm);
-}
-
-.personalized-message p {
-  margin: 0 0 var(--space-md) 0;
+.solar-impact {
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--border-light);
   font-size: 0.95rem;
-  color: var(--text-secondary);
 }
 
-/* Bouton secondaire */
-.btn-secondary {
-  background: transparent;
-  border: 2px solid var(--pv-primary);
-  color: var(--pv-primary);
-  padding: var(--space-sm) var(--space-xl);
-  border-radius: var(--border-radius-full);
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: all var(--transition-base);
+.solar-impact strong {
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: var(--space-sm);
 }
 
-.btn-secondary:hover {
-  background: var(--pv-primary);
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+/* Zones d'ensoleillement */
+.zones-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
 }
 
-/* Détails investissement */
-.investment-details {
+.zone-card {
   background: var(--white);
   border-radius: var(--border-radius-lg);
-  padding: var(--space-xl);
-  margin-top: var(--space-lg);
-  border: 2px dashed;
-  box-shadow: var(--shadow-md);
+  border: 2px solid var(--border-light);
+  padding: var(--space-md);
+  text-align: center;
+  transition: all var(--transition-base);
+  cursor: pointer;
 }
 
-.pv-container .investment-details {
+.zone-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
   border-color: var(--pv-primary-light);
 }
 
-.thermal-container .investment-details {
-  border-color: var(--thermal-primary-light);
-}
-
-.geo-container .investment-details {
-  border-color: var(--geo-primary-light);
-}
-
-.detail-item {
-  display: flex;
-  justify-content: space-between;
-  padding: var(--space-sm) 0;
-  border-bottom: 1px solid var(--border-light);
-  font-size: 1rem;
-}
-
-.detail-item:last-child {
-  border-bottom: none;
-}
-
-.detail-item.total {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-top: var(--space-sm);
-  padding-top: var(--space-md);
-  border-top: 2px solid var(--border-medium);
-}
-
-.positive {
-  color: #059669;
-  font-weight: 600;
-}
-
-/* ===== AVANTAGES ===== */
-.advantages-grid {
-  background: var(--white);
-  padding: var(--space-2xl);
-  border-radius: var(--border-radius-xl);
+.zone-card.active {
+  border-color: var(--pv-primary);
   box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
 }
 
-.advantage-item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  padding: var(--space-sm);
-  transition: transform var(--transition-fast);
+.zone-header {
+  border-radius: var(--border-radius-full);
+  padding: var(--space-xs) var(--space-sm);
+  margin-bottom: var(--space-sm);
+  display: inline-block;
+  width: auto;
 }
 
-.advantage-item:hover {
-  transform: translateX(4px);
+.zone-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--white);
 }
 
-.advantage-item span {
-  color: var(--text-primary);
-  font-weight: 500;
+.zone-card h4 {
+  margin: var(--space-sm) 0;
   font-size: 1rem;
+}
+
+.zone-production {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--pv-primary);
+  margin: var(--space-xs) 0;
+}
+
+.zone-card small {
+  color: var(--text-tertiary);
+  font-size: 0.7rem;
+}
+
+.zone-badge {
+  display: inline-block;
+  margin-top: var(--space-sm);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--border-radius-full);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: white;
+}
+
+.production-reference {
+  margin-top: var(--space-sm);
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
 }
 
 /* ===== CARTE CONTEXTE DASHBOARD ===== */
@@ -846,15 +499,93 @@ h2 {
   font-weight: bold;
 }
 
-/* ===== CTA AMÉLIORÉ ===== */
-.pv-cta,
-.thermal-cta,
-.geo-cta {
+/* ===== RECOMMANDATIONS TECHNIQUES ===== */
+.recommendations-grid {
+  margin-top: var(--space-lg);
+}
+
+.recommendation-card {
+  text-align: center;
+}
+
+.recommendation-card svg {
+  margin: 0 auto var(--space-lg) auto;
+  display: block;
+}
+
+/* ===== AIDES FINANCIÈRES ===== */
+.aides-grid {
+  margin-top: var(--space-lg);
+}
+
+.aide-card {
+  position: relative;
+}
+
+.aide-card.not-eligible {
+  opacity: 0.7;
+}
+
+.aide-card .eligible {
+  color: var(--success);
+}
+
+.aide-card .badge {
+  display: inline-block;
+  margin-top: var(--space-sm);
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--warning);
+  color: white;
+  border-radius: var(--border-radius-full);
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.aide-card small {
+  display: block;
+  margin-top: var(--space-sm);
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
+/* ===== ÉTAPES DU PROJET ===== */
+.steps-grid {
+  margin-top: var(--space-lg);
+}
+
+.step-card {
+  text-align: center;
+  position: relative;
+  padding-top: var(--space-2xl);
+}
+
+.step-number {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+  background: var(--pv-gradient);
+  color: white;
+  border-radius: 50%;
   display: flex;
   align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  box-shadow: var(--shadow-md);
+}
+
+/* ===== CTA ===== */
+.pv-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: var(--space-xl);
   padding: var(--space-2xl) var(--space-3xl);
   border-radius: var(--border-radius-xl);
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   color: var(--white);
   box-shadow: var(--shadow-xl);
   transition: transform var(--transition-base);
@@ -863,32 +594,12 @@ h2 {
   animation: fadeIn var(--transition-base) forwards;
 }
 
-.pv-cta {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-}
-
-.thermal-cta {
-  background: linear-gradient(135deg, #1e2a3a, #2c3e50);
-  text-align: center;
-  flex-direction: column;
-}
-
-.geo-cta {
-  background: linear-gradient(135deg, #1a3a2a, #0f2a1e);
-  text-align: center;
-  flex-direction: column;
-}
-
-.pv-cta:hover,
-.thermal-cta:hover,
-.geo-cta:hover {
+.pv-cta:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-xl), 0 12px 40px rgba(0,0,0,0.2);
 }
 
-.pv-cta::after,
-.thermal-cta::after,
-.geo-cta::after {
+.pv-cta::after {
   content: '';
   position: absolute;
   top: -50%;
@@ -901,41 +612,27 @@ h2 {
   pointer-events: none;
 }
 
-.pv-cta:hover::after,
-.thermal-cta:hover::after,
-.geo-cta:hover::after {
+.pv-cta:hover::after {
   opacity: 1;
 }
 
-.pv-cta svg,
-.thermal-cta svg,
-.geo-cta svg {
+.pv-cta svg {
   animation: pulse 3s infinite;
 }
 
-.thermal-cta svg {
-  color: var(--thermal-primary);
-}
-
-.geo-cta svg {
-  color: var(--geo-accent);
-}
-
-.pv-cta h3,
-.thermal-cta h3,
-.geo-cta h3 {
+.pv-cta h3 {
   margin: 0;
   font-size: 1.8rem;
   font-weight: 600;
 }
 
-.thermal-cta h3,
-.geo-cta h3 {
-  margin-bottom: var(--space-lg);
+.pv-cta p {
+  margin: var(--space-sm) 0 0;
+  font-size: 1rem;
+  opacity: 0.9;
 }
 
 .pv-cta button {
-  margin-left: auto;
   padding: var(--space-md) var(--space-2xl);
   border-radius: var(--border-radius-full);
   border: none;
@@ -950,55 +647,12 @@ h2 {
   overflow: hidden;
 }
 
-.thermal-cta button {
-  padding: var(--space-lg) var(--space-3xl);
-  border-radius: var(--border-radius-full);
-  border: none;
-  background: var(--thermal-gradient);
-  color: var(--white);
-  font-weight: 600;
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: all var(--transition-base);
-  box-shadow: 0 4px 15px rgba(230, 126, 34, 0.4);
-  border: 1px solid rgba(255,255,255,0.2);
-}
-
-.geo-cta button {
-  padding: var(--space-lg) var(--space-3xl);
-  border-radius: var(--border-radius-full);
-  border: none;
-  background: var(--geo-gradient);
-  color: var(--white);
-  font-weight: 600;
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: all var(--transition-base);
-  box-shadow: 0 4px 15px rgba(44, 122, 77, 0.4);
-  border: 1px solid rgba(255,255,255,0.2);
-}
-
-.pv-cta button:hover,
-.thermal-cta button:hover,
-.geo-cta button:hover {
-  transform: scale(1.05) translateY(-2px);
-}
-
 .pv-cta button:hover {
+  transform: scale(1.05) translateY(-2px);
   box-shadow: 0 8px 25px rgba(245, 158, 11, 0.5);
 }
 
-.thermal-cta button:hover {
-  box-shadow: 0 8px 25px rgba(230, 126, 34, 0.5);
-}
-
-.geo-cta button:hover {
-  box-shadow: 0 8px 25px rgba(44, 122, 77, 0.5);
-}
-
-.pv-cta button::before,
-.thermal-cta button::before,
-.geo-cta button::before {
+.pv-cta button::before {
   content: '';
   position: absolute;
   top: 50%;
@@ -1011,14 +665,12 @@ h2 {
   transition: width 0.6s, height 0.6s;
 }
 
-.pv-cta button:active::before,
-.thermal-cta button:active::before,
-.geo-cta button:active::before {
+.pv-cta button:active::before {
   width: 300px;
   height: 300px;
 }
 
-/* ===== LOADING & ERROR STATES ===== */
+/* ===== LOADING & ERROR ===== */
 .dashboard-loading {
   display: flex;
   flex-direction: column;
@@ -1026,53 +678,36 @@ h2 {
   justify-content: center;
   min-height: 400px;
   gap: var(--space-lg);
+  background: var(--white);
 }
 
 .spinner {
   animation: spin 1s linear infinite;
 }
 
-.loading-state,
 .error-state {
   text-align: center;
   padding: var(--space-3xl);
+  background: var(--white);
 }
 
 .error-state svg {
-  color: #ef4444;
+  color: var(--error);
   margin-bottom: var(--space-md);
 }
 
 .error-state h3 {
-  color: #ef4444;
+  color: var(--error);
   margin-bottom: var(--space-sm);
 }
 
-/* ===== RESPONSIVE AMÉLIORÉ ===== */
-@media (max-width: 1200px) {
-  .pv-title h1,
-  .thermal-title h1,
-  .geo-title h1 {
-    font-size: 2rem;
-  }
-  
-  .pv-cta,
-  .thermal-cta,
-  .geo-cta {
-    padding: var(--space-xl);
-  }
-}
-
+/* ===== RESPONSIVE ===== */
 @media (max-width: 1024px) {
-  .pv-header,
-  .thermal-header,
-  .geo-header {
+  .pv-header {
     text-align: center;
   }
 
-  .pv-title,
-  .thermal-title,
-  .geo-title {
+  .pv-title {
     flex-direction: column;
     text-align: center;
     padding: var(--space-xl);
@@ -1084,40 +719,26 @@ h2 {
   }
 
   .pv-cta button {
-    margin-left: 0;
     width: 100%;
     margin-top: var(--space-lg);
   }
-  
-  .thermal-cta h3,
-  .geo-cta h3 {
-    font-size: 1.6rem;
+
+  .solar-info {
+    grid-template-columns: 1fr;
+    text-align: center;
   }
 }
 
 @media (max-width: 768px) {
-  :root {
-    --space-lg: 16px;
-    --space-xl: 24px;
-    --space-2xl: 32px;
-    --space-3xl: 40px;
-  }
-
-  .pv-container,
-  .thermal-container,
-  .geo-container {
+  .pv-container {
     padding: var(--space-md);
   }
 
-  .pv-title h1,
-  .thermal-title h1,
-  .geo-title h1 {
+  .pv-title h1 {
     font-size: 1.8rem;
   }
 
-  .pv-title p,
-  .thermal-title p,
-  .geo-title p {
+  .pv-title p {
     font-size: 1rem;
   }
 
@@ -1125,78 +746,37 @@ h2 {
     font-size: 1.5rem;
   }
 
-  .thermal-type-badge,
-  .geo-type-badge {
-    flex-direction: column;
-    align-items: flex-start;
-    border-radius: var(--border-radius-lg);
-    padding: var(--space-lg);
-  }
-
-  .type-select {
-    max-width: 100%;
-    width: 100%;
-  }
-
-  .sim-inputs {
+  .pv-grid-3,
+  .recommendations-grid,
+  .aides-grid,
+  .steps-grid {
     grid-template-columns: 1fr;
-    gap: var(--space-lg);
-  }
-
-  .sim-results {
-    grid-template-columns: 1fr;
-  }
-
-  .advantages-grid {
-    grid-template-columns: 1fr;
-    padding: var(--space-lg);
-  }
-  
-  .thermal-cta h3,
-  .geo-cta h3 {
-    font-size: 1.4rem;
-  }
-  
-  .thermal-cta button,
-  .geo-cta button {
-    padding: var(--space-md) var(--space-xl);
-    font-size: 1rem;
-    width: 100%;
   }
 
   .context-grid {
     grid-template-columns: 1fr;
     gap: var(--space-sm);
   }
+  
+  .pv-cta h3 {
+    font-size: 1.4rem;
+  }
+
+  .zones-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 480px) {
-  .pv-title h1,
-  .thermal-title h1,
-  .geo-title h1 {
+  .pv-title h1 {
     font-size: 1.5rem;
   }
 
   .pv-card,
-  .thermal-card,
-  .geo-card,
-  .result-card {
+  .recommendation-card,
+  .aide-card,
+  .step-card {
     padding: var(--space-lg);
-  }
-
-  .result-card h3 {
-    font-size: 1.5rem;
-  }
-
-  .investment-details {
-    padding: var(--space-md);
-  }
-
-  .detail-item {
-    font-size: 0.9rem;
-    flex-direction: column;
-    gap: var(--space-xs);
-    align-items: flex-start;
   }
   
   .back-button {
@@ -1213,29 +793,25 @@ h2 {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
   }
 }
 
 /* ===== IMPRESSION ===== */
 @media print {
-  .pv-container,
-  .thermal-container,
-  .geo-container {
+  .pv-container {
     background: white;
     padding: 0;
   }
 
   .back-button,
-  .pv-cta,
-  .thermal-cta,
-  .geo-cta {
+  .pv-cta {
     display: none;
   }
 
   .pv-card,
-  .thermal-card,
-  .geo-card {
+  .recommendation-card,
+  .aide-card,
+  .step-card {
     break-inside: avoid;
     box-shadow: none;
     border: 1px solid #ddd;

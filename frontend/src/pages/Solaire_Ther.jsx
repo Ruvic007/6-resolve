@@ -16,8 +16,8 @@ import {
   Zap,
   Factory
 } from "lucide-react";
-import "../Solar.css";
-import "../Dashboard.css";
+import "../Solar_Therm.css";
+
 
 export default function SolarThermal() {
   const navigate = useNavigate();

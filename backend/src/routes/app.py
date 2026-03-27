@@ -144,7 +144,7 @@ async def traiter_questionnaire_data(data: Dict[str, Any], db: Session, user_id:
             try:
                 type_chauffage_client = data.get("type_chauffage") or "gaz"
                 thermal_service = ServiceThermal()
-                prix_th = max(
+                prix_th = energy_model.cout_gaz/max(
                     parse_float(data.get("cout_gaz")) or parse_float(data.get("cout_elec")) or 0.10,
                     0.10
                 )
